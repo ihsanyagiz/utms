@@ -5,6 +5,7 @@ import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import bcrypt from 'bcryptjs';
+import nodemailer from 'nodemailer';
 import { db } from './db.js';
 import { validateTurkishId, runAutomatedDocChecker, calcRankingScore } from '../src/utils/validators.js';
 
@@ -43,6 +44,55 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
+// Email transporter configuration
+const transporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST || 'smtp.resend.com',
+  port: parseInt(process.env.SMTP_PORT || '2587'),
+  secure: false,
+  auth: {
+    user: process.env.SMTP_USER || 'resend',
+    pass: process.env.SMTP_PASSWORD || '' // Resend API Key
+  }
+});
+
+async function sendVerificationEmail(toEmail) {
+  const smtpPassword = process.env.SMTP_PASSWORD;
+  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+  const verifyUrl = `${frontendUrl}/register/verify?email=${toEmail}`;
+
+  if (!smtpPassword || smtpPassword.trim() === '') {
+    console.log(`[Simüle E-posta] SMTP şifresi eksik. Aktivasyon linki:`);
+    console.log(`Link: ${verifyUrl}`);
+    return { success: true, simulated: true };
+  }
+
+  const fromEmail = process.env.SMTP_FROM || 'noreply@utms.dev';
+  const mailOptions = {
+    from: fromEmail,
+    to: toEmail,
+    subject: 'UTMS Yatay Geçiş Sistemi - E-posta Doğrulama',
+    html: `
+      <h2>Yatay Geçiş Başvuru Sistemine Hoş Geldiniz</h2>
+      <p>Kayıt işleminizi tamamlamak ve hesabınızı aktifleştirmek için lütfen aşağıdaki bağlantıya tıklayınız:</p>
+      <p><a href="${verifyUrl}" style="background-color:#A21B24;color:#ffffff;padding:10px 20px;text-decoration:none;border-radius:4px;display:inline-block;font-weight:bold;">Hesabımı Aktifleştir</a></p>
+      <br/>
+      <p>Bağlantı çalışmıyorsa aşağıdaki linki tarayıcınıza yapıştırabilirsiniz:</p>
+      <p>${verifyUrl}</p>
+      <hr/>
+      <p>İzmir Yüksek Teknoloji Enstitüsü - Öğrenci İşleri Daire Başkanlığı</p>
+    `
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(`[Gerçek E-posta] ${toEmail} adresine aktivasyon e-postası başarıyla gönderildi.`);
+    return { success: true, simulated: false };
+  } catch (err) {
+    console.error(`[E-posta Hatası] Gönderim başarısız:`, err);
+    return { success: false, error: err.message };
+  }
+}
+
 // --- Helper Functions ---
 async function getConfig() {
   const rows = await db.all('SELECT * FROM system_config');
@@ -70,6 +120,11 @@ app.post('/api/auth/login', async (req, res) => {
     const match = await bcrypt.compare(password, user.password);
     if (!match) {
       return res.status(400).json({ error: 'E-posta veya şifre hatalı!' });
+    }
+
+    // V&V Requirement: Check email verification status for applicant
+    if (role === 'applicant' && user.isVerified === 0) {
+      return res.status(400).json({ error: 'Hesabınız doğrulanmamış. Lütfen e-postanıza gönderilen bağlantı ile hesabınızı etkinleştirin!' });
     }
 
     const { password: _, ...userWithoutPassword } = user;
@@ -101,11 +156,37 @@ app.post('/api/auth/register', async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const result = await db.run(
-      'INSERT INTO users (email, password, role, fullName, phone, tcNo, department) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      'INSERT INTO users (email, password, role, fullName, phone, tcNo, department, isVerified) VALUES (?, ?, ?, ?, ?, ?, ?, 0)',
       [email, hashedPassword, 'applicant', fullName, phone, tcNo, null]
     );
 
+    // Send verification email
+    await sendVerificationEmail(email);
+
     res.json({ success: true, userId: result.lastID });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Verification Link Router (supports GET and POST)
+app.get('/api/auth/verify-email', async (req, res) => {
+  const { email } = req.query;
+  try {
+    await db.run('UPDATE users SET isVerified = 1 WHERE email = ?', [email]);
+    // Redirect to frontend login view
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    res.redirect(`${frontendUrl}/?verified=true&email=${encodeURIComponent(email)}`);
+  } catch (error) {
+    res.status(500).send(`Doğrulama hatası: ${error.message}`);
+  }
+});
+
+app.post('/api/auth/verify-email', async (req, res) => {
+  const { email } = req.body;
+  try {
+    await db.run('UPDATE users SET isVerified = 1 WHERE email = ?', [email]);
+    res.json({ success: true });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -123,7 +204,7 @@ app.post('/api/auth/edevlet', async (req, res) => {
       const email = `edevlet.${tcNo}@test.com`;
       const hashedPassword = await bcrypt.hash('edevlet-auto-pass', 10);
       const result = await db.run(
-        'INSERT INTO users (email, password, role, fullName, phone, tcNo, department) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        'INSERT INTO users (email, password, role, fullName, phone, tcNo, department, isVerified) VALUES (?, ?, ?, ?, ?, ?, ?, 1)',
         [email, hashedPassword, 'applicant', fullName, '05300000000', tcNo, null]
       );
       user = await db.get('SELECT * FROM users WHERE id = ?', [result.lastID]);

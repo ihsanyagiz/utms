@@ -103,7 +103,7 @@ async function seed() {
   for (const user of INITIAL_USERS) {
     const hashedPassword = bcrypt.hashSync(user.password, 10);
     await db.run(
-      'INSERT INTO users (id, email, password, role, fullName, phone, tcNo, department) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      'INSERT INTO users (id, email, password, role, fullName, phone, tcNo, department, isVerified) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)',
       [user.id, user.email, hashedPassword, user.role, user.fullName, null, null, user.department]
     );
   }
@@ -113,7 +113,7 @@ async function seed() {
     const hashedPassword = bcrypt.hashSync('test', 10);
     // Insert applicant user
     await db.run(
-      'INSERT INTO users (id, email, password, role, fullName, phone, tcNo, department) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      'INSERT INTO users (id, email, password, role, fullName, phone, tcNo, department, isVerified) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)',
       [app.id, app.email, hashedPassword, 'applicant', app.name, '05300000000', app.idNumber, null]
     );
 

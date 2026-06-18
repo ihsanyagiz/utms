@@ -59,7 +59,8 @@ export async function initDb() {
       fullName TEXT NOT NULL,
       phone TEXT,
       tcNo TEXT,
-      department TEXT
+      department TEXT,
+      isVerified INTEGER DEFAULT 0
     )
   `);
 

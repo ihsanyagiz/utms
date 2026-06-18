@@ -14,6 +14,20 @@ export default function Login({ onBackToLanding, initialMode = 'login' }) {
     setMode(initialMode);
   }, [initialMode]);
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('verified') === 'true') {
+      const email = params.get('email');
+      if (email) {
+        setLoginEmail(email);
+        setVerificationEmail(email);
+      }
+      showToast(lang === 'tr' ? 'E-Posta başarıyla doğrulandı! Giriş yapabilirsiniz.' : 'Email verified successfully! You can now log in.', 'success');
+      // Clean up URL search params
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, []);
+
   // Standard Login Fields
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
@@ -89,43 +103,56 @@ export default function Login({ onBackToLanding, initialMode = 'login' }) {
     }
   }[lang];
 
-  const handleLoginSubmit = (e) => {
+  const handleLoginSubmit = async (e) => {
     e.preventDefault();
-    login(loginEmail, loginPassword, loginRole);
+    await login(loginEmail, loginPassword, loginRole);
   };
 
-  const handleRegisterSubmit = (e) => {
+  const handleRegisterSubmit = async (e) => {
     e.preventDefault();
     if (!kvkkChecked) {
       alert(lang === 'tr' ? 'Lütfen KVKK ve kullanım şartlarını onaylayınız.' : 'Please agree to terms and conditions.');
       return;
     }
-    const result = register(regEmail, regPassword, regFullName, regTcNo, regPhone);
-    if (result.success) {
+    const result = await register(regEmail, regPassword, regFullName, regTcNo, regPhone);
+    if (result && result.success) {
       setVerificationEmail(regEmail);
       setMode('verify_email');
     }
   };
 
-  const handleEdevletSubmit = (e) => {
+  const handleEdevletSubmit = async (e) => {
     e.preventDefault();
-    loginWithEdevlet(edevletTcNo, edevletFullName);
+    await loginWithEdevlet(edevletTcNo, edevletFullName);
   };
 
-  const handleForgotSubmit = (e) => {
+  const handleForgotSubmit = async (e) => {
     e.preventDefault();
-    const result = resetPassword(forgotEmail, forgotNewPassword);
-    if (result.success) {
+    const result = await resetPassword(forgotEmail, forgotNewPassword);
+    if (result && result.success) {
       setMode('login');
     }
   };
 
-  const handleVerifyConfirm = () => {
-    showToast(t.verifySuccess, 'success');
-    setMode('login');
-    setLoginEmail(verificationEmail);
-    setLoginPassword(regPassword);
-    setLoginRole('applicant');
+  const handleVerifyConfirm = async () => {
+    try {
+      const res = await fetch('/api/auth/verify-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: verificationEmail })
+      });
+      if (res.ok) {
+        showToast(t.verifySuccess, 'success');
+        setMode('login');
+        setLoginEmail(verificationEmail);
+        setLoginPassword(regPassword);
+        setLoginRole('applicant');
+      } else {
+        showToast(lang === 'tr' ? 'Doğrulama başarısız.' : 'Verification failed.', 'error');
+      }
+    } catch (err) {
+      showToast('Ağ bağlantı hatası!', 'error');
+    }
   };
 
   return (
