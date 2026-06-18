@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { ShieldCheck, HelpCircle, ArrowRight, CheckCircle2, Mail, Globe } from 'lucide-react';
+import IyteLogoUrl from '../components/iyte-logo.svg';
 
 export default function Login({ onBackToLanding, initialMode = 'login' }) {
   const { login, loginWithEdevlet, register, resetPassword, showToast } = useApp();
@@ -173,8 +174,9 @@ export default function Login({ onBackToLanding, initialMode = 'login' }) {
         </div>
 
         <div className="auth-header">
-          <div className="auth-logo">
-            İYTE<span>UBYS</span>
+          <div className="auth-logo" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
+            <img src={IyteLogoUrl} alt="İYTE Logo" style={{ width: '48px', height: '48px' }} />
+            <span style={{ fontSize: '1.8rem', fontWeight: 800 }}>İYTE<span style={{ color: 'var(--primary-color)' }}>UBYS</span></span>
           </div>
           <p className="auth-subtitle">{t.title}</p>
         </div>

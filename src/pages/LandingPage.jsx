@@ -3,6 +3,7 @@ import {
   GraduationCap, Calendar, Award, BookOpen, MapPin, 
   Users, CheckCircle2, ChevronRight, HelpCircle, ShieldCheck, FileText 
 } from 'lucide-react';
+import IyteLogoUrl from '../components/iyte-logo.svg';
 
 export default function LandingPage({ onEnterLogin, onEnterRegister }) {
   const [lang, setLang] = useState('tr');
@@ -108,8 +109,8 @@ export default function LandingPage({ onEnterLogin, onEnterRegister }) {
     <div style={{ backgroundColor: 'var(--bg-color)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       {/* Top Header Navbar */}
       <header className="header" style={{ position: 'static', backgroundColor: '#ffffff', boxShadow: 'var(--box-shadow)' }}>
-        <div className="header-left">
-          <GraduationCap size={28} style={{ color: 'var(--primary-color)' }} />
+        <div className="header-left" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <img src={IyteLogoUrl} alt="İYTE Logo" style={{ width: '32px', height: '32px' }} />
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             <span style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-main)', lineHeight: 1.2 }}>{content.headerTitle}</span>
             <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{content.headerSub}</span>

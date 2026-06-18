@@ -5,6 +5,8 @@ import {
   Users, Settings, Database, ShieldAlert, BookOpen
 } from 'lucide-react';
 
+import IyteLogoUrl from './iyte-logo.svg';
+
 export default function Sidebar({ isCollapsed, activeTab, setActiveTab }) {
   const { currentUser } = useApp();
 
@@ -50,11 +52,12 @@ export default function Sidebar({ isCollapsed, activeTab, setActiveTab }) {
   return (
     <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
       <div className="sidebar-brand">
-        <div className="sidebar-logo">
-          İYTE<span>UBYS</span>
+        <div className="sidebar-logo" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <img src={IyteLogoUrl} alt="İYTE" style={{ width: '28px', height: '28px' }} />
+          <span>İYTE<span>UBYS</span></span>
         </div>
-        <div className="sidebar-logo-abbr">
-          İYTE
+        <div className="sidebar-logo-abbr" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          <img src={IyteLogoUrl} alt="İYTE" style={{ width: '24px', height: '24px' }} />
         </div>
       </div>
       
