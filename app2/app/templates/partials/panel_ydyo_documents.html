@@ -1,0 +1,168 @@
+{% if ydyo_applications %}
+    <div class="panel-tab-state" hidden
+         data-filter="{{ active_filter }}"
+         data-sort-col="{{ active_sort_col if active_sort_col is not none else '' }}"
+         data-sort-dir="{{ active_sort_dir }}"></div>
+    <div class="oidb-header-bar">
+        <div class="stats-row">
+            <span class="stat-chip chip-total">Total: {{ status_counts.total }}</span>
+        </div>
+        <form method="POST" action="{{ url_for('ydyo_api.auto_check_and_forward') }}" style="display:inline;">
+            <button type="submit" class="soft-btn compact"
+                onclick="return confirm('Run Document Checker on all applications and forward those that pass to Dean?')">
+                Auto-Check &amp; Forward to Dean
+            </button>
+        </form>
+    </div>
+
+    <div class="app-table-wrap">
+        <table class="app-table" id="ydyo-table">
+            <thead>
+                <tr>
+                    <th data-sort="0">#</th>
+                    <th data-sort="1">Name</th>
+                    <th data-sort="2">Program</th>
+                    <th data-sort="3">Semester</th>
+                    <th data-sort="4">Eng. Doc</th>
+                    <th data-sort="5">Doc Checker</th>
+                    <th data-sort="6">Submitted</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for app in ydyo_applications %}
+                {%- set checker_errors = app.parsed_checker_errors -%}
+                {%- set has_errors = checker_errors | length > 0 -%}
+                {% set eng_docs = app.documents | selectattr('document_slot', 'eq', 4) | list %}
+                <tr class="app-row-header" data-app-id="{{ app.id }}">
+                    <td>{{ app.id }}</td>
+                    <td>{{ app.full_name }}</td>
+                    <td>{{ app.target_program or app.target_department }}</td>
+                    <td>{{ app.target_semester or '—' }}</td>
+                    <td>{% if eng_docs %}<span class="status-badge status-submitted">Provided</span>{% else %}<span class="status-badge status-returned">Missing</span>{% endif %}</td>
+                    <td>
+                        {% if app.doc_checker_status == 'auto_checked' %}
+                            {% if has_errors %}
+                                <span class="status-badge checker-status-error">Errors Found</span>
+                            {% else %}
+                                <span class="status-badge checker-status-ok">Checked OK</span>
+                            {% endif %}
+                        {% else %}
+                            <span class="status-badge checker-status-pending">Manual Check</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ app.created_at.strftime('%d %b %Y') }}</td>
+                    <td><button class="soft-btn compact alt expand-btn" type="button" data-app-id="{{ app.id }}">Expand</button></td>
+                </tr>
+                <tr class="app-row-expand" id="expand-{{ app.id }}" hidden>
+                    <td colspan="8">
+                        <div class="expand-content">
+
+                            {# ── Document Checker status banner ── #}
+                            {% if app.doc_checker_status == 'auto_checked' and has_errors %}
+                                <div class="info-box danger checker-error-box" style="margin:0 0 10px;">
+                                    <strong>Document Checker found {{ checker_errors | length }} issue(s):</strong>
+                                    <ul style="margin:6px 0 0 16px; padding:0;">
+                                        {% for err in checker_errors %}
+                                            <li>
+                                                {% if err.type == 'document' %}
+                                                    <strong>Document (slot {{ err.slot }}):</strong>
+                                                {% else %}
+                                                    <strong>Field <code>{{ err.field }}</code>:</strong>
+                                                {% endif %}
+                                                {{ err.reason }}
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            {% elif app.doc_checker_status != 'auto_checked' %}
+                                <div class="info-box warning" style="margin:0 0 10px;">
+                                    <strong>Needs Manual Check</strong> — this application has not been through the automatic Document Checker yet.
+                                </div>
+                            {% endif %}
+
+                            <div class="expand-cols">
+                                <div>
+                                    <div class="section-heading">Applicant Details</div>
+                                    <div class="detail-grid">
+                                        <span class="detail-label">Email</span><span>{{ app.applicant.email if app.applicant else '—' }}</span>
+
+                                        {%- set id_errs = checker_errors | selectattr('type', 'equalto', 'field') | selectattr('field', 'equalto', 'id_number') | list -%}
+                                        <span class="detail-label{% if id_errs %} checker-field-error{% endif %}">ID Number</span>
+                                        <span{% if id_errs %} class="checker-field-error"{% endif %}>
+                                            {{ app.id_number or app.student_number }}
+                                            {% if id_errs %}<span class="checker-error"> ⚠ {{ id_errs[0].reason }}</span>{% endif %}
+                                        </span>
+
+                                        {%- set gpa_errs = checker_errors | selectattr('type', 'equalto', 'field') | selectattr('field', 'equalto', 'current_gpa') | list -%}
+                                        <span class="detail-label{% if gpa_errs %} checker-field-error{% endif %}">GPA</span>
+                                        <span{% if gpa_errs %} class="checker-field-error"{% endif %}>
+                                            {{ app.current_gpa }}
+                                            {% if gpa_errs %}<span class="checker-error"> ⚠ {{ gpa_errs[0].reason }}</span>{% endif %}
+                                        </span>
+
+                                        {% if app.osym_points %}
+                                            <span class="detail-label">OSYM Points</span><span>{{ app.osym_points }}</span>
+                                        {% endif %}
+                                        <span class="detail-label">University</span><span>{{ app.source_university or '—' }}</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="section-heading">English Proficiency Document</div>
+                                    {%- set eng_errs = checker_errors | selectattr('type', 'equalto', 'document') | selectattr('slot', 'equalto', 4) | list -%}
+                                    {% if eng_docs %}
+                                        <ul class="doc-list">
+                                            {% for doc in eng_docs %}
+                                                <li class="doc-item{% if eng_errs %} doc-item-error{% endif %}">
+                                                    <input type="checkbox" class="doc-check" title="Mark verified">
+                                                    <span>{{ doc.original_name }}</span>
+                                                    <a class="soft-btn compact alt" href="{{ url_for('ydyo_api.view_document', doc_id=doc.id) }}" target="_blank">View</a>
+                                                    {% if eng_errs %}
+                                                        <span class="checker-error"> ⚠ {{ eng_errs[0].reason }}</span>
+                                                    {% endif %}
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
+                                    {% else %}
+                                        <p class="subline">No English proficiency document submitted.{% if eng_errs %} <span class="checker-error">⚠ {{ eng_errs[0].reason }}</span>{% endif %}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            {% if app.dean_notes %}
+                                <div class="info-box warning" style="margin:10px 0 10px;">
+                                    <strong>Returned by Dean:</strong> {{ app.dean_notes }}
+                                </div>
+                            {% endif %}
+
+                            <div class="action-row">
+                                <form method="POST" action="{{ url_for('ydyo_api.mark_and_forward', application_id=app.id) }}">
+                                    <input type="hidden" name="prep_status" value="eligible">
+                                    <button type="submit" class="soft-btn">English Eligible — Forward to Dean</button>
+                                </form>
+                                <form method="POST" action="{{ url_for('ydyo_api.mark_and_forward', application_id=app.id) }}">
+                                    <input type="hidden" name="prep_status" value="needs_test">
+                                    <button type="submit" class="soft-btn alt">Needs Internal Test — Forward to Dean</button>
+                                </form>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% if pagination and pagination.total_pages > 1 %}
+    <div class="pagination-bar">
+        {% if pagination.has_prev %}
+            <button class="soft-btn compact page-btn" data-page="{{ pagination.page - 1 }}">← Prev</button>
+        {% endif %}
+        <span class="page-info">Page {{ pagination.page }} of {{ pagination.total_pages }} &nbsp;·&nbsp; {{ pagination.total }} total</span>
+        {% if pagination.has_next %}
+            <button class="soft-btn compact page-btn" data-page="{{ pagination.page + 1 }}">Next →</button>
+        {% endif %}
+    </div>
+    {% endif %}
+{% else %}
+    <p class="subline">No applications forwarded to YDYO yet.</p>
+{% endif %}

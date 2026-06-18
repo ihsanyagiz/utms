@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Role Portals - Uni System{% endblock %}
+
+{% block content %}
+    <section class="window-shell">
+        <div class="window-body">
+            <h1>University Transfer Management System</h1>
+            <p class="subline">Software-style workspace entry. Choose your dedicated authentication zone.</p>
+
+            <div class="portal-actions">
+                <a class="soft-btn" href="{{ url_for('auth.applicant_portal') }}">Open Applicant Personal Auth</a>
+                <a class="soft-btn alt" href="{{ url_for('auth.staff_portal') }}">Open Staff Workspace Auth</a>
+            </div>
+
+            <h3>Role Shortcuts</h3>
+            <div class="portal-actions">
+                {% for role in roles %}
+                    <a class="soft-btn alt" href="{{ url_for('role_entry', role_slug=role.slug) }}">{{ role.name }}</a>
+                {% endfor %}
+            </div>
+
+            <div style="margin-top:2rem; text-align:right;">
+                <a href="{{ url_for('auth.admin_login') }}" style="font-size:0.78rem; color:#888; text-decoration:none;">Admin</a>
+            </div>
+        </div>
+    </section>
+{% endblock %}

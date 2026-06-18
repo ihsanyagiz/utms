@@ -1,0 +1,109 @@
+{% if ygk_applications %}
+    <div class="panel-tab-state" hidden
+         data-filter="{{ active_filter }}"
+         data-sort-col="{{ active_sort_col if active_sort_col is not none else '' }}"
+         data-sort-dir="{{ active_sort_dir }}"></div>
+    <div class="oidb-header-bar">
+        <div class="stats-row" data-filter-table="ygk-table">
+            <span class="stat-chip chip-total{% if active_filter == 'all' %} chip-active{% endif %}" data-filter="all">Total: {{ status_counts.total }}</span>
+            <span class="stat-chip chip-submitted{% if active_filter == 'forwarded_to_ygk' %} chip-active{% endif %}" data-filter="forwarded_to_ygk">Pending: {{ status_counts.forwarded_to_ygk }}</span>
+            <span class="stat-chip chip-forwarded{% if active_filter == 'intibak_complete' %} chip-active{% endif %}" data-filter="intibak_complete">Approved: {{ status_counts.intibak_complete }}</span>
+        </div>
+    </div>
+
+    <div class="app-table-wrap">
+        <table class="app-table" id="ygk-table">
+            <thead>
+                <tr>
+                    <th data-sort="0">#</th>
+                    <th data-sort="1">Name</th>
+                    <th data-sort="2">Program</th>
+                    <th data-sort="3">University</th>
+                    <th data-sort="4">GPA</th>
+                    <th data-sort="5">Semester</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for app in ygk_applications %}
+                <tr class="app-row-header" data-app-id="{{ app.id }}" data-status="{{ app.status }}">
+                    <td>{{ app.id }}</td>
+                    <td>{{ app.full_name }}</td>
+                    <td>{{ app.target_program or app.target_department }}</td>
+                    <td>{{ app.source_university or '—' }}</td>
+                    <td>{{ app.current_gpa }}</td>
+                    <td>{{ app.target_semester or '—' }}</td>
+                    <td><button class="soft-btn compact alt expand-btn" type="button" data-app-id="{{ app.id }}">Expand</button></td>
+                </tr>
+                <tr class="app-row-expand" id="expand-{{ app.id }}" hidden>
+                    <td colspan="7">
+                        <div class="expand-content">
+                            <div class="expand-cols">
+                                <div>
+                                    <div class="section-heading">Applicant Details</div>
+                                    <div class="detail-grid">
+                                        <span class="detail-label">Email</span><span>{{ app.applicant.email if app.applicant else '—' }}</span>
+                                        <span class="detail-label">ID Number</span><span>{{ app.id_number or app.student_number }}</span>
+                                        <span class="detail-label">GPA</span><span>{{ app.current_gpa }}</span>
+                                        {% if app.osym_points %}
+                                            <span class="detail-label">OSYM Points</span><span>{{ app.osym_points }}</span>
+                                        {% endif %}
+                                        <span class="detail-label">University</span><span>{{ app.source_university or '—' }}</span>
+                                        <span class="detail-label">Enrolled</span><span>{{ 'Yes' if app.is_currently_enrolled else 'No' }}</span>
+                                        <span class="detail-label">Program</span><span>{{ app.target_program or app.target_department }}</span>
+                                        <span class="detail-label">Semester</span><span>{{ app.target_semester or '—' }}</span>
+                                        <span class="detail-label">Prep School</span><span>{{ app.prep_school_status|replace('_',' ')|title if app.prep_school_status else '—' }}</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="section-heading">Workflow</div>
+                                    <div class="detail-grid">
+                                        <span class="detail-label">Status</span>
+                                        <span><span class="status-badge status-{{ app.status }}">{{ app.status|replace('_',' ')|title }}</span></span>
+                                        <span class="detail-label">Submitted</span><span>{{ app.created_at.strftime('%d %b %Y') }}</span>
+                                        {% if app.forwarded_faculty %}
+                                            <span class="detail-label">Routed to</span><span>{{ app.forwarded_faculty }}</span>
+                                        {% endif %}
+                                    </div>
+                                    {% if app.dean_notes %}
+                                        <div class="info-box warning" style="margin-top:10px;">
+                                            <strong>Dean note:</strong> {{ app.dean_notes }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="action-row">
+                                {% if app.status == 'intibak_complete' %}
+                                    <span class="soft-btn compact alt" style="opacity:.5; cursor:not-allowed;" title="Intibak already submitted to OIDB">Intibak Complete ✓</span>
+                                {% else %}
+                                    <button type="button" class="soft-btn tab-jump"
+                                            data-target="panel-2"
+                                            data-tab-slug="intibak-table"
+                                            data-extra-params='{"app_id": {{ app.id }}}'>
+                                        Open Intibak Table →
+                                    </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if pagination and pagination.total_pages > 1 %}
+    <div class="pagination-bar">
+        {% if pagination.has_prev %}
+            <button class="soft-btn compact page-btn" data-page="{{ pagination.page - 1 }}">← Prev</button>
+        {% endif %}
+        <span class="page-info">Page {{ pagination.page }} of {{ pagination.total_pages }} &nbsp;·&nbsp; {{ pagination.total }} total</span>
+        {% if pagination.has_next %}
+            <button class="soft-btn compact page-btn" data-page="{{ pagination.page + 1 }}">Next →</button>
+        {% endif %}
+    </div>
+    {% endif %}
+{% else %}
+    <p class="subline">No applications forwarded to your department yet.</p>
+{% endif %}

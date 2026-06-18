@@ -1,0 +1,110 @@
+{% if applicant_application %}
+    {% set app = applicant_application %}
+    {% set st  = app.status %}
+    {% set is_cancelled = (st == 'cancelled') %}
+    {% set is_returned  = (st == 'returned') %}
+
+    {# Determine which step the return happened at #}
+    {% if is_returned %}
+        {% if app.dean_notes %}
+            {% set step_idx      = 2 %}
+            {% set return_source = "Dean's Office" %}
+            {% set return_note   = app.dean_notes %}
+        {% elif app.oidb_notes %}
+            {% set step_idx      = 0 %}
+            {% set return_source = "OIDB" %}
+            {% set return_note   = app.oidb_notes %}
+        {% else %}
+            {% set step_idx      = 0 %}
+            {% set return_source = "OIDB" %}
+            {% set return_note   = None %}
+        {% endif %}
+    {% else %}
+        {% set step_idx = status_step.get(st, 0) %}
+    {% endif %}
+
+    {# Header box #}
+    <div class="tracker-box {% if is_cancelled %}tracker-box-cancelled{% elif is_returned %}tracker-box-returned{% endif %}">
+        <div class="tracker-box-info">
+            <div class="tracker-app-id">Application #{{ app.id }}</div>
+            <div class="tracker-program">{{ app.target_program or app.target_department }}</div>
+            <div class="tracker-semester subline">{{ app.target_semester or '—' }}</div>
+            {% if is_returned %}
+                <div class="tracker-return-note">Returned by {{ return_source }}{% if return_note %}: {{ return_note }}{% endif %}</div>
+            {% endif %}
+            {% if is_cancelled %}
+                <div class="tracker-return-note" style="margin-top:6px">Application was cancelled.</div>
+            {% endif %}
+        </div>
+        <div class="tracker-icon
+            {%- if is_cancelled or is_returned %} tracker-icon-fail
+            {%- elif st == 'forwarded_to_ygk' %} tracker-icon-ok
+            {%- else %} tracker-icon-progress{%- endif %}">
+            {% if is_cancelled %}✕
+            {% elif is_returned %}↩
+            {% elif st == 'forwarded_to_ygk' %}✓
+            {% else %}…{% endif %}
+        </div>
+    </div>
+
+    {# Timeline — hidden for cancelled #}
+    {% if not is_cancelled %}
+    <div class="status-timeline">
+        {% for step_label in tracker_steps %}
+            {% set i = loop.index0 %}
+            {% if is_returned and i == step_idx %}
+                {% set row_class = 'step-error' %}
+            {% elif i < step_idx %}
+                {% set row_class = 'step-done' %}
+            {% elif i == step_idx %}
+                {% set row_class = 'step-active' %}
+            {% else %}
+                {% set row_class = 'step-pending' %}
+            {% endif %}
+
+            <div class="timeline-step {{ row_class }}">
+                <div class="step-dot-col">
+                    <div class="step-dot">
+                        {% if is_returned and i == step_idx %}↩
+                        {% elif i < step_idx %}✓
+                        {% elif i == step_idx %}●
+                        {% else %}○{% endif %}
+                    </div>
+                    {% if not loop.last %}<div class="step-line"></div>{% endif %}
+                </div>
+                <div class="step-body">
+                    <div class="step-label">{{ step_label }}</div>
+                    {% if is_returned and i == step_idx %}
+                        <div class="step-note step-note-error">Returned for correction by {{ return_source }}</div>
+                    {% elif i == step_idx and not is_returned %}
+                        <div class="step-note">In progress</div>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {# Actions #}
+    <div class="tracker-actions">
+        {% if st == 'submitted' and cancellation_allowed %}
+            <form id="cancel-app-form" method="POST" action="{{ url_for('applicant_api.cancel_application') }}">
+                <button type="button" class="soft-btn danger-btn compact"
+                        data-modal-trigger
+                        data-modal-msg="Are you sure you want to cancel your application? This cannot be undone."
+                        data-form="cancel-app-form">
+                    Cancel Application
+                </button>
+            </form>
+        {% endif %}
+        {% if is_returned and resubmission_allowed %}
+            <button class="soft-btn compact tab-jump" type="button" data-target="panel-1" data-tab-slug="submit-application">Resubmit Application →</button>
+        {% endif %}
+        {% if is_cancelled and resubmission_allowed %}
+            <button class="soft-btn compact tab-jump" type="button" data-target="panel-1" data-tab-slug="submit-application">Send Application Again →</button>
+        {% endif %}
+    </div>
+
+{% else %}
+    <p class="subline">No application found. Submit your documents first.</p>
+{% endif %}

@@ -1,0 +1,87 @@
+/* Auth Page Styling */
+
+/* Center auth shell on page */
+main:has(.auth-shell) {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 40px);
+}
+
+.auth-shell {
+    width: 100%;
+    max-width: 500px;
+}
+
+.auth-shell .window-body {
+    padding: 32px;
+}
+
+.auth-shell h1 {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.auth-shell .subline {
+    margin-bottom: 24px;
+    font-size: 14px;
+}
+
+.auth-shell form > div {
+    margin-bottom: 16px;
+}
+
+.auth-shell .auth-actions {
+    margin-bottom: 12px;
+    text-align: right;
+}
+
+.auth-shell .fake-link {
+    color: var(--accent);
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.auth-shell form > br {
+    display: none;
+}
+
+.auth-shell label {
+    display: block;
+    margin-bottom: 8px;
+}
+
+.auth-shell input,
+.auth-shell select {
+    width: 100%;
+    max-width: none;
+}
+
+.auth-shell button {
+    width: 100%;
+    text-align: center;
+    margin-top: 16px;
+    padding: 12px 14px;
+    font-size: 15px;
+}
+
+.auth-shell p:last-child {
+    margin-top: 20px;
+    margin-bottom: 0;
+    font-size: 14px;
+    text-align: center;
+}
+
+.auth-shell a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.auth-shell a:hover {
+    text-decoration: underline;
+}

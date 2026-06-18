@@ -1,0 +1,121 @@
+{# Ranking table — filter + table are always rendered regardless of result count #}
+<div class="ranking-header-bar" style="display:flex; justify-content:space-between; align-items:center;">
+    <div class="ranking-filter-row">
+        <label class="ranking-filter-label" for="ranking-program-select">Filter by Program</label>
+        <select id="ranking-program-select" class="ranking-program-select">
+            <option value="all"{% if selected_program == 'all' %} selected{% endif %}>All Programs</option>
+            {% for prog in ranking_programs %}
+                <option value="{{ prog }}"{% if selected_program == prog %} selected{% endif %}>{{ prog }}</option>
+            {% endfor %}
+        </select>
+        <span class="stat-chip chip-total" style="margin-left:8px;">
+            {% if ranking_apps %}
+                {{ ranking_apps | length }} applicant{{ 's' if ranking_apps | length != 1 else '' }}
+            {% else %}
+                0 applicants
+            {% endif %}
+        </span>
+    </div>
+    <div class="ranking-export-row" style="display:flex; align-items:center; gap: 12px; margin-right: 16px;">
+        <label style="display:flex; align-items:center; gap: 4px; font-size: 14px; cursor: pointer; color: #4b5563; font-weight: 500;">
+            <input type="checkbox" id="ranking-anonymize-checkbox">
+            Anonymize Applicants
+        </label>
+        <button id="ranking-download-xlsx" class="btn btn-primary" style="padding: 6px 12px;">Download XLSX</button>
+    </div>
+</div>
+
+<div class="app-table-wrap">
+    <table class="app-table" id="ranking-table">
+        <thead>
+            <tr>
+                <th style="width:44px;">#</th>
+                <th>Name</th>
+                <th>Program</th>
+                <th>Semester</th>
+                <th>OSYM</th>
+                <th>GPA (Current)</th>
+                <th style="color:#7c3aed; min-width:110px;">Ranking Score</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if ranking_apps %}
+                {% for app in ranking_apps %}
+                    {% set score = app.intibak_table.ranking_score if app.intibak_table else none %}
+                    <tr>
+                        <td style="font-weight:700; color:#6b7280; text-align:center;">{{ loop.index }}</td>
+                        <td style="font-weight:600;">{{ app.full_name }}</td>
+                        <td>{{ app.target_program or app.target_department }}</td>
+                        <td>{{ app.target_semester or '—' }}</td>
+                        <td>{{ app.osym_points or '—' }}</td>
+                        <td>{{ app.current_gpa }}</td>
+                        <td style="font-weight:700; color:#7c3aed;">
+                            {% if score is not none %}{{ '%.2f'|format(score) }}{% else %}—{% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="8" class="subline" style="text-align:center; padding:24px 0;">
+                        {% if selected_program != 'all' %}
+                            No intibak-complete applications for <strong>{{ selected_program }}</strong>.
+                        {% else %}
+                            No intibak-complete applications yet.
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+(function () {
+    var select = document.getElementById('ranking-program-select');
+    if (!select) return;
+
+    select.addEventListener('change', function () {
+        var program = this.value;
+        // Walk up to the workspace-panel element
+        var panel = select.parentElement;
+        while (panel && !panel.classList.contains('workspace-panel')) {
+            panel = panel.parentElement;
+        }
+        if (!panel) return;
+
+        var url = '/dashboard/tab/create-ranking-table?page=1';
+        if (program !== 'all') url += '&program=' + encodeURIComponent(program);
+
+        panel.classList.add('panel-fetching');
+        fetch(url)
+            .then(function (r) { return r.text(); })
+            .then(function (html) {
+                panel.classList.remove('panel-fetching');
+                panel.innerHTML = '<div class="tab-content-wrap">' + html + '</div>';
+                panel.querySelectorAll('script').forEach(function (old) {
+                    var s = document.createElement('script');
+                    s.textContent = old.textContent;
+                    old.parentNode.replaceChild(s, old);
+                });
+            })
+            .catch(function () {
+                panel.classList.remove('panel-fetching');
+            });
+    });
+
+    var downloadBtn = document.getElementById('ranking-download-xlsx');
+    var anonymizeChk = document.getElementById('ranking-anonymize-checkbox');
+    if (downloadBtn) {
+        downloadBtn.addEventListener('click', function() {
+            var program = select ? select.value : 'all';
+            var anonymize = anonymizeChk ? anonymizeChk.checked : false;
+            var url = '/api/oidb/download-ranking-xlsx?';
+            var params = [];
+            if (program !== 'all') params.push('program=' + encodeURIComponent(program));
+            if (anonymize) params.push('anonymize=true');
+            url += params.join('&');
+            window.location.href = url;
+        });
+    }
+})();
+</script>

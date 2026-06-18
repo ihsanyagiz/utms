@@ -1,0 +1,207 @@
+:root {
+    --accent: #2563eb;
+    --accent-hover: #1d4ed8;
+    --accent-soft: #eff6ff;
+    --success: #059669;
+    --warn: #d97706;
+    --danger: #dc2626;
+    --ink: #111827;
+    --muted: #6b7280;
+    --line: #e5e7eb;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: "SF Pro Text", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    color: var(--ink);
+    background: #f3f4f6;
+    line-height: 1.5;
+    padding: 24px;
+}
+
+main { padding: 16px 0 0; }
+
+h1, h2, h3, h4, h5 { margin-top: 0; color: var(--ink); }
+
+/* ── Window shell ── */
+.window-shell {
+    background: #ffffff;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    overflow: hidden;
+}
+
+.window-body { padding: 24px; }
+
+/* ── Form elements ── */
+label {
+    font-weight: 600;
+    font-size: 14px;
+    color: #374151;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+select,
+textarea {
+    padding: 9px 11px;
+    border: 1px solid #d1d5db;
+    border-radius: 7px;
+    background: #ffffff;
+    font-size: 14px;
+    color: var(--ink);
+    transition: border-color 0.15s, box-shadow 0.15s;
+    font-family: inherit;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* ── Buttons ── */
+button,
+.soft-btn {
+    display: inline-block;
+    text-decoration: none;
+    border: none;
+    color: #fff;
+    background: var(--accent);
+    border-radius: 7px;
+    padding: 8px 16px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+}
+
+button:hover, .soft-btn:hover { background: var(--accent-hover); transform: translateY(-1px); }
+button:active, .soft-btn:active { transform: translateY(0); }
+
+.soft-btn.alt {
+    color: var(--accent);
+    background: var(--accent-soft);
+    border: 1px solid #bfdbfe;
+}
+.soft-btn.alt:hover { background: #dbeafe; }
+
+.soft-btn.compact { padding: 5px 12px; font-size: 13px; }
+
+.danger-btn { background: var(--danger) !important; }
+.danger-btn:hover { background: #b91c1c !important; }
+
+/* ── Toast/Flash messages (appears from top) ── */
+.flash-wrap {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px 24px;
+}
+
+.flash-msg {
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    pointer-events: auto;
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.flash-message,
+.flash-error {
+    background: #fef2f2;
+    border: 1px solid #fca5a5;
+    color: #991b1b;
+}
+
+.flash-success {
+    background: #f0fdf4;
+    border: 1px solid #86efac;
+    color: #166534;
+}
+
+.flash-warning {
+    background: #fffbeb;
+    border: 1px solid #fcd34d;
+    color: #92400e;
+}
+
+/* ── Info boxes ── */
+.info-box {
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 12px;
+    font-weight: 600;
+    font-size: 14px;
+}
+.info-box.warning { background: #fffbeb; border: 1px solid #fcd34d; color: #92400e; }
+.info-box.success { background: #f0fdf4; border: 1px solid #86efac; color: #166534; }
+.info-box.danger  { background: #fff1f2; border: 1px solid #fca5a5; color: #991b1b; }
+
+/* ── Status badges ── */
+.status-badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+}
+.status-submitted        { background: #fef9c3; color: #854d0e; border: 1px solid #fde047; }
+.status-returned         { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+.status-forwarded_to_ydyo { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+.status-forwarded_to_dean { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+.status-pending-dean      { background: #fef9c3; color: #854d0e; border: 1px solid #fde047; }
+.status-forwarded_to_ygk  { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+.status-forwarded_to_oidb { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+.status-cancelled         { background: #f3f4f6; color: #6b7280; border: 1px solid #d1d5db; }
+.status-from-dean         { background: #fff7ed; color: #c2410c; border: 1px solid #fb923c; }
+.status-oidb_approved     { background: #dbeafe; color: #1e40af; border: 1px solid #93c5fd; }
+
+/* ── Document Checker status badges ── */
+.checker-status-ok      { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+.checker-status-error   { background: #fff1f2; color: #991b1b; border: 1px solid #fca5a5; }
+.checker-status-pending { background: #fff7ed; color: #9a3412; border: 1px solid #fdba74; }
+
+/* ── Document Checker inline error text ── */
+.checker-error      { color: #dc2626; font-size: 12px; font-style: italic; }
+.checker-field-error { color: #dc2626; }
+.doc-item-error .doc-slot-label { color: #dc2626; font-weight: 700; }
+
+/* ── Utility ── */
+.subline { color: var(--muted); font-size: 13px; }
+.tag-open  { color: var(--success); font-weight: 700; font-size: 13px; }
+.tag-closed{ color: var(--warn); font-weight: 700; font-size: 13px; }
+
+@media (max-width: 700px) {
+    body { padding: 10px; }
+}
