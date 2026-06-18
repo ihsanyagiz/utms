@@ -357,6 +357,8 @@ app.post('/api/applications/submit', upload.any(), async (req, res) => {
     // Run automated checker
     const appRow = await db.get('SELECT * FROM applications WHERE id = ?', [appInsertedId]);
     appRow.isCurrentlyEnrolled = appRow.isCurrentlyEnrolled === 1;
+    const docs = await db.all('SELECT * FROM documents WHERE applicationId = ?', [appInsertedId]);
+    appRow.documents = docs || [];
     appRow.docCheckerErrors = [];
     const errors = runAutomatedDocChecker(appRow);
 
@@ -411,6 +413,8 @@ app.post('/api/applications/resubmit', upload.any(), async (req, res) => {
     // Run automated checker
     const appRow = await db.get('SELECT * FROM applications WHERE id = ?', [id]);
     appRow.isCurrentlyEnrolled = appRow.isCurrentlyEnrolled === 1;
+    const docs = await db.all('SELECT * FROM documents WHERE applicationId = ?', [id]);
+    appRow.documents = docs || [];
     appRow.docCheckerErrors = [];
     const errors = runAutomatedDocChecker(appRow);
 
@@ -450,6 +454,8 @@ app.post('/api/applications/:id/checker', async (req, res) => {
     }
 
     appRow.isCurrentlyEnrolled = appRow.isCurrentlyEnrolled === 1;
+    const docs = await db.all('SELECT * FROM documents WHERE applicationId = ?', [id]);
+    appRow.documents = docs || [];
     appRow.docCheckerErrors = [];
     const errors = runAutomatedDocChecker(appRow);
 
