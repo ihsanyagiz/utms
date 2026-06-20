@@ -1,5 +1,12 @@
 import { db, initDb } from './db.js';
 import bcrypt from 'bcryptjs';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 
 const INITIAL_USERS = [
   { id: 1, email: "admin@admin", role: "admin", department: null, fullName: "Sistem Yöneticisi", password: "admin" },
@@ -154,10 +161,38 @@ async function seed() {
       4: 'ingilizce_muafiyet.pdf'
     };
 
+    const uploadDir = path.join(__dirname, 'uploads');
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+
+    const dummyPdfContent = `%PDF-1.4
+1 0 obj <</Type /Catalog /Pages 2 0 R>> endobj
+2 0 obj <</Type /Pages /Kids [3 0 R] /Count 1>> endobj
+3 0 obj <</Type /Page /Parent 2 0 R /Resources <<>> /MediaBox [0 0 595 842]>> endobj
+xref
+0 4
+0000000000 65535 f
+0000000009 00000 n
+0000000056 00000 n
+0000000111 00000 n
+trailer <</Size 4 /Root 1 0 R>>
+startxref
+193
+%%EOF`;
+
     for (const slot of slots) {
+      const fileName = `${app.id}_slot${slot}.pdf`;
+      const filePathRelative = `uploads/${fileName}`;
+      const filePathAbsolute = path.join(uploadDir, fileName);
+
+      if (!fs.existsSync(filePathAbsolute)) {
+        fs.writeFileSync(filePathAbsolute, dummyPdfContent);
+      }
+
       await db.run(
         'INSERT INTO documents (applicationId, slot, filename, fileSize, uploadDate, filePath) VALUES (?, ?, ?, ?, ?, ?)',
-        [app.id, slot, docNames[slot], '1.5 MB', '18.06.2026 14:22', `uploads/${app.id}_slot${slot}.pdf`]
+        [app.id, slot, docNames[slot], '1.5 MB', '18.06.2026 14:22', filePathRelative]
       );
     }
   }

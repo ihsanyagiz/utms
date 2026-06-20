@@ -392,22 +392,24 @@ export default function OidbDashboard({ activeTab }) {
             onClose={() => setViewingDoc(null)}
           >
             {viewingDoc && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', alignItems: 'center' }}>
-                <div style={{ width: '100%', height: '320px', border: '1px solid var(--border-color)', borderRadius: '4px', backgroundColor: '#f1f5f9', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', color: 'var(--text-muted)' }}>
-                  <FileText size={48} style={{ color: 'var(--primary-color)' }} />
-                  <strong>{viewingDoc.filename}</strong>
-                  <span style={{ fontSize: '0.75rem' }}>PDF Dokümanı Önizleme Modu ({viewingDoc.fileSize})</span>
-                  <p style={{ fontSize: '0.75rem', maxWidth: '300px', textAlign: 'center', marginTop: '0.5rem' }}>
-                    *Bu bir simülasyon ortamıdır. Gerçek uygulamada PDFJS kütüphanesi ile belge burada inline render edilir.*
-                  </p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', alignItems: 'center', width: '100%' }}>
+                <iframe 
+                  src={`/${viewingDoc.filePath}`} 
+                  title="PDF Viewer" 
+                  style={{ width: '100%', height: '450px', border: '1px solid var(--border-color)', borderRadius: '4px' }}
+                />
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <a 
+                    href={`/${viewingDoc.filePath}`}
+                    download={viewingDoc.filename}
+                    className="btn btn-primary btn-sm"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Yeni Sekmede Aç / İndir (Open / Download)
+                  </a>
+                  <button className="btn btn-secondary btn-sm" onClick={() => setViewingDoc(null)}>Kapat</button>
                 </div>
-                <a 
-                  href="#"
-                  className="btn btn-secondary btn-sm"
-                  onClick={(e) => { e.preventDefault(); alert('Dosya indiriliyor... (Simüle)'); }}
-                >
-                  Dosyayı İndir
-                </a>
               </div>
             )}
           </Modal>
