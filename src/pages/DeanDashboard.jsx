@@ -134,7 +134,7 @@ export default function DeanDashboard() {
                             style={{ display: 'flex', alignItems: 'center', gap: '0.2rem' }}
                             onClick={() => handleForwardToYgk(app.id, app.targetProgram)}
                           >
-                            Komisyona Sevk <ArrowRight size={12} />
+                            Forward to YGK (Komisyona Sevk) <ArrowRight size={12} />
                           </button>
                           <button 
                             className="btn btn-danger btn-sm"
@@ -143,7 +143,7 @@ export default function DeanDashboard() {
                               setIsReturnModalOpen(true);
                             }}
                           >
-                            İade Et
+                            Return (İade Et)
                           </button>
                         </div>
                       </td>
@@ -270,7 +270,7 @@ export default function DeanDashboard() {
         title="Başvuru İade ve Geri Gönderme Formu"
         onClose={() => setIsReturnModalOpen(false)}
         onConfirm={handleReturnSubmit}
-        confirmText="İade Kararı Ver"
+        confirmText="Return (İade Kararı Ver)"
         confirmType="danger"
       >
         <div className="form-group">
@@ -280,9 +280,9 @@ export default function DeanDashboard() {
             value={returnTarget}
             onChange={(e) => setReturnTarget(e.target.value)}
           >
-            <option value="applicant">Aday Öğrenci (Düzeltme İçin)</option>
-            <option value="oidb">Öğrenci İşleri (Evrak İnceleme İçin)</option>
-            <option value="ydyo">Yabancı Diller Yüksekokulu (Muafiyet Değerlendirmesi İçin)</option>
+            <option value="applicant">Return to Applicant (Aday Öğrenci - Düzeltme İçin)</option>
+            <option value="oidb">Return to OIDB (Öğrenci İşleri)</option>
+            <option value="ydyo">Return to YDYO (Yabancı Diller)</option>
           </select>
         </div>
 

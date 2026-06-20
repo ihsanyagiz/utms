@@ -341,7 +341,7 @@ export default function OidbDashboard({ activeTab }) {
                                     className="btn btn-danger btn-sm"
                                     onClick={() => handleCancelForwardClick(app.id)}
                                   >
-                                    Cancel Forward to YDYO
+                                    Cancel Forward to YDYO (YDYO Sevki İptal Et)
                                   </button>
                                 ) : (
                                   <>
@@ -350,7 +350,7 @@ export default function OidbDashboard({ activeTab }) {
                                       disabled={app.status === 'returned'}
                                       onClick={() => forwardToYdyo(app.id)}
                                     >
-                                      Approve & Forward to YDYO
+                                      Approve & forward to YDYO (Onayla ve YDYO'ya Sevk Et)
                                     </button>
                                     
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -368,7 +368,7 @@ export default function OidbDashboard({ activeTab }) {
                                           returnToApplicantFromOidb(app.id, expandedReturnReasons[app.id]);
                                         }}
                                       >
-                                        Return to Applicant
+                                        Return to Applicant (Adaya İade Et)
                                       </button>
                                     </div>
                                   </>
@@ -499,7 +499,7 @@ export default function OidbDashboard({ activeTab }) {
                     onChange={(e) => setAnonymize(e.target.checked)}
                     style={{ cursor: 'pointer' }}
                   />
-                  <span>Anonymize Applicants</span>
+                  <span>Anonymize Applicants (Adayları Anonimleştir)</span>
                 </label>
 
                 <button 
@@ -507,7 +507,7 @@ export default function OidbDashboard({ activeTab }) {
                   style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}
                   onClick={handleDownloadXlsx}
                 >
-                  <FileSpreadsheet size={14} /> Download XLSX
+                  <FileSpreadsheet size={14} /> Download XLSX (Excel İndir)
                 </button>
 
                 <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--color-success)' }}>

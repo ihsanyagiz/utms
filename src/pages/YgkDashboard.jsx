@@ -217,7 +217,7 @@ export default function YgkDashboard() {
                             style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}
                             onClick={() => handleOpenEditor(app.id)}
                           >
-                            <FileSpreadsheet size={12} /> Open intibak table
+                            <FileSpreadsheet size={12} /> Open intibak table (İntibak Tablosu Düzenle)
                           </button>
                         )}
                       </td>
@@ -262,13 +262,13 @@ export default function YgkDashboard() {
                 }}
                 style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontWeight: 600 }}
               >
-                <FileText size={16} /> Open Transcript
+                <FileText size={16} /> Open Transcript (Transkript Aç)
               </button>
               <button className="btn btn-secondary" onClick={handleSaveTable}>
                 <Save size={16} /> Taslağı Kaydet
               </button>
               <button className="btn btn-success" id="sendToOidbBtn" onClick={handleApproveAndSend}>
-                <CheckCircle size={16} /> Send to OIDB
+                <CheckCircle size={16} /> Send to OIDB (ÖİDB'ye Gönder)
               </button>
             </div>
           </div>
@@ -419,7 +419,7 @@ export default function YgkDashboard() {
                         onClick={() => setIsCurriculumModalOpen(true)}
                         id="addFromCurriculumBtn"
                       >
-                        Add from curriculum
+                        Add from curriculum (Müfredattan Ders Seç)
                       </button>
 
                       <button 
@@ -529,7 +529,7 @@ export default function YgkDashboard() {
                       }}
                       id="selectFromCurriculumBtn"
                     >
-                      add from curriculum
+                      add from curriculum (Dersi Seç)
                     </button>
                   </td>
                 </tr>
