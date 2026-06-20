@@ -37,6 +37,7 @@ export default function Login({ onBackToLanding, initialMode = 'login' }) {
   // Register Fields
   const [regEmail, setRegEmail] = useState('');
   const [regPassword, setRegPassword] = useState('');
+  const [regConfirmPassword, setRegConfirmPassword] = useState('');
   const [regFullName, setRegFullName] = useState('');
   const [regTcNo, setRegTcNo] = useState('');
   const [regPhone, setRegPhone] = useState('');
@@ -57,6 +58,7 @@ export default function Login({ onBackToLanding, initialMode = 'login' }) {
       loginRole: 'Giriş Rolü',
       email: 'E-Posta Adresi',
       password: 'Şifre',
+      confirmPassword: 'Şifre Tekrar',
       forgot: 'Şifremi Unuttum',
       loginBtn: 'Giriş Yap',
       edevletBtn: 'e-Devlet ile Giriş Yap',
@@ -82,6 +84,7 @@ export default function Login({ onBackToLanding, initialMode = 'login' }) {
       loginRole: 'Login Role',
       email: 'Email Address',
       password: 'Password',
+      confirmPassword: 'Confirm Password',
       forgot: 'Forgot Password',
       loginBtn: 'Log In',
       edevletBtn: 'Log in with e-Devlet',
@@ -113,6 +116,10 @@ export default function Login({ onBackToLanding, initialMode = 'login' }) {
     e.preventDefault();
     if (!kvkkChecked) {
       alert(lang === 'tr' ? 'Lütfen KVKK ve kullanım şartlarını onaylayınız.' : 'Please agree to terms and conditions.');
+      return;
+    }
+    if (regPassword !== regConfirmPassword) {
+      showToast(lang === 'tr' ? 'Şifreler eşleşmiyor.' : 'Passwords do not match.', 'error');
       return;
     }
     const result = await register(regEmail, regPassword, regFullName, regTcNo, regPhone);
@@ -367,7 +374,7 @@ export default function Login({ onBackToLanding, initialMode = 'login' }) {
               />
             </div>
 
-            <div className="form-group" style={{ marginBottom: '1.25rem' }}>
+             <div className="form-group" style={{ marginBottom: '1rem' }}>
               <label className="form-label">{t.password} (Min 8)</label>
               <input 
                 type="password" 
@@ -376,6 +383,18 @@ export default function Login({ onBackToLanding, initialMode = 'login' }) {
                 required
                 value={regPassword}
                 onChange={(e) => setRegPassword(e.target.value)}
+              />
+            </div>
+
+            <div className="form-group" style={{ marginBottom: '1.25rem' }}>
+              <label className="form-label">{t.confirmPassword}</label>
+              <input 
+                type="password" 
+                className="form-control" 
+                placeholder="••••••••"
+                required
+                value={regConfirmPassword}
+                onChange={(e) => setRegConfirmPassword(e.target.value)}
               />
             </div>
 

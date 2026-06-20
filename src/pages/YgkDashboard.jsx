@@ -5,6 +5,7 @@ import {
   FileText, Check, Plus, Trash2, ArrowRight, Save, Play,
   CheckCircle, PlusCircle, Layout, ArrowLeftRight, FileSpreadsheet
 } from 'lucide-react';
+import Modal from '../components/Modal';
 
 export default function YgkDashboard() {
   const { 
@@ -16,6 +17,8 @@ export default function YgkDashboard() {
   } = useApp();
 
   const [selectedAppId, setSelectedAppId] = useState(null);
+  const [subTab, setSubTab] = useState('list'); // 'list' | 'editor'
+  const [isCurriculumModalOpen, setIsCurriculumModalOpen] = useState(false);
   
   // Custom courses inside the active intibak editor
   const [editorCourses, setEditorCourses] = useState([]);
@@ -34,7 +37,7 @@ export default function YgkDashboard() {
   const ygkDept = currentUser.department || 'computer_engineering';
   
   const ygkApps = applications.filter(app => {
-    const isYgkStatus = app.status === 'forwarded_to_ygk';
+    const isYgkStatus = app.status === 'forwarded_to_ygk' || app.status === 'intibak_complete';
     const matchesDept = PROGRAM_DEPARTMENT_MAP[app.targetProgram] === ygkDept;
     return isYgkStatus && matchesDept;
   });
@@ -45,6 +48,7 @@ export default function YgkDashboard() {
   // Open editor and load existing intibak table if any
   const handleOpenEditor = (appId) => {
     setSelectedAppId(appId);
+    setSubTab('editor');
     const existingTable = intibakTables.find(t => t.applicationId === appId);
     
     if (existingTable) {
@@ -64,8 +68,16 @@ export default function YgkDashboard() {
   };
 
   const handleAddCourseMapping = () => {
-    if (!newCourse.sourceCode || !newCourse.sourceName || !newCourse.targetCode) {
-      alert('Lütfen kaynak ders bilgilerini ve hedef eşleşmeyi doldurun!');
+    if (!newCourse.sourceCode) {
+      document.getElementById('sourceCodeInput')?.focus();
+      return;
+    }
+    if (!newCourse.sourceName) {
+      document.getElementById('sourceNameInput')?.focus();
+      return;
+    }
+    if (!newCourse.sourceCredits) {
+      document.getElementById('sourceCreditsInput')?.focus();
       return;
     }
 
@@ -114,12 +126,29 @@ export default function YgkDashboard() {
       approveAndSendToOidb(selectedAppId);
       // Exit editor
       setSelectedAppId(null);
+      setSubTab('list');
     }
   };
 
   return (
     <div className="content-body">
-      {!selectedAppId ? (
+      {/* Sub-tab navigation to support YGK-Intibak-AC1 test case */}
+      <div style={{ display: 'flex', gap: '1rem', borderBottom: '1px solid var(--border-color)', marginBottom: '1.5rem', paddingBottom: '0.5rem' }}>
+        <button 
+          className={`btn btn-sm ${subTab === 'list' ? 'btn-primary' : 'btn-secondary'}`}
+          onClick={() => { setSubTab('list'); setSelectedAppId(null); }}
+        >
+          Aday Listesi (Applicants List)
+        </button>
+        <button 
+          className={`btn btn-sm ${subTab === 'editor' ? 'btn-primary' : 'btn-secondary'}`}
+          onClick={() => setSubTab('editor')}
+        >
+          İntibak Editörü (Intibak Editor)
+        </button>
+      </div>
+
+      {subTab === 'list' ? (
         <div>
           <div className="page-header">
             <div>
@@ -177,13 +206,20 @@ export default function YgkDashboard() {
                       <td>{app.currentGpa} / 4.00</td>
                       <td>{app.osymPoints}</td>
                       <td>
-                        <button 
-                          className="btn btn-primary btn-sm"
-                          style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}
-                          onClick={() => handleOpenEditor(app.id)}
-                        >
-                          <FileSpreadsheet size={12} /> Tabloyu Düzenle
-                        </button>
+                        {app.status === 'intibak_complete' ? (
+                          <span style={{ color: 'var(--color-success)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                            <Check size={14} /> Intibak Complete ✓
+                          </span>
+                        ) : (
+                          <button 
+                            id="openIntibakTableBtn"
+                            className="btn btn-primary btn-sm"
+                            style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}
+                            onClick={() => handleOpenEditor(app.id)}
+                          >
+                            <FileSpreadsheet size={12} /> Open intibak table
+                          </button>
+                        )}
                       </td>
                     </tr>
                   ))
@@ -194,12 +230,19 @@ export default function YgkDashboard() {
         </div>
       ) : (
         <div>
-          {/* Back link */}
-          <div style={{ marginBottom: '1rem' }}>
-            <button className="btn btn-secondary btn-sm" onClick={() => setSelectedAppId(null)}>
-              ← Geri Dön
-            </button>
-          </div>
+          {!activeApp ? (
+            <div className="card" style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+              <h3 style={{ fontSize: '1.2rem', marginBottom: '0.5rem', fontWeight: 600 }}>No applicant selected</h3>
+              <p style={{ fontSize: '0.85rem' }}>Lütfen intibak değerlendirmesi yapmak için öncelikle Aday Listesi sekmesinden bir öğrenci seçiniz.</p>
+            </div>
+          ) : (
+            <div>
+              {/* Back link */}
+              <div style={{ marginBottom: '1rem' }}>
+                <button className="btn btn-secondary btn-sm" onClick={() => { setSelectedAppId(null); setSubTab('list'); }}>
+                  ← Geri Dön
+                </button>
+              </div>
 
           <div className="page-header" style={{ marginBottom: '1rem' }}>
             <div>
@@ -208,12 +251,24 @@ export default function YgkDashboard() {
                 Adayın transkript derslerini İYTE müfredat dersleriyle eşleştirerek muafiyet kararlarını giriniz.
               </p>
             </div>
-            <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+              <button 
+                className="btn btn-secondary" 
+                id="openTranscriptBtn"
+                onClick={() => {
+                  const doc = activeApp.documents?.find(d => d.slot === 2);
+                  const path = doc ? `/${doc.filePath}` : '/uploads/not_dokumu.pdf';
+                  window.open(path, '_blank');
+                }}
+                style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontWeight: 600 }}
+              >
+                <FileText size={16} /> Open Transcript
+              </button>
               <button className="btn btn-secondary" onClick={handleSaveTable}>
                 <Save size={16} /> Taslağı Kaydet
               </button>
-              <button className="btn btn-success" onClick={handleApproveAndSend}>
-                <CheckCircle size={16} /> Onayla ve ÖİDB'ye Sevk Et
+              <button className="btn btn-success" id="sendToOidbBtn" onClick={handleApproveAndSend}>
+                <CheckCircle size={16} /> Send to OIDB
               </button>
             </div>
           </div>
@@ -299,6 +354,7 @@ export default function YgkDashboard() {
                     <div className="form-group" style={{ margin: 0 }}>
                       <input 
                         type="text" 
+                        id="sourceCodeInput"
                         className="form-control" 
                         placeholder="Kaynak Kod" 
                         value={newCourse.sourceCode}
@@ -308,6 +364,7 @@ export default function YgkDashboard() {
                     <div className="form-group" style={{ margin: 0 }}>
                       <input 
                         type="text" 
+                        id="sourceNameInput"
                         className="form-control" 
                         placeholder="Kaynak Ders Adı" 
                         value={newCourse.sourceName}
@@ -332,6 +389,7 @@ export default function YgkDashboard() {
                       <span className="form-label" style={{ margin: 0 }}>Kredi (ECTS):</span>
                       <input 
                         type="number" 
+                        id="sourceCreditsInput"
                         className="form-control" 
                         style={{ width: '60px' }}
                         value={newCourse.sourceCredits}
@@ -354,6 +412,16 @@ export default function YgkDashboard() {
                         ))}
                       </select>
                       
+                      <button 
+                        type="button" 
+                        className="btn btn-secondary btn-sm"
+                        style={{ display: 'flex', alignItems: 'center', gap: '0.2rem', whiteSpace: 'nowrap' }}
+                        onClick={() => setIsCurriculumModalOpen(true)}
+                        id="addFromCurriculumBtn"
+                      >
+                        Add from curriculum
+                      </button>
+
                       <button 
                         type="button" 
                         className="btn btn-primary btn-sm"
@@ -409,8 +477,10 @@ export default function YgkDashboard() {
                               <button 
                                 className="btn btn-danger btn-sm btn-icon-only"
                                 onClick={() => handleRemoveCourseMapping(c.id)}
+                                title="Remove course mapping"
+                                style={{ fontWeight: 'bold' }}
                               >
-                                <Trash2 size={12} />
+                                ✕
                               </button>
                             </td>
                           </tr>
@@ -424,6 +494,50 @@ export default function YgkDashboard() {
           </div>
         </div>
       )}
+    </div>
+  )}
+
+
+      {/* Curriculum selection modal (TC-FWD-08 / YGK-Intibak-Positive) */}
+      <Modal
+        isOpen={isCurriculumModalOpen}
+        title="Müfredattan Ders Seç (Add from Curriculum)"
+        onClose={() => setIsCurriculumModalOpen(false)}
+      >
+        <div style={{ maxHeight: '350px', overflowY: 'auto' }}>
+          <table className="ubys-table" style={{ fontSize: '0.8rem' }}>
+            <thead>
+              <tr>
+                <th>Ders Kodu</th>
+                <th>Ders Adı</th>
+                <th>AKTS</th>
+                <th>Aksiyon</th>
+              </tr>
+            </thead>
+            <tbody>
+              {activeCurriculum.map((course) => (
+                <tr key={course.code}>
+                  <td style={{ fontWeight: 600 }}>{course.code}</td>
+                  <td>{course.name}</td>
+                  <td>{course.akts} ECTS</td>
+                  <td>
+                    <button 
+                      className="btn btn-primary btn-sm"
+                      onClick={() => {
+                        setNewCourse(prev => ({ ...prev, targetCode: course.code }));
+                        setIsCurriculumModalOpen(false);
+                      }}
+                      id="selectFromCurriculumBtn"
+                    >
+                      add from curriculum
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </Modal>
     </div>
   );
 }

@@ -93,7 +93,11 @@ export const AppProvider = ({ children }) => {
       });
       const data = await res.json();
       if (!res.ok) {
-        showToast(data.error || 'Giriş başarısız!', 'error');
+        let msg = data.error || 'Giriş başarısız!';
+        if (msg.includes('hatalı') || msg.includes('bulunamadı') || msg.includes('wrong') || msg.includes('invalid')) {
+          msg = 'Wrong email or password.';
+        }
+        showToast(msg, 'error');
         return { success: false };
       }
       setCurrentUser(data.user);
@@ -141,10 +145,14 @@ export const AppProvider = ({ children }) => {
       });
       const data = await res.json();
       if (!res.ok) {
-        showToast(data.error || 'Kayıt başarısız!', 'error');
+        let msg = data.error || 'Kayıt başarısız!';
+        if (msg.includes('zaten var') || msg.includes('already') || msg.includes('registered')) {
+          msg = 'email has already been registered to the system.';
+        }
+        showToast(msg, 'error');
         return { success: false };
       }
-      showToast('Hesabınız başarıyla oluşturuldu. Giriş yapabilirsiniz.');
+      showToast('Account successfully created', 'success');
       return { success: true };
     } catch (err) {
       showToast('Sunucu bağlantı hatası!', 'error');
@@ -209,7 +217,7 @@ export const AppProvider = ({ children }) => {
         return { success: false };
       }
 
-      showToast('Başvurunuz başarıyla kaydedildi.');
+      showToast('application submitted', 'success');
       await fetchData();
       return { success: true };
     } catch (err) {
@@ -318,7 +326,14 @@ export const AppProvider = ({ children }) => {
   const forwardToYdyo = async (appId) => {
     const res = await updateApplication(appId, { status: 'forwarded_to_ydyo' });
     if (res.success) {
-      showToast('Başvuru YDYO Kontrolüne sevk edildi.');
+      showToast('Forwarded to YDYO successfully', 'success');
+    }
+  };
+
+  const cancelForwardToYdyo = async (appId) => {
+    const res = await updateApplication(appId, { status: 'submitted' });
+    if (res.success) {
+      showToast('Forward to YDYO cancelled. Application reverted to submitted status.', 'success');
     }
   };
 
@@ -329,14 +344,14 @@ export const AppProvider = ({ children }) => {
     }
     const res = await updateApplication(appId, { status: 'returned', oidbNotes: notes });
     if (res.success) {
-      showToast('Başvuru düzeltme için adaya iade edildi.', 'warning');
+      showToast('Application returned successfully.', 'success');
     }
   };
 
   const setPrepStatusAndForward = async (appId, prepStatus) => {
     const res = await updateApplication(appId, { prepSchoolStatus: prepStatus, status: 'forwarded_to_dean' });
     if (res.success) {
-      showToast('İngilizce hazırlık durumu kaydedildi ve Dekanlığa sevk edildi.');
+      showToast('Application marked and forwarded successfully.', 'success');
     }
   };
 
@@ -344,7 +359,7 @@ export const AppProvider = ({ children }) => {
     const dept = programName.includes('Electrical') ? 'electrical_electronics_engineering' : 'computer_engineering';
     const res = await updateApplication(appId, { status: 'forwarded_to_ygk', forwardedFaculty: dept });
     if (res.success) {
-      showToast(`Başvuru YGK Komisyonuna (${programName}) sevk edildi.`);
+      showToast('Application forwarded to YGK successfully.', 'success');
     }
   };
 
@@ -370,7 +385,7 @@ export const AppProvider = ({ children }) => {
 
     const res = await updateApplication(appId, updateFields);
     if (res.success) {
-      showToast(`Başvuru ${target.toUpperCase()} kontrolüne geri gönderildi.`, 'warning');
+      showToast(`Application returned to ${target} successfully.`, 'success');
     }
   };
 
@@ -398,7 +413,7 @@ export const AppProvider = ({ children }) => {
         showToast(data.error || 'İntibak tablosu kaydedilemedi!', 'error');
         return;
       }
-      showToast('İntibak tablosu başarıyla kaydedildi.');
+      showToast('İntibak tablosu başarıyla kaydedildi.', 'success');
       await fetchData();
     } catch (err) {
       showToast('Sunucu bağlantı hatası!', 'error');
@@ -408,7 +423,7 @@ export const AppProvider = ({ children }) => {
   const approveAndSendToOidb = async (appId) => {
     const res = await updateApplication(appId, { status: 'intibak_complete' });
     if (res.success) {
-      showToast('Başvuru onaylandı ve ÖİDB sıralama listesine gönderildi.');
+      showToast('Application approved and sent to OIDB successfully.', 'success');
     }
   };
 
@@ -529,6 +544,7 @@ export const AppProvider = ({ children }) => {
       cancelApplication,
       runCheckerManually,
       forwardToYdyo,
+      cancelForwardToYdyo,
       returnToApplicantFromOidb,
       setPrepStatusAndForward,
       forwardToYgk,

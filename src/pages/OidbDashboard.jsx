@@ -12,6 +12,7 @@ export default function OidbDashboard({ activeTab }) {
     applications, 
     runCheckerManually, 
     forwardToYdyo, 
+    cancelForwardToYdyo,
     returnToApplicantFromOidb, 
     config, 
     updateConfig,
@@ -32,6 +33,12 @@ export default function OidbDashboard({ activeTab }) {
   // Quota Management
   const [quota, setQuota] = useState(config.rankingQuota);
 
+  // Expanded area Return Reason & YDYO Forward Cancel states
+  const [expandedReturnReasons, setExpandedReturnReasons] = useState({});
+  const [isCancelForwardModalOpen, setIsCancelForwardModalOpen] = useState(false);
+  const [cancellingForwardAppId, setCancellingForwardAppId] = useState(null);
+  const [anonymize, setAnonymize] = useState(false);
+
   // Filter applications for search
   const filteredApps = applications.filter(app => {
     const matchesSearch = app.fullName.toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -39,8 +46,12 @@ export default function OidbDashboard({ activeTab }) {
     return matchesSearch;
   });
 
-  // Submitted apps for control panel
-  const submittedApps = filteredApps.filter(app => app.status === 'submitted' || app.status === 'returned');
+  // Submitted & Forwarded Ydyo apps for control panel
+  const submittedApps = filteredApps.filter(app => 
+    app.status === 'submitted' || 
+    app.status === 'returned' || 
+    app.status === 'forwarded_to_ydyo'
+  );
 
   // Intibak complete apps for rankings
   const rankedApps = applications
@@ -67,6 +78,52 @@ export default function OidbDashboard({ activeTab }) {
   const handlePublishRankings = () => {
     updateConfig({ rankingQuota: quota });
     showToast('Yatay Geçiş Asil/Yedek Sonuçları Başarıyla İlan Edilmiştir!', 'success');
+  };
+
+  const handleCancelForwardClick = (id) => {
+    setCancellingForwardAppId(id);
+    setIsCancelForwardModalOpen(true);
+  };
+
+  const handleCancelForwardConfirm = () => {
+    if (cancellingForwardAppId) {
+      cancelForwardToYdyo(cancellingForwardAppId);
+      setIsCancelForwardModalOpen(false);
+      setCancellingForwardAppId(null);
+    }
+  };
+
+  const handleDownloadXlsx = () => {
+    const headers = ['Sira', 'Aday Ogrenci', 'Gittigi Program', 'YKS Puani', 'GPA', 'Siralama Puani', 'Yerlesme Durumu'];
+    const rows = rankedApps.map((app, idx) => {
+      const rank = idx + 1;
+      const isAsil = rank <= quota;
+      const name = anonymize 
+        ? app.fullName.split(' ').map(part => part[0] + '*'.repeat(Math.max(1, part.length - 1))).join(' ')
+        : app.fullName;
+      return [
+        `#${rank}`,
+        name,
+        app.targetProgram,
+        app.osymPoints,
+        app.currentGpa,
+        app.rankingScore.toFixed(4),
+        isAsil ? 'ASİL' : `YEDEK #${rank - quota}`
+      ];
+    });
+
+    const csvContent = "\uFEFF" // UTF-8 BOM
+      + [headers.join(';'), ...rows.map(row => row.map(cell => `"${cell.toString().replace(/"/g, '""')}"`).join(';'))].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `Yatay_Gecis_Siralama_${anonymize ? 'Anonim_' : ''}${config.semester.replace(/\s+/g, '_')}.xlsx`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    showToast('Ranking list downloaded successfully.', 'success');
   };
 
   return (
@@ -179,7 +236,9 @@ export default function OidbDashboard({ activeTab }) {
                           </td>
                           <td>
                             <span className={`status-badge status-${app.status}`}>
-                              {app.status === 'submitted' ? 'İncelemede' : 'İade Edildi'}
+                              {app.status === 'submitted' && 'İncelemede'}
+                              {app.status === 'returned' && 'İade Edildi'}
+                              {app.status === 'forwarded_to_ydyo' && 'Forwarded To Ydyo'}
                             </span>
                           </td>
                           <td>
@@ -192,20 +251,10 @@ export default function OidbDashboard({ activeTab }) {
                                 <Play size={12} /> Kontrol Et
                               </button>
                               <button 
-                                className="btn btn-success btn-sm"
-                                disabled={app.status === 'returned'}
-                                onClick={() => forwardToYdyo(app.id)}
+                                className="btn btn-primary btn-sm"
+                                onClick={() => handleToggleExpand(app.id)}
                               >
-                                YDYO'ya Sevk
-                              </button>
-                              <button 
-                                className="btn btn-danger btn-sm"
-                                onClick={() => {
-                                  setReturningAppId(app.id);
-                                  setIsReturnModalOpen(true);
-                                }}
-                              >
-                                İade Et
+                                {isExpanded ? 'Kapat' : 'Genişlet (Expand)'}
                               </button>
                             </div>
                           </td>
@@ -284,6 +333,47 @@ export default function OidbDashboard({ activeTab }) {
                                   )}
                                 </div>
                               </div>
+
+                              {/* Expanded Panel Actions Area (TC-FWD-06 & TC-FWD-07) */}
+                              <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '1rem', borderTop: '1px solid var(--border-color)', paddingTop: '1rem', marginTop: '1rem' }}>
+                                {app.status === 'forwarded_to_ydyo' ? (
+                                  <button 
+                                    className="btn btn-danger btn-sm"
+                                    onClick={() => handleCancelForwardClick(app.id)}
+                                  >
+                                    Cancel Forward to YDYO
+                                  </button>
+                                ) : (
+                                  <>
+                                    <button 
+                                      className="btn btn-success btn-sm"
+                                      disabled={app.status === 'returned'}
+                                      onClick={() => forwardToYdyo(app.id)}
+                                    >
+                                      Approve & Forward to YDYO
+                                    </button>
+                                    
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                      <textarea 
+                                        className="form-control"
+                                        style={{ width: '220px', height: '32px', minHeight: '32px', fontSize: '0.75rem', padding: '0.25rem 0.5rem', margin: 0 }}
+                                        placeholder="İade gerekçesi yazınız..."
+                                        value={expandedReturnReasons[app.id] || ''}
+                                        onChange={(e) => setExpandedReturnReasons(prev => ({ ...prev, [app.id]: e.target.value }))}
+                                      />
+                                      <button 
+                                        className="btn btn-danger btn-sm"
+                                        disabled={!(expandedReturnReasons[app.id] || '').trim()}
+                                        onClick={() => {
+                                          returnToApplicantFromOidb(app.id, expandedReturnReasons[app.id]);
+                                        }}
+                                      >
+                                        Return to Applicant
+                                      </button>
+                                    </div>
+                                  </>
+                                )}
+                              </div>
                             </td>
                           </tr>
                         )}
@@ -343,6 +433,21 @@ export default function OidbDashboard({ activeTab }) {
               />
             </div>
           </Modal>
+
+          {/* Cancel Forward to YDYO confirmation modal */}
+          <Modal
+            isOpen={isCancelForwardModalOpen}
+            title="Sevki İptal Et"
+            onClose={() => setIsCancelForwardModalOpen(false)}
+            onConfirm={handleCancelForwardConfirm}
+            confirmText="Confirm"
+            cancelText="Cancel"
+            confirmType="danger"
+          >
+            <p style={{ fontSize: '0.9rem', color: 'var(--text-main)' }}>
+              Cancel the forward to YDYO? The application will revert to Submitted status.
+            </p>
+          </Modal>
         </div>
       )}
 
@@ -381,9 +486,28 @@ export default function OidbDashboard({ activeTab }) {
           </div>
 
           <div className="table-container">
-            <div className="table-header-bar">
+            <div className="table-header-bar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
               <h3 className="table-title">Nihai Sıralama Listesi (İntibakı Bitenler)</h3>
-              <div className="table-actions">
+              <div className="table-actions" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer', margin: 0 }}>
+                  <input 
+                    type="checkbox" 
+                    id="anonymizeCheckbox"
+                    checked={anonymize}
+                    onChange={(e) => setAnonymize(e.target.checked)}
+                    style={{ cursor: 'pointer' }}
+                  />
+                  <span>Anonymize Applicants</span>
+                </label>
+
+                <button 
+                  className="btn btn-secondary btn-sm" 
+                  style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}
+                  onClick={handleDownloadXlsx}
+                >
+                  <FileSpreadsheet size={14} /> Download XLSX
+                </button>
+
                 <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--color-success)' }}>
                   Toplam Aday: {rankedApps.length}
                 </span>
@@ -417,7 +541,12 @@ export default function OidbDashboard({ activeTab }) {
                     return (
                       <tr key={app.id} className={isAsil ? 'ranking-row-asil' : 'ranking-row-yedek'}>
                         <td style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--text-muted)' }}>#{rank}</td>
-                        <td style={{ fontWeight: 600 }}>{app.fullName}</td>
+                        <td style={{ fontWeight: 600 }}>
+                          {anonymize 
+                            ? app.fullName.split(' ').map(part => part[0] + '*'.repeat(Math.max(1, part.length - 1))).join(' ')
+                            : app.fullName
+                          }
+                        </td>
                         <td>{app.targetProgram}</td>
                         <td>{app.osymPoints}</td>
                         <td>{app.currentGpa}</td>
