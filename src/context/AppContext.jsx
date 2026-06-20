@@ -5,6 +5,16 @@ const AppContext = createContext();
 export const useApp = () => useContext(AppContext);
 
 export const AppProvider = ({ children }) => {
+  const [lang, setLang] = useState(() => {
+    return localStorage.getItem('utms_lang') || 'tr';
+  });
+
+  const toggleLanguage = () => {
+    const nextLang = lang === 'tr' ? 'en' : 'tr';
+    setLang(nextLang);
+    localStorage.setItem('utms_lang', nextLang);
+  };
+
   const [users, setUsers] = useState([]);
   const [applications, setApplications] = useState([]);
   const [currentUser, setCurrentUser] = useState(() => {
@@ -533,6 +543,9 @@ export const AppProvider = ({ children }) => {
       backups,
       toast,
       showToast,
+      lang,
+      setLang,
+      toggleLanguage,
       login,
       switchDemoUser,
       loginWithEdevlet,

@@ -4,11 +4,10 @@ import { ShieldCheck, HelpCircle, ArrowRight, CheckCircle2, Mail, Globe } from '
 import IyteLogoUrl from '../components/iyte-logo.svg';
 
 export default function Login({ onBackToLanding, initialMode = 'login' }) {
-  const { login, loginWithEdevlet, register, resetPassword, showToast } = useApp();
+  const { login, loginWithEdevlet, register, resetPassword, showToast, lang, toggleLanguage } = useApp();
   
   // Modes: 'login' | 'register' | 'edevlet' | 'forgot' | 'verify_email'
   const [mode, setMode] = useState(initialMode);
-  const [lang, setLang] = useState('tr');
   const [verificationEmail, setVerificationEmail] = useState('');
 
   useEffect(() => {
@@ -170,10 +169,10 @@ export default function Login({ onBackToLanding, initialMode = 'login' }) {
         {/* Language & Home Toggle Buttons */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', fontSize: '0.8rem' }}>
           <span className="auth-link" onClick={onBackToLanding}>
-            ← Ana Sayfa (Home)
+            {lang === 'tr' ? '← Ana Sayfa' : '← Home'}
           </span>
           <button 
-            onClick={() => setLang(lang === 'tr' ? 'en' : 'tr')}
+            onClick={toggleLanguage}
             style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', background: 'none', border: '1px solid var(--border-color)', borderRadius: '4px', padding: '0.15rem 0.4rem', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-main)' }}
           >
             <Globe size={12} /> {lang === 'tr' ? 'English' : 'Türkçe'}
@@ -273,7 +272,7 @@ export default function Login({ onBackToLanding, initialMode = 'login' }) {
                   style={{ fontSize: '0.75rem', padding: '0.3rem' }}
                   onClick={() => { setLoginEmail('emre.yildiz@test'); setLoginPassword('test'); setLoginRole('applicant'); }}
                 >
-                  Aday (Emre)
+                  {lang === 'tr' ? 'Aday (Emre)' : 'Applicant (Emre)'}
                 </button>
                 <button 
                   type="button" 
@@ -281,7 +280,7 @@ export default function Login({ onBackToLanding, initialMode = 'login' }) {
                   style={{ fontSize: '0.75rem', padding: '0.3rem' }}
                   onClick={() => { setLoginEmail('oidb@test'); setLoginPassword('test'); setLoginRole('oidb'); }}
                 >
-                  ÖİDB Memuru
+                  {lang === 'tr' ? 'ÖİDB Memuru' : 'OIDB Officer'}
                 </button>
                 <button 
                   type="button" 
@@ -289,7 +288,7 @@ export default function Login({ onBackToLanding, initialMode = 'login' }) {
                   style={{ fontSize: '0.75rem', padding: '0.3rem' }}
                   onClick={() => { setLoginEmail('ydyo@test'); setLoginPassword('test'); setLoginRole('ydyo'); }}
                 >
-                  YDYO Sorumlusu
+                  {lang === 'tr' ? 'YDYO Sorumlusu' : 'YDYO Officer'}
                 </button>
                 <button 
                   type="button" 
@@ -297,7 +296,7 @@ export default function Login({ onBackToLanding, initialMode = 'login' }) {
                   style={{ fontSize: '0.75rem', padding: '0.3rem' }}
                   onClick={() => { setLoginEmail('dean@test'); setLoginPassword('test'); setLoginRole('dean'); }}
                 >
-                  Dekanlık
+                  {lang === 'tr' ? 'Dekanlık' : 'Deanery'}
                 </button>
                 <button 
                   type="button" 
@@ -305,7 +304,7 @@ export default function Login({ onBackToLanding, initialMode = 'login' }) {
                   style={{ fontSize: '0.75rem', padding: '0.3rem' }}
                   onClick={() => { setLoginEmail('ygk.ceng@test'); setLoginPassword('test'); setLoginRole('ygk'); }}
                 >
-                  YGK Komisyonu
+                  {lang === 'tr' ? 'YGK Komisyonu' : 'YGK Committee'}
                 </button>
                 <button 
                   type="button" 
@@ -313,7 +312,7 @@ export default function Login({ onBackToLanding, initialMode = 'login' }) {
                   style={{ fontSize: '0.75rem', padding: '0.3rem' }}
                   onClick={() => { setLoginEmail('admin@admin'); setLoginPassword('admin'); setLoginRole('admin'); }}
                 >
-                  Yönetici (Admin)
+                  {lang === 'tr' ? 'Yönetici (Admin)' : 'System Admin'}
                 </button>
               </div>
               <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textAlign: 'center', marginTop: '0.5rem', fontStyle: 'italic' }}>
@@ -458,19 +457,19 @@ export default function Login({ onBackToLanding, initialMode = 'login' }) {
           <form onSubmit={handleEdevletSubmit}>
             <div className="form-group" style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
               <ShieldCheck size={48} style={{ color: '#e21b22', margin: '0 auto 0.5rem auto' }} />
-              <h4 style={{ color: '#1e293b' }}>e-Devlet Kapısı Kimlik Doğrulama</h4>
+              <h4 style={{ color: '#1e293b' }}>{lang === 'tr' ? 'e-Devlet Kapısı Kimlik Doğrulama' : 'e-Devlet Identity Verification'}</h4>
               <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                Bilgileriniz e-Devlet servisleri üzerinden doğrulanacaktır.
+                {lang === 'tr' ? 'Bilgileriniz e-Devlet servisleri üzerinden doğrulanacaktır.' : 'Your information will be verified via e-Devlet services.'}
               </p>
             </div>
 
             <div className="form-group">
-              <label className="form-label">TC Kimlik Numarası</label>
+              <label className="form-label">{lang === 'tr' ? 'TC Kimlik Numarası' : 'TR Identity Number'}</label>
               <input 
                 type="text" 
                 className="form-control" 
                 maxLength={11}
-                placeholder="11 haneli TC No"
+                placeholder={lang === 'tr' ? '11 haneli TC No' : '11-digit TR ID No'}
                 required
                 value={edevletTcNo}
                 onChange={(e) => setEdevletTcNo(e.target.value)}
@@ -478,11 +477,11 @@ export default function Login({ onBackToLanding, initialMode = 'login' }) {
             </div>
 
             <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-              <label className="form-label">Tam Adınız</label>
+              <label className="form-label">{lang === 'tr' ? 'Tam Adınız' : 'Your Full Name'}</label>
               <input 
                 type="text" 
                 className="form-control" 
-                placeholder="Adınız Soyadınız"
+                placeholder={lang === 'tr' ? 'Adınız Soyadınız' : 'Your Full Name'}
                 required
                 value={edevletFullName}
                 onChange={(e) => setEdevletFullName(e.target.value)}
@@ -490,7 +489,7 @@ export default function Login({ onBackToLanding, initialMode = 'login' }) {
             </div>
 
             <button type="submit" className="btn btn-edevlet" style={{ width: '100%', padding: '0.65rem', marginBottom: '1rem' }}>
-              Giriş Yap
+              {lang === 'tr' ? 'Giriş Yap' : 'Log In'}
             </button>
 
             <div style={{ textAlign: 'center', fontSize: '0.8rem' }}>
@@ -505,14 +504,14 @@ export default function Login({ onBackToLanding, initialMode = 'login' }) {
           <form onSubmit={handleForgotSubmit}>
             <div className="form-group" style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
               <HelpCircle size={48} style={{ color: 'var(--primary-color)', margin: '0 auto 0.5rem auto' }} />
-              <h4 style={{ color: '#1e293b' }}>Şifre Sıfırlama Talebi</h4>
+              <h4 style={{ color: '#1e293b' }}>{lang === 'tr' ? 'Şifre Sıfırlama Talebi' : 'Password Reset Request'}</h4>
               <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                Kayıtlı e-posta adresinizi girerek yeni şifrenizi tanımlayınız.
+                {lang === 'tr' ? 'Kayıtlı e-posta adresinizi girerek yeni şifrenizi tanımlayınız.' : 'Please enter your registered email address to define a new password.'}
               </p>
             </div>
 
             <div className="form-group">
-              <label className="form-label">Kayıtlı E-Posta Adresi</label>
+              <label className="form-label">{lang === 'tr' ? 'Kayıtlı E-Posta Adresi' : 'Registered Email Address'}</label>
               <input 
                 type="email" 
                 className="form-control" 
@@ -524,11 +523,11 @@ export default function Login({ onBackToLanding, initialMode = 'login' }) {
             </div>
 
             <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-              <label className="form-label">Yeni Şifreniz</label>
+              <label className="form-label">{lang === 'tr' ? 'Yeni Şifreniz' : 'Your New Password'}</label>
               <input 
                 type="password" 
                 className="form-control" 
-                placeholder="Yeni şifre (Min 8 karakter)"
+                placeholder={lang === 'tr' ? 'Yeni şifre (Min 8 karakter)' : 'New password (Min 8 characters)'}
                 required
                 value={forgotNewPassword}
                 onChange={(e) => setForgotNewPassword(e.target.value)}
@@ -536,7 +535,7 @@ export default function Login({ onBackToLanding, initialMode = 'login' }) {
             </div>
 
             <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '0.65rem', marginBottom: '1rem' }}>
-              Şifreyi Güncelle
+              {lang === 'tr' ? 'Şifreyi Güncelle' : 'Update Password'}
             </button>
 
             <div style={{ textAlign: 'center', fontSize: '0.8rem' }}>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
-import { DOCUMENT_SLOTS, PROGRAMS, SEMESTERS } from '../data/seedData';
+import { DOCUMENT_SLOTS, PROGRAMS, SEMESTERS, getSlotName, translateReason, translateProgram } from '../data/seedData';
 import { 
   FileText, AlertTriangle, CheckCircle2, ShieldAlert, 
   Trash2, Send, RefreshCw, Eye, HelpCircle 
@@ -14,7 +14,8 @@ export default function ApplicantDashboard({ activeTab, setActiveTab }) {
     submitApplication, 
     resubmitApplication, 
     cancelApplication,
-    config
+    config,
+    lang
   } = useApp();
 
   const app = applications.find(a => a.applicantId === currentUser.id && a.status !== 'cancelled');
@@ -62,14 +63,14 @@ export default function ApplicantDashboard({ activeTab, setActiveTab }) {
 
     // Validation: PDF only
     if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
-      setFileErrors(prev => ({ ...prev, [slotId]: 'Sadece PDF dosyaları yüklenebilir!' }));
+      setFileErrors(prev => ({ ...prev, [slotId]: lang === 'tr' ? 'Sadece PDF dosyaları yüklenebilir!' : 'Only PDF files can be uploaded!' }));
       return;
     }
 
     // Validation: Max 5MB
     const maxSize = 5 * 1024 * 1024;
     if (file.size > maxSize) {
-      setFileErrors(prev => ({ ...prev, [slotId]: 'Dosya boyutu 5 MB\'ı geçemez!' }));
+      setFileErrors(prev => ({ ...prev, [slotId]: lang === 'tr' ? 'Dosya boyutu 5 MB\'ı geçemez!' : 'File size cannot exceed 5 MB!' }));
       return;
     }
 
@@ -92,12 +93,12 @@ export default function ApplicantDashboard({ activeTab, setActiveTab }) {
       const missing = [];
       DOCUMENT_SLOTS.forEach(slot => {
         if (slot.required && !files[slot.id]) {
-          missing.push(slot.name);
+          missing.push(getSlotName(slot.id, lang));
         }
       });
 
       if (missing.length > 0) {
-        alert(`Lütfen zorunlu belgeleri yükleyin:\n- ${missing.join('\n- ')}`);
+        alert(lang === 'tr' ? `Lütfen zorunlu belgeleri yükleyin:\n- ${missing.join('\n- ')}` : `Please upload mandatory documents:\n- ${missing.join('\n- ')}`);
         return;
       }
 
@@ -125,11 +126,11 @@ export default function ApplicantDashboard({ activeTab, setActiveTab }) {
   // Stepper Tracker computation
   const getStepperStatus = () => {
     const steps = [
-      { id: 0, label: 'ÖİDB Belge Kontrolü', activeStatus: 'submitted' },
-      { id: 1, label: 'YDYO İngilizce Hazırlık', activeStatus: 'forwarded_to_ydyo' },
-      { id: 2, label: 'Dekanlık Onayı', activeStatus: 'forwarded_to_dean' },
-      { id: 3, label: 'YGK İntibak Komisyonu', activeStatus: 'forwarded_to_ygk' },
-      { id: 4, label: 'ÖİDB Nihai Sıralama', activeStatus: 'intibak_complete' }
+      { id: 0, label: lang === 'tr' ? 'ÖİDB Belge Kontrolü' : 'OIDB Document Control', activeStatus: 'submitted' },
+      { id: 1, label: lang === 'tr' ? 'YDYO İngilizce Hazırlık' : 'YDYO English Prep', activeStatus: 'forwarded_to_ydyo' },
+      { id: 2, label: lang === 'tr' ? 'Dekanlık Onayı' : 'Deanery Approval', activeStatus: 'forwarded_to_dean' },
+      { id: 3, label: lang === 'tr' ? 'YGK İntibak Komisyonu' : 'YGK Equivalency Committee', activeStatus: 'forwarded_to_ygk' },
+      { id: 4, label: lang === 'tr' ? 'ÖİDB Nihai Sıralama' : 'OIDB Final Ranking', activeStatus: 'intibak_complete' }
     ];
 
     if (!app) return steps.map(s => ({ ...s, state: 'inactive' }));
@@ -170,12 +171,12 @@ export default function ApplicantDashboard({ activeTab, setActiveTab }) {
         <div>
           <div className="page-header">
             <div>
-              <h2 className="page-title">Başvuru Takip Paneli</h2>
-              <p className="page-description">Yatay geçiş başvurunuzun güncel durumunu buradan takip edebilirsiniz.</p>
+              <h2 className="page-title">{lang === 'tr' ? 'Başvuru Takip Paneli' : 'Application Tracking Panel'}</h2>
+              <p className="page-description">{lang === 'tr' ? 'Yatay geçiş başvurunuzun güncel durumunu buradan takip edebilirsiniz.' : 'You can track the current status of your horizontal transfer application here.'}</p>
             </div>
             {app && app.status !== 'cancelled' && (
               <button className="btn btn-danger btn-sm" onClick={() => setIsCancelModalOpen(true)}>
-                <Trash2 size={14} /> Başvuruyu İptal Et
+                <Trash2 size={14} /> {lang === 'tr' ? 'Başvuruyu İptal Et' : 'Cancel Application'}
               </button>
             )}
           </div>
@@ -183,19 +184,19 @@ export default function ApplicantDashboard({ activeTab, setActiveTab }) {
           {!app ? (
             <div className="card" style={{ padding: '2rem', textAlign: 'center', alignItems: 'center' }}>
               <AlertTriangle size={48} style={{ color: 'var(--color-warning)', marginBottom: '1rem' }} />
-              <h3>Henüz Bir Başvurunuz Bulunmamaktadır!</h3>
+              <h3>{lang === 'tr' ? 'Henüz Bir Başvurunuz Bulunmamaktadır!' : 'You Do Not Have Any Applications Yet!'}</h3>
               <p style={{ color: 'var(--text-muted)', maxWidth: '460px', margin: '0.5rem 0 1.5rem 0' }}>
-                Yatay geçiş başvurusunda bulunmak için sol menüden "Belge Yükleme" sayfasına gidebilir veya aşağıdaki butona tıklayabilirsiniz.
+                {lang === 'tr' ? 'Yatay geçiş başvurusunda bulunmak için sol menüden "Belge Yükleme" sayfasına gidebilir veya aşağıdaki butona tıklayabilirsiniz.' : 'To apply for horizontal transfer, you can go to the "Document Upload" page from the left menu or click the button below.'}
               </p>
               <button className="btn btn-primary" onClick={() => setActiveTab('applicant_submit')}>
-                Hemen Başvur
+                {lang === 'tr' ? 'Hemen Başvur' : 'Apply Now'}
               </button>
             </div>
           ) : (
             <div>
               {/* Timeline Stepper */}
               <div className="card" style={{ marginBottom: '1.5rem', padding: '1.5rem' }}>
-                <h4 style={{ marginBottom: '1rem' }}>Başvuru Aşamaları</h4>
+                <h4 style={{ marginBottom: '1rem' }}>{lang === 'tr' ? 'Başvuru Aşamaları' : 'Application Stages'}</h4>
                 <div className="stepper">
                   {steps.map((step) => (
                     <div key={step.id} className={`step ${step.state}`}>
@@ -213,13 +214,13 @@ export default function ApplicantDashboard({ activeTab, setActiveTab }) {
                 <div className="alert-feedback">
                   <div className="alert-feedback-title">
                     <ShieldAlert size={18} />
-                    Başvurunuz Revizyon İçin İade Edilmiştir!
+                    {lang === 'tr' ? 'Başvurunuz Revizyon İçin İade Edilmiştir!' : 'Your Application Has Been Returned for Revision!'}
                   </div>
                   <div className="alert-feedback-body">
-                    <strong>İade Gerekçesi:</strong> {app.oidbNotes || app.deanNotes}
+                    <strong>{lang === 'tr' ? 'İade Gerekçesi:' : 'Return Reason:'}</strong> {translateReason(app.oidbNotes || app.deanNotes, lang)}
                     <br />
                     <p style={{ marginTop: '0.5rem', fontWeight: 600 }}>
-                      Lütfen sol menüdeki "Belge Yükleme / Güncelleme" sayfasına giderek hatalı belgeleri güncelleyiniz ve başvurunuzu yeniden gönderiniz.
+                      {lang === 'tr' ? 'Lütfen sol menüdeki "Belge Yükleme / Güncelleme" sayfasına giderek hatalı belgeleri güncelleyiniz ve başvurunuzu yeniden gönderiniz.' : 'Please go to the "Document Upload / Update" page in the left menu, update the incorrect documents, and resubmit your application.'}
                     </p>
                   </div>
                 </div>
@@ -228,61 +229,61 @@ export default function ApplicantDashboard({ activeTab, setActiveTab }) {
               {/* Application Details Summary */}
               <div className="card">
                 <div style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem', marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <h3 style={{ fontSize: '1.1rem', fontWeight: 600 }}>Başvuru Detayları</h3>
+                  <h3 style={{ fontSize: '1.1rem', fontWeight: 600 }}>{lang === 'tr' ? 'Başvuru Detayları' : 'Application Details'}</h3>
                   <span className={`status-badge status-${app.status}`}>
-                    {app.status === 'submitted' && 'Kontrol Bekliyor'}
-                    {app.status === 'forwarded_to_ydyo' && 'YDYO Hazırlık Kontrolünde'}
-                    {app.status === 'forwarded_to_dean' && 'Dekanlık İncelemesinde'}
-                    {app.status === 'forwarded_to_ygk' && 'Komisyon İntibak Aşamasında'}
-                    {app.status === 'intibak_complete' && 'İntibak Tamamlandı / Sıralamada'}
-                    {app.status === 'returned' && 'Düzeltme Bekliyor'}
+                    {app.status === 'submitted' && (lang === 'tr' ? 'Kontrol Bekliyor' : 'Pending Control')}
+                    {app.status === 'forwarded_to_ydyo' && (lang === 'tr' ? 'YDYO Hazırlık Kontrolünde' : 'At YDYO Prep Control')}
+                    {app.status === 'forwarded_to_dean' && (lang === 'tr' ? 'Dekanlık İncelemesinde' : 'Under Deanery Review')}
+                    {app.status === 'forwarded_to_ygk' && (lang === 'tr' ? 'Komisyon İntibak Aşamasında' : 'At Committee Equivalency')}
+                    {app.status === 'intibak_complete' && (lang === 'tr' ? 'İntibak Tamamlandı / Sıralamada' : 'Equivalency Completed / Ranked')}
+                    {app.status === 'returned' && (lang === 'tr' ? 'Düzeltme Bekliyor' : 'Revision Pending')}
                   </span>
                 </div>
 
                 <div className="form-grid" style={{ gap: '1.5rem' }}>
                   <div>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block' }}>T.C. Kimlik No</span>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block' }}>{lang === 'tr' ? 'T.C. Kimlik No' : 'Turkish ID No'}</span>
                     <strong style={{ fontSize: '0.9rem' }}>{app.idNumber}</strong>
                   </div>
                   <div>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block' }}>Başvurulan Program</span>
-                    <strong style={{ fontSize: '0.9rem' }}>{app.targetProgram}</strong>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block' }}>{lang === 'tr' ? 'Başvurulan Program' : 'Applied Program'}</span>
+                    <strong style={{ fontSize: '0.9rem' }}>{translateProgram(app.targetProgram, lang)}</strong>
                   </div>
                   <div>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block' }}>Başvuru Dönemi</span>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block' }}>{lang === 'tr' ? 'Başvuru Dönemi' : 'Application Semester'}</span>
                     <strong style={{ fontSize: '0.9rem' }}>{app.targetSemester}</strong>
                   </div>
                   <div>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block' }}>Mevcut Üniversite</span>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block' }}>{lang === 'tr' ? 'Mevcut Üniversite' : 'Current University'}</span>
                     <strong style={{ fontSize: '0.9rem' }}>{app.sourceUniversity}</strong>
                   </div>
                   <div>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block' }}>Genel Not Ortalaması (GPA)</span>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block' }}>{lang === 'tr' ? 'Genel Not Ortalaması (GPA)' : 'Cumulative GPA'}</span>
                     <strong style={{ fontSize: '0.9rem' }}>{app.currentGpa} / 4.00</strong>
                   </div>
                   <div>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block' }}>ÖSYM YKS Taban Puanı</span>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block' }}>{lang === 'tr' ? 'ÖSYM YKS Taban Puanı' : 'OSYM YKS Base Score'}</span>
                     <strong style={{ fontSize: '0.9rem' }}>{app.osymPoints}</strong>
                   </div>
                   <div>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block' }}>Kayıt Durumu</span>
-                    <strong style={{ fontSize: '0.9rem' }}>{app.isCurrentlyEnrolled ? 'Halen Kayıtlı' : 'Kayıtlı Değil'}</strong>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block' }}>{lang === 'tr' ? 'Kayıt Durumu' : 'Enrollment Status'}</span>
+                    <strong style={{ fontSize: '0.9rem' }}>{app.isCurrentlyEnrolled ? (lang === 'tr' ? 'Halen Kayıtlı' : 'Currently Enrolled') : (lang === 'tr' ? 'Kayıtlı Değil' : 'Not Enrolled')}</strong>
                   </div>
                   <div>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block' }}>Son Güncelleme</span>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block' }}>{lang === 'tr' ? 'Son Güncelleme' : 'Last Update'}</span>
                     <strong style={{ fontSize: '0.9rem' }}>{app.lastEditedAt}</strong>
                   </div>
                 </div>
 
                 <div style={{ marginTop: '1.5rem' }}>
-                  <h4 style={{ fontSize: '0.9rem', marginBottom: '0.5rem' }}>Yüklenen Belgeler</h4>
+                  <h4 style={{ fontSize: '0.9rem', marginBottom: '0.5rem' }}>{lang === 'tr' ? 'Yüklenen Belgeler' : 'Uploaded Documents'}</h4>
                   <table className="ubys-table">
                     <thead>
                       <tr>
-                        <th>Belge Türü</th>
-                        <th>Dosya Adı</th>
-                        <th>Boyut</th>
-                        <th>Yükleme Tarihi</th>
+                        <th>{lang === 'tr' ? 'Belge Türü' : 'Document Type'}</th>
+                        <th>{lang === 'tr' ? 'Dosya Adı' : 'File Name'}</th>
+                        <th>{lang === 'tr' ? 'Boyut' : 'Size'}</th>
+                        <th>{lang === 'tr' ? 'Yükleme Tarihi' : 'Upload Date'}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -290,7 +291,7 @@ export default function ApplicantDashboard({ activeTab, setActiveTab }) {
                         const slot = DOCUMENT_SLOTS.find(s => s.id === doc.slot);
                         return (
                           <tr key={doc.id}>
-                            <td>{slot ? slot.name : 'Diğer'}</td>
+                            <td>{slot ? getSlotName(slot.id, lang) : (lang === 'tr' ? 'Diğer' : 'Other')}</td>
                             <td>
                               <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', color: 'var(--primary-color)' }}>
                                 <FileText size={14} /> {doc.filename}
@@ -310,15 +311,15 @@ export default function ApplicantDashboard({ activeTab, setActiveTab }) {
 
           <Modal 
             isOpen={isCancelModalOpen} 
-            title="Başvuru İptal Onayı"
+            title={lang === 'tr' ? 'Başvuru İptal Onayı' : 'Application Cancel Confirmation'}
             onClose={() => setIsCancelModalOpen(false)}
             onConfirm={handleCancelConfirm}
-            confirmText="Evet, İptal Et"
+            confirmText={lang === 'tr' ? 'Evet, İptal Et' : 'Yes, Cancel'}
             confirmType="danger"
           >
-            <p>Başvurunuzu kalıcı olarak iptal etmek istediğinize emin misiniz?</p>
+            <p>{lang === 'tr' ? 'Başvurunuzu kalıcı olarak iptal etmek istediğinize emin misiniz?' : 'Are you sure you want to permanently cancel your application?'}</p>
             <p style={{ marginTop: '0.5rem', fontWeight: 600, color: 'var(--color-danger)' }}>
-              Bu işlem geri alınamaz!
+              {lang === 'tr' ? 'Bu işlem geri alınamaz!' : 'This action cannot be undone!'}
             </p>
           </Modal>
         </div>
@@ -328,17 +329,17 @@ export default function ApplicantDashboard({ activeTab, setActiveTab }) {
         <div>
           <div className="page-header">
             <div>
-              <h2 className="page-title">{app ? 'Başvuru Belgelerini Güncelle' : 'Yatay Geçiş Başvuru Formu'}</h2>
-              <p className="page-description">Lütfen tüm akademik bilgilerinizi giriniz ve ilgili PDF belgelerinizi yükleyiniz.</p>
+              <h2 className="page-title">{app ? (lang === 'tr' ? 'Başvuru Belgelerini Güncelle' : 'Update Application Documents') : (lang === 'tr' ? 'Yatay Geçiş Başvuru Formu' : 'Horizontal Transfer Application Form')}</h2>
+              <p className="page-description">{lang === 'tr' ? 'Lütfen tüm akademik bilgilerinizi giriniz ve ilgili PDF belgelerinizi yükleyiniz.' : 'Please enter all your academic information and upload the relevant PDF documents.'}</p>
             </div>
           </div>
 
           <div className="card">
             <form onSubmit={handleFormSubmit}>
-              <h4 style={{ marginBottom: '1rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>Akademik Bilgiler</h4>
+              <h4 style={{ marginBottom: '1rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>{lang === 'tr' ? 'Akademik Bilgiler' : 'Academic Information'}</h4>
               <div className="form-grid" style={{ marginBottom: '1.5rem' }}>
                 <div className="form-group">
-                  <label className="form-label">T.C. Kimlik Numarası</label>
+                  <label className="form-label">{lang === 'tr' ? 'T.C. Kimlik Numarası' : 'Turkish ID Number'}</label>
                   <input 
                     type="text" 
                     className="form-control" 
@@ -351,7 +352,7 @@ export default function ApplicantDashboard({ activeTab, setActiveTab }) {
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Başvurulacak Program</label>
+                  <label className="form-label">{lang === 'tr' ? 'Başvurulacak Program' : 'Applied Program'}</label>
                   <select 
                     className="form-control" 
                     name="targetProgram"
@@ -359,18 +360,18 @@ export default function ApplicantDashboard({ activeTab, setActiveTab }) {
                     onChange={handleChange}
                   >
                     {PROGRAMS.map((prog, idx) => (
-                      <option key={idx} value={prog}>{prog}</option>
+                      <option key={idx} value={prog}>{translateProgram(prog, lang)}</option>
                     ))}
                   </select>
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Mevcut Üniversiteniz</label>
+                  <label className="form-label">{lang === 'tr' ? 'Mevcut Üniversiteniz' : 'Your Current University'}</label>
                   <input 
                     type="text" 
                     className="form-control" 
                     name="sourceUniversity"
-                    placeholder="Örn: Ege Üniversitesi"
+                    placeholder={lang === 'tr' ? 'Örn: Ege Üniversitesi' : 'e.g. Ege University'}
                     required
                     value={formData.sourceUniversity}
                     onChange={handleChange}
@@ -378,7 +379,7 @@ export default function ApplicantDashboard({ activeTab, setActiveTab }) {
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Genel Not Ortalaması (GPA)</label>
+                  <label className="form-label">{lang === 'tr' ? 'Genel Not Ortalaması (GPA)' : 'Cumulative GPA'}</label>
                   <input 
                     type="number" 
                     step="0.01"
@@ -386,7 +387,7 @@ export default function ApplicantDashboard({ activeTab, setActiveTab }) {
                     max="4"
                     className="form-control" 
                     name="currentGpa"
-                    placeholder="Örn: 3.45"
+                    placeholder={lang === 'tr' ? 'Örn: 3.45' : 'e.g. 3.45'}
                     required
                     value={formData.currentGpa}
                     onChange={handleChange}
@@ -394,13 +395,13 @@ export default function ApplicantDashboard({ activeTab, setActiveTab }) {
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">YKS ÖSYM Taban Puanınız</label>
+                  <label className="form-label">{lang === 'tr' ? 'YKS ÖSYM Taban Puanınız' : 'YKS OSYM Base Score'}</label>
                   <input 
                     type="number" 
                     step="0.01"
                     className="form-control" 
                     name="osymPoints"
-                    placeholder="Örn: 420.50"
+                    placeholder={lang === 'tr' ? 'Örn: 420.50' : 'e.g. 420.50'}
                     required
                     value={formData.osymPoints}
                     onChange={handleChange}
@@ -408,20 +409,20 @@ export default function ApplicantDashboard({ activeTab, setActiveTab }) {
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Halen Kayıtlı mısınız?</label>
+                  <label className="form-label">{lang === 'tr' ? 'Halen Kayıtlı mısınız?' : 'Are you currently enrolled?'}</label>
                   <select 
                     className="form-control" 
                     name="isCurrentlyEnrolled"
                     value={formData.isCurrentlyEnrolled}
                     onChange={handleChange}
                   >
-                    <option value="true">Evet, halen kayıtlıyım</option>
-                    <option value="false">Hayır, ilişiğim kesildi / kayıt sildirdim</option>
+                    <option value="true">{lang === 'tr' ? 'Evet, halen kayıtlıyım' : 'Yes, currently enrolled'}</option>
+                    <option value="false">{lang === 'tr' ? 'Hayır, ilişiğim kesildi / kayıt sildirdim' : 'No, dismissed / registration cancelled'}</option>
                   </select>
                 </div>
               </div>
 
-              <h4 style={{ marginBottom: '1rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>Belgeler (Sadece PDF, Maks 5MB)</h4>
+              <h4 style={{ marginBottom: '1rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>{lang === 'tr' ? 'Belgeler (Sadece PDF, Maks 5MB)' : 'Documents (PDF only, Max 5MB)'}</h4>
               
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '2rem' }}>
                 {DOCUMENT_SLOTS.map((slot) => {
@@ -431,12 +432,12 @@ export default function ApplicantDashboard({ activeTab, setActiveTab }) {
                     <div key={slot.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem', border: '1px solid var(--border-color)', borderRadius: '6px', backgroundColor: '#f8fafc' }}>
                       <div style={{ flexGrow: 1 }}>
                         <span style={{ fontSize: '0.85rem', fontWeight: 600, display: 'block' }}>
-                          {slot.name}
+                          {getSlotName(slot.id, lang)}
                           {slot.required && <span style={{ color: 'var(--color-danger)', marginLeft: '0.25rem' }}>*</span>}
                         </span>
                         {existingDoc && (
                           <span style={{ fontSize: '0.75rem', color: 'var(--color-success)', display: 'flex', alignItems: 'center', gap: '0.25rem', marginTop: '0.15rem' }}>
-                            <CheckCircle2 size={12} /> Yüklü Dosya: {existingDoc.filename} ({existingDoc.fileSize})
+                            <CheckCircle2 size={12} /> {lang === 'tr' ? 'Yüklü Dosya: ' : 'Uploaded File: '}{existingDoc.filename} ({existingDoc.fileSize})
                           </span>
                         )}
                         {fileErrors[slot.id] && (
@@ -459,7 +460,7 @@ export default function ApplicantDashboard({ activeTab, setActiveTab }) {
                           className="btn btn-secondary btn-sm"
                           style={{ cursor: 'pointer' }}
                         >
-                          {files[slot.id] ? 'Dosyayı Değiştir' : (existingDoc ? 'Güncelle' : 'Dosya Seç')}
+                          {files[slot.id] ? (lang === 'tr' ? 'Dosyayı Değiştir' : 'Change File') : (existingDoc ? (lang === 'tr' ? 'Güncelle' : 'Update') : (lang === 'tr' ? 'Dosya Seç' : 'Choose File'))}
                         </label>
                         {files[slot.id] && (
                           <span style={{ fontSize: '0.8rem', color: 'var(--text-main)', maxWidth: '140px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -474,10 +475,10 @@ export default function ApplicantDashboard({ activeTab, setActiveTab }) {
 
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
                 <button type="button" className="btn btn-secondary" onClick={() => setActiveTab('applicant_status')}>
-                  İptal
+                  {lang === 'tr' ? 'İptal' : 'Cancel'}
                 </button>
                 <button type="submit" className="btn btn-primary">
-                  <Send size={16} /> {app ? 'Başvuruyu Güncelle ve Gönder' : 'Başvuruyu Tamamla ve Gönder'}
+                  <Send size={16} /> {app ? (lang === 'tr' ? 'Başvuruyu Güncelle ve Gönder' : 'Update & Submit Application') : (lang === 'tr' ? 'Başvuruyu Tamamla ve Gönder' : 'Complete & Submit Application')}
                 </button>
               </div>
             </form>

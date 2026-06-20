@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { DOCUMENT_SLOTS } from '../data/seedData';
+import { DOCUMENT_SLOTS, translateProgram } from '../data/seedData';
 import { FileText, Eye, CheckCircle2, Search, ArrowRight } from 'lucide-react';
 import Modal from '../components/Modal';
 
 export default function YdyoDashboard() {
-  const { applications, setPrepStatusAndForward } = useApp();
+  const { applications, setPrepStatusAndForward, lang } = useApp();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedAppId, setSelectedAppId] = useState(null);
   
@@ -37,35 +37,35 @@ export default function YdyoDashboard() {
     <div className="content-body">
       <div className="page-header">
         <div>
-          <h2 className="page-title">Yabancı Diller Yüksekokulu (YDYO)</h2>
-          <p className="page-description">Aday öğrencilerin İngilizce yeterlilik belgelerini kontrol edin ve hazırlık durumunu onaylayın.</p>
+          <h2 className="page-title">{lang === 'tr' ? 'Yabancı Diller Yüksekokulu (YDYO)' : 'School of Foreign Languages (YDYO)'}</h2>
+          <p className="page-description">{lang === 'tr' ? 'Aday öğrencilerin İngilizce yeterlilik belgelerini kontrol edin ve hazırlık durumunu onaylayın.' : 'Check applicant students\' English proficiency documents and approve prep school status.'}</p>
         </div>
       </div>
 
       <div className="card-grid">
         <div className="card">
-          <span className="card-title">Bekleyen Kontrol</span>
+          <span className="card-title">{lang === 'tr' ? 'Bekleyen Kontrol' : 'Pending Control'}</span>
           <span className="card-value">{applications.filter(a => a.status === 'forwarded_to_ydyo').length}</span>
-          <span className="card-subtitle">İngilizce muafiyet bekleyenler</span>
+          <span className="card-subtitle">{lang === 'tr' ? 'İngilizce muafiyet bekleyenler' : 'Those waiting for English exemption'}</span>
         </div>
         <div className="card">
-          <span className="card-title">Tamamlanan</span>
+          <span className="card-title">{lang === 'tr' ? 'Tamamlanan' : 'Completed'}</span>
           <span className="card-value">
             {applications.filter(a => a.prepSchoolStatus !== null).length}
           </span>
-          <span className="card-subtitle">İngilizce muafiyeti biten toplam aday</span>
+          <span className="card-subtitle">{lang === 'tr' ? 'İngilizce muafiyeti biten toplam aday' : 'Total applicants with completed English exemption'}</span>
         </div>
       </div>
 
       <div className="table-container">
         <div className="table-header-bar">
-          <h3 className="table-title">İngilizce Muafiyet Kontrol Listesi</h3>
+          <h3 className="table-title">{lang === 'tr' ? 'İngilizce Muafiyet Kontrol Listesi' : 'English Exemption Checklist'}</h3>
           <div className="table-actions">
             <Search size={16} style={{ color: 'var(--text-muted)' }} />
             <input 
               type="text" 
               className="table-search" 
-              placeholder="Öğrenci veya Üni Ara..."
+              placeholder={lang === 'tr' ? 'Öğrenci veya Üni Ara...' : 'Search Student or Uni...'}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -75,19 +75,19 @@ export default function YdyoDashboard() {
         <table className="ubys-table">
           <thead>
             <tr>
-              <th>Aday Öğrenci</th>
-              <th>Geçiş Yapılacak Program</th>
-              <th>Önceki Okulu</th>
-              <th>İngilizce Muafiyet Belgesi</th>
-              <th>Hazırlık Muafiyet Kararı</th>
-              <th>İşlemler</th>
+              <th>{lang === 'tr' ? 'Aday Öğrenci' : 'Applicant Student'}</th>
+              <th>{lang === 'tr' ? 'Geçiş Yapılacak Program' : 'Target Program'}</th>
+              <th>{lang === 'tr' ? 'Önceki Okulu' : 'Previous School'}</th>
+              <th>{lang === 'tr' ? 'İngilizce Muafiyet Belgesi' : 'English Exemption Certificate'}</th>
+              <th>{lang === 'tr' ? 'Hazırlık Muafiyet Kararı' : 'Prep Exemption Decision'}</th>
+              <th>{lang === 'tr' ? 'İşlemler' : 'Actions'}</th>
             </tr>
           </thead>
           <tbody>
             {ydyoApps.length === 0 ? (
               <tr>
                 <td colSpan="6" style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
-                  YDYO onay aşamasında bekleyen öğrenci bulunmamaktadır.
+                  {lang === 'tr' ? 'YDYO onay aşamasında bekleyen öğrenci bulunmamaktadır.' : 'There are no students waiting for YDYO approval.'}
                 </td>
               </tr>
             ) : (
@@ -98,7 +98,7 @@ export default function YdyoDashboard() {
                 return (
                   <tr key={app.id}>
                     <td style={{ fontWeight: 600 }}>{app.fullName}</td>
-                    <td>{app.targetProgram}</td>
+                    <td>{translateProgram(app.targetProgram, lang)}</td>
                     <td>{app.sourceUniversity}</td>
                     <td>
                       {doc ? (
@@ -111,7 +111,7 @@ export default function YdyoDashboard() {
                         </button>
                       ) : (
                         <span style={{ fontSize: '0.8rem', color: 'var(--color-danger)', fontWeight: 500 }}>
-                          Yüklenmedi
+                          {lang === 'tr' ? 'Yüklenmedi' : 'Not Uploaded'}
                         </span>
                       )}
                     </td>
@@ -122,17 +122,21 @@ export default function YdyoDashboard() {
                         value={currentSelection}
                         onChange={(e) => handleStatusChange(app.id, e.target.value)}
                       >
-                        <option value="eligible">Hazırlıktan Muaf (Eligible)</option>
-                        <option value="needs_test">Düzey Belirleme Sınavı (Needs Test)</option>
+                        <option value="eligible">{lang === 'tr' ? 'Hazırlıktan Muaf' : 'Eligible'}</option>
+                        <option value="needs_test">{lang === 'tr' ? 'Düzey Belirleme Sınavı' : 'Needs Test'}</option>
                       </select>
                     </td>
                     <td>
                       <button 
                         className="btn btn-primary btn-sm"
-                        style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}
+                        style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontWeight: 600 }}
                         onClick={() => handleForward(app.id)}
                       >
-                        Kaydet & Sevk Et <ArrowRight size={12} />
+                        {lang === 'tr' ? (
+                          currentSelection === 'eligible' ? 'Hazırlıktan Muaf Olarak Sevk Et' : 'Sınava Girecek Olarak Sevk Et'
+                        ) : (
+                          currentSelection === 'eligible' ? 'English Eligible - Forward to Dean' : 'Needs Internal Test Forward to Dean'
+                        )} <ArrowRight size={12} />
                       </button>
                     </td>
                   </tr>
@@ -146,7 +150,7 @@ export default function YdyoDashboard() {
       {/* Document View Modal */}
       <Modal
         isOpen={!!viewingDoc}
-        title={viewingDoc ? `${viewingDoc.applicantName} - İngilizce Muafiyet Belgesi` : ''}
+        title={viewingDoc ? `${viewingDoc.applicantName} - ${lang === 'tr' ? 'İngilizce Muafiyet Belgesi' : 'English Exemption Certificate'}` : ''}
         onClose={() => setViewingDoc(null)}
       >
         {viewingDoc && (
@@ -164,9 +168,9 @@ export default function YdyoDashboard() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Yeni Sekmede Aç / İndir (Open / Download)
+                {lang === 'tr' ? 'Yeni Sekmede Aç / İndir' : 'Open / Download in New Tab'}
               </a>
-              <button className="btn btn-secondary btn-sm" onClick={() => setViewingDoc(null)}>Kapat</button>
+              <button className="btn btn-secondary btn-sm" onClick={() => setViewingDoc(null)}>{lang === 'tr' ? 'Kapat' : 'Close'}</button>
             </div>
           </div>
         )}

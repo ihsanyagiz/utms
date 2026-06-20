@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { DOCUMENT_SLOTS } from '../data/seedData';
+import { DOCUMENT_SLOTS, getSlotName, translateReason, translateProgram } from '../data/seedData';
 import { 
   Eye, Check, RotateCcw, AlertCircle, FileText, Play,
   TrendingUp, Award, AwardIcon, FileSpreadsheet, Search, CheckCircle
@@ -16,7 +16,8 @@ export default function OidbDashboard({ activeTab }) {
     returnToApplicantFromOidb, 
     config, 
     updateConfig,
-    showToast
+    showToast,
+    lang
   } = useApp();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -77,7 +78,7 @@ export default function OidbDashboard({ activeTab }) {
 
   const handlePublishRankings = () => {
     updateConfig({ rankingQuota: quota });
-    showToast('Yatay Geçiş Asil/Yedek Sonuçları Başarıyla İlan Edilmiştir!', 'success');
+    showToast(lang === 'tr' ? 'Yatay Geçiş Asil/Yedek Sonuçları Başarıyla İlan Edilmiştir!' : 'Horizontal Transfer Main/Substitute Results Published Successfully!', 'success');
   };
 
   const handleCancelForwardClick = (id) => {
@@ -94,7 +95,9 @@ export default function OidbDashboard({ activeTab }) {
   };
 
   const handleDownloadXlsx = () => {
-    const headers = ['Sira', 'Aday Ogrenci', 'Gittigi Program', 'YKS Puani', 'GPA', 'Siralama Puani', 'Yerlesme Durumu'];
+    const headers = lang === 'tr' 
+      ? ['Sıra', 'Aday Öğrenci', 'Gittiği Program', 'YKS Puanı', 'GPA', 'Sıralama Puanı', 'Yerleşme Durumu']
+      : ['Rank', 'Applicant Student', 'Target Program', 'YKS Score', 'GPA', 'Ranking Score', 'Placement Status'];
     const rows = rankedApps.map((app, idx) => {
       const rank = idx + 1;
       const isAsil = rank <= quota;
@@ -104,11 +107,11 @@ export default function OidbDashboard({ activeTab }) {
       return [
         `#${rank}`,
         name,
-        app.targetProgram,
+        translateProgram(app.targetProgram, lang),
         app.osymPoints,
         app.currentGpa,
         app.rankingScore.toFixed(4),
-        isAsil ? 'ASİL' : `YEDEK #${rank - quota}`
+        isAsil ? (lang === 'tr' ? 'ASİL' : 'MAIN') : (lang === 'tr' ? `YEDEK #${rank - quota}` : `SUBSTITUTE #${rank - quota}`)
       ];
     });
 
@@ -132,40 +135,40 @@ export default function OidbDashboard({ activeTab }) {
         <div>
           <div className="page-header">
             <div>
-              <h2 className="page-title">Belge Kontrol Paneli</h2>
-              <p className="page-description">Öğrencilerin yüklediği evrakları kontrol edin, otomatik doğrulayıcıyı çalıştırın ve onaylayın.</p>
+              <h2 className="page-title">{lang === 'tr' ? 'Belge Kontrol Paneli' : 'Document Control Panel'}</h2>
+              <p className="page-description">{lang === 'tr' ? 'Öğrencilerin yüklediği evrakları kontrol edin, otomatik doğrulayıcıyı çalıştırın ve onaylayın.' : 'Review documents uploaded by students, run the automatic verifier, and approve.'}</p>
             </div>
           </div>
 
           {/* Stats Bar */}
           <div className="card-grid">
             <div className="card">
-              <span className="card-title">Kontrol Bekleyen</span>
+              <span className="card-title">{lang === 'tr' ? 'Kontrol Bekleyen' : 'Pending Control'}</span>
               <span className="card-value">{applications.filter(a => a.status === 'submitted').length}</span>
-              <span className="card-subtitle">Sisteme yeni düşen başvurular</span>
+              <span className="card-subtitle">{lang === 'tr' ? 'Sisteme yeni düşen başvurular' : 'Newly received applications'}</span>
             </div>
             <div className="card">
-              <span className="card-title">Düzeltme İstenen</span>
+              <span className="card-title">{lang === 'tr' ? 'Düzeltme İstenen' : 'Revision Requested'}</span>
               <span className="card-value">{applications.filter(a => a.status === 'returned').length}</span>
-              <span className="card-subtitle">Eksik belge nedeniyle iade edilenler</span>
+              <span className="card-subtitle">{lang === 'tr' ? 'Eksik belge nedeniyle iade edilenler' : 'Returned due to missing documents'}</span>
             </div>
             <div className="card">
-              <span className="card-title">Toplam Başvuru</span>
+              <span className="card-title">{lang === 'tr' ? 'Toplam Başvuru' : 'Total Applications'}</span>
               <span className="card-value">{applications.length}</span>
-              <span className="card-subtitle">Tüm aşamalardaki başvurular</span>
+              <span className="card-subtitle">{lang === 'tr' ? 'Tüm aşamalardaki başvurular' : 'Applications in all phases'}</span>
             </div>
           </div>
 
           {/* Search & List */}
           <div className="table-container">
             <div className="table-header-bar">
-              <h3 className="table-title">Başvuru Listesi</h3>
+              <h3 className="table-title">{lang === 'tr' ? 'Başvuru Listesi' : 'Application List'}</h3>
               <div className="table-actions">
                 <Search size={16} style={{ color: 'var(--text-muted)' }} />
                 <input 
                   type="text" 
                   className="table-search" 
-                  placeholder="Aday Adı veya Üni Ara..." 
+                  placeholder={lang === 'tr' ? 'Aday Adı veya Üni Ara...' : 'Search Applicant or Uni...'} 
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
@@ -176,19 +179,19 @@ export default function OidbDashboard({ activeTab }) {
               <thead>
                 <tr>
                   <th style={{ width: '40px' }}></th>
-                  <th>Aday Öğrenci</th>
-                  <th>Üniversite / Program</th>
+                  <th>{lang === 'tr' ? 'Aday Öğrenci' : 'Applicant Student'}</th>
+                  <th>{lang === 'tr' ? 'Üniversite / Program' : 'University / Program'}</th>
                   <th>GPA / YKS</th>
-                  <th>Otomatik Kontrol</th>
-                  <th>Durum</th>
-                  <th>İşlemler</th>
+                  <th>{lang === 'tr' ? 'Otomatik Kontrol' : 'Automatic Check'}</th>
+                  <th>{lang === 'tr' ? 'Durum' : 'Status'}</th>
+                  <th>{lang === 'tr' ? 'İşlemler' : 'Actions'}</th>
                 </tr>
               </thead>
               <tbody>
                 {submittedApps.length === 0 ? (
                   <tr>
                     <td colSpan="7" style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
-                      Kontrol bekleyen başvuru bulunmamaktadır.
+                      {lang === 'tr' ? 'Kontrol bekleyen başvuru bulunmamaktadır.' : 'There are no applications pending control.'}
                     </td>
                   </tr>
                 ) : (
@@ -213,7 +216,7 @@ export default function OidbDashboard({ activeTab }) {
                           </td>
                           <td>
                             <div>{app.sourceUniversity}</div>
-                            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Hedef: {app.targetProgram}</div>
+                            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{lang === 'tr' ? 'Hedef: ' : 'Target: '}{translateProgram(app.targetProgram, lang)}</div>
                           </td>
                           <td>
                             <div>GPA: {app.currentGpa}</div>
@@ -221,40 +224,40 @@ export default function OidbDashboard({ activeTab }) {
                           </td>
                           <td>
                             {app.docCheckerStatus === 'needs_manual_check' && (
-                              <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>Çalıştırılmadı</span>
+                              <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>{lang === 'tr' ? 'Çalıştırılmadı' : 'Not Run'}</span>
                             )}
                             {app.docCheckerStatus === 'auto_checked' && errorCount === 0 && (
                               <span style={{ color: 'var(--color-success)', display: 'flex', alignItems: 'center', gap: '0.2rem', fontSize: '0.8rem', fontWeight: 600 }}>
-                                <Check size={14} /> Sorun Yok
+                                <Check size={14} /> {lang === 'tr' ? 'Sorun Yok' : 'No Issues'}
                               </span>
                             )}
                             {app.docCheckerStatus === 'auto_checked' && errorCount > 0 && (
                               <span style={{ color: 'var(--color-danger)', display: 'flex', alignItems: 'center', gap: '0.2rem', fontSize: '0.8rem', fontWeight: 600 }}>
-                                <AlertCircle size={14} /> {errorCount} Hata/Eksik
+                                <AlertCircle size={14} /> {errorCount} {lang === 'tr' ? 'Hata/Eksik' : 'Errors/Missing'}
                               </span>
                             )}
                           </td>
                           <td>
                             <span className={`status-badge status-${app.status}`}>
-                              {app.status === 'submitted' && 'İncelemede'}
-                              {app.status === 'returned' && 'İade Edildi'}
-                              {app.status === 'forwarded_to_ydyo' && 'Forwarded To Ydyo'}
+                              {app.status === 'submitted' && (lang === 'tr' ? 'İncelemede' : 'Under Review')}
+                              {app.status === 'returned' && (lang === 'tr' ? 'İade Edildi' : 'Returned')}
+                              {app.status === 'forwarded_to_ydyo' && (lang === 'tr' ? 'YDYO\'ya Sevk Edildi' : 'Forwarded To Ydyo')}
                             </span>
                           </td>
                           <td>
                             <div style={{ display: 'flex', gap: '0.35rem' }}>
                               <button 
                                 className="btn btn-secondary btn-sm"
-                                title="Otomatik kontrolü çalıştır"
+                                title={lang === 'tr' ? 'Otomatik kontrolü çalıştır' : 'Run automatic control'}
                                 onClick={() => runCheckerManually(app.id)}
                               >
-                                <Play size={12} /> Kontrol Et
+                                <Play size={12} /> {lang === 'tr' ? 'Kontrol Et' : 'Check'}
                               </button>
                               <button 
                                 className="btn btn-primary btn-sm"
                                 onClick={() => handleToggleExpand(app.id)}
                               >
-                                {isExpanded ? 'Kapat' : 'Genişlet (Expand)'}
+                                {isExpanded ? (lang === 'tr' ? 'Kapat' : 'Close') : (lang === 'tr' ? 'Genişlet' : 'Expand')}
                               </button>
                             </div>
                           </td>
@@ -268,7 +271,7 @@ export default function OidbDashboard({ activeTab }) {
                                 {/* Left Side: Documents list */}
                                 <div>
                                   <h4 style={{ fontSize: '0.85rem', marginBottom: '0.5rem', fontWeight: 600, color: 'var(--secondary-color)' }}>
-                                    Başvuru Evrakları
+                                    {lang === 'tr' ? 'Başvuru Evrakları' : 'Application Documents'}
                                   </h4>
                                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                                     {DOCUMENT_SLOTS.map((slot) => {
@@ -276,7 +279,7 @@ export default function OidbDashboard({ activeTab }) {
                                       return (
                                         <div key={slot.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.5rem 0.75rem', border: '1px solid var(--border-color)', borderRadius: '4px', backgroundColor: '#ffffff' }}>
                                           <span style={{ fontSize: '0.8rem', fontWeight: 500 }}>
-                                            {slot.name} {slot.required && <span style={{ color: 'red' }}>*</span>}
+                                            {getSlotName(slot.id, lang)} {slot.required && <span style={{ color: 'red' }}>*</span>}
                                           </span>
                                           {doc ? (
                                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -284,13 +287,13 @@ export default function OidbDashboard({ activeTab }) {
                                               <button 
                                                 className="btn btn-secondary btn-sm" 
                                                 style={{ padding: '0.2rem 0.4rem', fontSize: '0.7rem' }}
-                                                onClick={() => setViewingDoc({ ...doc, slotName: slot.name, applicantName: app.fullName })}
+                                                onClick={() => setViewingDoc({ ...doc, slotName: getSlotName(slot.id, lang), applicantName: app.fullName })}
                                               >
-                                                Görüntüle
+                                                {lang === 'tr' ? 'Görüntüle' : 'View'}
                                               </button>
                                             </div>
                                           ) : (
-                                            <span style={{ fontSize: '0.75rem', color: 'var(--color-danger)' }}>Eksik</span>
+                                            <span style={{ fontSize: '0.75rem', color: 'var(--color-danger)' }}>{lang === 'tr' ? 'Eksik' : 'Missing'}</span>
                                           )}
                                         </div>
                                       );
@@ -301,23 +304,23 @@ export default function OidbDashboard({ activeTab }) {
                                 {/* Right Side: Auto checker report */}
                                 <div>
                                   <h4 style={{ fontSize: '0.85rem', marginBottom: '0.5rem', fontWeight: 600, color: 'var(--secondary-color)' }}>
-                                    Doğrulayıcı Raporu
+                                    {lang === 'tr' ? 'Doğrulayıcı Raporu' : 'Verifier Report'}
                                   </h4>
                                   {app.docCheckerStatus === 'needs_manual_check' ? (
                                     <div style={{ padding: '1rem', border: '1px dashed var(--border-color)', borderRadius: '4px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.8rem' }}>
-                                      Henüz otomatik kontrol çalıştırılmadı. Lütfen yukarıdaki "Kontrol Et" butonuna basınız.
+                                      {lang === 'tr' ? 'Henüz otomatik kontrol çalıştırılmadı. Lütfen yukarıdaki "Kontrol Et" butonuna basınız.' : 'Automatic check has not been run yet. Please click the "Check" button above.'}
                                     </div>
                                   ) : (
                                     <div style={{ padding: '0.75rem', border: '1px solid var(--border-color)', borderRadius: '4px', backgroundColor: '#ffffff', minHeight: '110px' }}>
                                       {errorCount === 0 ? (
                                         <div style={{ color: 'var(--color-success)', display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.8rem', fontWeight: 500 }}>
-                                          <CheckCircle size={16} /> Otomatik doğrulamada herhangi bir hata veya eksik belgeye rastlanmadı.
+                                          <CheckCircle size={16} /> {lang === 'tr' ? 'Otomatik doğrulamada herhangi bir hata veya eksik belgeye rastlanmadı.' : 'No errors or missing documents were found in automatic verification.'}
                                         </div>
                                       ) : (
                                         <ul style={{ paddingLeft: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
                                           {app.docCheckerErrors.map((err, idx) => (
                                             <li key={idx} style={{ color: 'var(--color-danger)', fontSize: '0.8rem' }}>
-                                              {err.reason}
+                                              {translateReason(err.reason, lang)}
                                             </li>
                                           ))}
                                         </ul>
@@ -328,7 +331,7 @@ export default function OidbDashboard({ activeTab }) {
                                   {/* If returned notes exist */}
                                   {app.oidbNotes && (
                                     <div style={{ marginTop: '0.75rem', padding: '0.5rem 0.75rem', backgroundColor: '#fef2f2', border: '1px solid #fecaca', borderRadius: '4px', fontSize: '0.75rem', color: '#991b1b' }}>
-                                      <strong>Önceki İade Açıklaması:</strong> {app.oidbNotes}
+                                      <strong>{lang === 'tr' ? 'Önceki İade Açıklaması:' : 'Previous Return Explanation:'}</strong> {translateReason(app.oidbNotes, lang)}
                                     </div>
                                   )}
                                 </div>
@@ -341,7 +344,7 @@ export default function OidbDashboard({ activeTab }) {
                                     className="btn btn-danger btn-sm"
                                     onClick={() => handleCancelForwardClick(app.id)}
                                   >
-                                    Cancel Forward to YDYO (YDYO Sevki İptal Et)
+                                    {lang === 'tr' ? 'YDYO Sevkini İptal Et' : 'Cancel Forward to YDYO'}
                                   </button>
                                 ) : (
                                   <>
@@ -350,14 +353,14 @@ export default function OidbDashboard({ activeTab }) {
                                       disabled={app.status === 'returned'}
                                       onClick={() => forwardToYdyo(app.id)}
                                     >
-                                      Approve & forward to YDYO (Onayla ve YDYO'ya Sevk Et)
+                                      {lang === 'tr' ? 'Onayla ve YDYO\'ya Sevk Et' : 'Approve & forward to YDYO'}
                                     </button>
                                     
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                                       <textarea 
                                         className="form-control"
                                         style={{ width: '220px', height: '32px', minHeight: '32px', fontSize: '0.75rem', padding: '0.25rem 0.5rem', margin: 0 }}
-                                        placeholder="İade gerekçesi yazınız..."
+                                        placeholder={lang === 'tr' ? 'İade gerekçesi yazınız...' : 'Write return reason...'}
                                         value={expandedReturnReasons[app.id] || ''}
                                         onChange={(e) => setExpandedReturnReasons(prev => ({ ...prev, [app.id]: e.target.value }))}
                                       />
@@ -368,7 +371,7 @@ export default function OidbDashboard({ activeTab }) {
                                           returnToApplicantFromOidb(app.id, expandedReturnReasons[app.id]);
                                         }}
                                       >
-                                        Return to Applicant (Adaya İade Et)
+                                        {lang === 'tr' ? 'Adaya İade Et' : 'Return to Applicant'}
                                       </button>
                                     </div>
                                   </>
@@ -406,9 +409,9 @@ export default function OidbDashboard({ activeTab }) {
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    Yeni Sekmede Aç / İndir (Open / Download)
+                    {lang === 'tr' ? 'Yeni Sekmede Aç / İndir' : 'Open / Download in New Tab'}
                   </a>
-                  <button className="btn btn-secondary btn-sm" onClick={() => setViewingDoc(null)}>Kapat</button>
+                  <button className="btn btn-secondary btn-sm" onClick={() => setViewingDoc(null)}>{lang === 'tr' ? 'Kapat' : 'Close'}</button>
                 </div>
               </div>
             )}
@@ -417,18 +420,18 @@ export default function OidbDashboard({ activeTab }) {
           {/* OIDB Return Notes modal */}
           <Modal
             isOpen={isReturnModalOpen}
-            title="Başvuru İade Formu"
+            title={lang === 'tr' ? 'Başvuru İade Formu' : 'Application Return Form'}
             onClose={() => setIsReturnModalOpen(false)}
             onConfirm={handleReturnSubmit}
-            confirmText="İade Et"
+            confirmText={lang === 'tr' ? 'İade Et' : 'Return'}
             confirmType="danger"
           >
             <div className="form-group">
-              <label className="form-label">İade Gerekçesi / Adaya Mesaj <span style={{ color: 'red' }}>*</span></label>
+              <label className="form-label">{lang === 'tr' ? 'İade Gerekçesi / Adaya Mesaj' : 'Return Reason / Message to Applicant'} <span style={{ color: 'red' }}>*</span></label>
               <textarea 
                 className="form-control" 
                 rows="4" 
-                placeholder="Öğrencinin hangi belgeleri düzeltmesi gerektiğini detaylıca yazınız..."
+                placeholder={lang === 'tr' ? 'Öğrencinin hangi belgeleri düzeltmesi gerektiğini detaylıca yazınız...' : 'Explain in detail which documents the student needs to correct...'}
                 required
                 value={returnNotes}
                 onChange={(e) => setReturnNotes(e.target.value)}
@@ -439,15 +442,15 @@ export default function OidbDashboard({ activeTab }) {
           {/* Cancel Forward to YDYO confirmation modal */}
           <Modal
             isOpen={isCancelForwardModalOpen}
-            title="Sevki İptal Et"
+            title={lang === 'tr' ? 'Sevki İptal Et' : 'Cancel Forward'}
             onClose={() => setIsCancelForwardModalOpen(false)}
             onConfirm={handleCancelForwardConfirm}
-            confirmText="Confirm"
-            cancelText="Cancel"
+            confirmText={lang === 'tr' ? 'Onayla' : 'Confirm'}
+            cancelText={lang === 'tr' ? 'İptal' : 'Cancel'}
             confirmType="danger"
           >
             <p style={{ fontSize: '0.9rem', color: 'var(--text-main)' }}>
-              Cancel the forward to YDYO? The application will revert to Submitted status.
+              {lang === 'tr' ? 'YDYO sevkini iptal etmek istiyor musunuz? Başvuru İncelemede durumuna geri dönecektir.' : 'Cancel the forward to YDYO? The application will revert to Submitted status.'}
             </p>
           </Modal>
         </div>
@@ -457,19 +460,19 @@ export default function OidbDashboard({ activeTab }) {
         <div>
           <div className="page-header">
             <div>
-              <h2 className="page-title">Yatay Geçiş Sıralama ve Kontenjan</h2>
-              <p className="page-description">Tüm intibak değerlendirmesi tamamlanmış adayları YKS ve GPA ağırlığına göre sıralayıp ilan edin.</p>
+              <h2 className="page-title">{lang === 'tr' ? 'Yatay Geçiş Sıralama ve Kontenjan' : 'Horizontal Transfer Ranking & Quota'}</h2>
+              <p className="page-description">{lang === 'tr' ? 'Tüm intibak değerlendirmesi tamamlanmış adayları YKS ve GPA ağırlığına göre sıralayıp ilan edin.' : 'Rank and publish all candidates whose equivalency evaluations are complete according to YKS and GPA weight.'}</p>
             </div>
             <button className="btn btn-primary" onClick={handlePublishRankings}>
-              <FileSpreadsheet size={16} /> Sonuçları İlan Et (Yayınla)
+              <FileSpreadsheet size={16} /> {lang === 'tr' ? 'Sonuçları İlan Et (Yayınla)' : 'Publish Results'}
             </button>
           </div>
 
           <div className="card" style={{ marginBottom: '1.5rem', padding: '1.25rem' }}>
-            <h4 style={{ marginBottom: '0.75rem', fontSize: '0.95rem' }}>Kontenjan Parametreleri</h4>
+            <h4 style={{ marginBottom: '0.75rem', fontSize: '0.95rem' }}>{lang === 'tr' ? 'Kontenjan Parametreleri' : 'Quota Parameters'}</h4>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <span className="form-label" style={{ margin: 0 }}>Fakülte Asil Kontenjanı:</span>
+                <span className="form-label" style={{ margin: 0 }}>{lang === 'tr' ? 'Fakülte Asil Kontenjanı:' : 'Faculty Main Quota:'}</span>
                 <input 
                   type="number" 
                   className="form-control" 
@@ -480,16 +483,16 @@ export default function OidbDashboard({ activeTab }) {
                 />
               </div>
               <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', flexGrow: 1 }}>
-                *İlk {quota} aday "Asil" kontenjana yerleşecek, kalan adaylar ise "Yedek" olarak listelenecektir.*
+                {lang === 'tr' ? `*İlk ${quota} aday "Asil" kontenjana yerleşecek, kalan adaylar ise "Yedek" olarak listelenecektir.*` : `*The first ${quota} candidates will be placed in the "Main" quota, and the remaining candidates will be listed as "Substitutes".*`}
                 <br />
-                <strong>Sıralama Puanı Formülü:</strong> (YKS / 560) × 90 + (GPA / 4) × 10
+                <strong>{lang === 'tr' ? 'Sıralama Puanı Formülü:' : 'Ranking Score Formula:'}</strong> (YKS / 560) × 90 + (GPA / 4) × 10
               </p>
             </div>
           </div>
 
           <div className="table-container">
             <div className="table-header-bar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
-              <h3 className="table-title">Nihai Sıralama Listesi (İntibakı Bitenler)</h3>
+              <h3 className="table-title">{lang === 'tr' ? 'Nihai Sıralama Listesi (İntibakı Bitenler)' : 'Final Ranking List (Equivalencies Completed)'}</h3>
               <div className="table-actions" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer', margin: 0 }}>
                   <input 
@@ -499,7 +502,7 @@ export default function OidbDashboard({ activeTab }) {
                     onChange={(e) => setAnonymize(e.target.checked)}
                     style={{ cursor: 'pointer' }}
                   />
-                  <span>Anonymize Applicants (Adayları Anonimleştir)</span>
+                  <span>{lang === 'tr' ? 'Adayları Anonimleştir' : 'Anonymize Applicants'}</span>
                 </label>
 
                 <button 
@@ -507,11 +510,11 @@ export default function OidbDashboard({ activeTab }) {
                   style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}
                   onClick={handleDownloadXlsx}
                 >
-                  <FileSpreadsheet size={14} /> Download XLSX (Excel İndir)
+                  <FileSpreadsheet size={14} /> {lang === 'tr' ? 'Excel İndir (CSV)' : 'Download XLSX'}
                 </button>
 
                 <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--color-success)' }}>
-                  Toplam Aday: {rankedApps.length}
+                  {lang === 'tr' ? 'Toplam Aday: ' : 'Total Candidates: '}{rankedApps.length}
                 </span>
               </div>
             </div>
@@ -519,20 +522,20 @@ export default function OidbDashboard({ activeTab }) {
             <table className="ubys-table">
               <thead>
                 <tr>
-                  <th>Sıra</th>
-                  <th>Aday Öğrenci</th>
-                  <th>Gittiği Program</th>
+                  <th>{lang === 'tr' ? 'Sıra' : 'Rank'}</th>
+                  <th>{lang === 'tr' ? 'Aday Öğrenci' : 'Applicant Student'}</th>
+                  <th>{lang === 'tr' ? 'Gittiği Program' : 'Target Program'}</th>
                   <th>YKS (OSYM)</th>
                   <th>GPA</th>
-                  <th>Sıralama Puanı</th>
-                  <th>Yerleşme Durumu</th>
+                  <th>{lang === 'tr' ? 'Sıralama Puanı' : 'Ranking Score'}</th>
+                  <th>{lang === 'tr' ? 'Yerleşme Durumu' : 'Placement Status'}</th>
                 </tr>
               </thead>
               <tbody>
                 {rankedApps.length === 0 ? (
                   <tr>
                     <td colSpan="7" style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
-                      Henüz intibak aşaması bitmiş ve sıralamaya girmeye hak kazanmış öğrenci bulunmamaktadır.
+                      {lang === 'tr' ? 'Henüz intibak aşaması bitmiş ve sıralamaya girmeye hak kazanmış öğrenci bulunmamaktadır.' : 'There are no students whose equivalency evaluations are complete and qualified for ranking yet.'}
                     </td>
                   </tr>
                 ) : (
@@ -549,7 +552,7 @@ export default function OidbDashboard({ activeTab }) {
                             : app.fullName
                           }
                         </td>
-                        <td>{app.targetProgram}</td>
+                        <td>{translateProgram(app.targetProgram, lang)}</td>
                         <td>{app.osymPoints}</td>
                         <td>{app.currentGpa}</td>
                         <td style={{ fontWeight: 700, color: 'var(--primary-color)' }}>
@@ -557,7 +560,7 @@ export default function OidbDashboard({ activeTab }) {
                         </td>
                         <td>
                           <span className={`badge-quota ${isAsil ? 'badge-quota-asil' : 'badge-quota-yedek'}`}>
-                            {isAsil ? 'ASİL' : `YEDEK #${rank - quota}`}
+                            {isAsil ? (lang === 'tr' ? 'ASİL' : 'MAIN') : (lang === 'tr' ? `YEDEK #${rank - quota}` : `SUBSTITUTE #${rank - quota}`)}
                           </span>
                         </td>
                       </tr>

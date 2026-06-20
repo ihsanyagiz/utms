@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { CURRICULA, PROGRAM_DEPARTMENT_MAP } from '../data/seedData';
+import { CURRICULA, PROGRAM_DEPARTMENT_MAP, translateProgram } from '../data/seedData';
 import { 
   FileText, Check, Plus, Trash2, ArrowRight, Save, Play,
   CheckCircle, PlusCircle, Layout, ArrowLeftRight, FileSpreadsheet
@@ -13,7 +13,8 @@ export default function YgkDashboard() {
     intibakTables, 
     currentUser, 
     saveIntibakTable, 
-    approveAndSendToOidb 
+    approveAndSendToOidb,
+    lang
   } = useApp();
 
   const [selectedAppId, setSelectedAppId] = useState(null);
@@ -138,13 +139,13 @@ export default function YgkDashboard() {
           className={`btn btn-sm ${subTab === 'list' ? 'btn-primary' : 'btn-secondary'}`}
           onClick={() => { setSubTab('list'); setSelectedAppId(null); }}
         >
-          Aday Listesi (Applicants List)
+          {lang === 'tr' ? 'Aday Listesi' : 'Applicants List'}
         </button>
         <button 
           className={`btn btn-sm ${subTab === 'editor' ? 'btn-primary' : 'btn-secondary'}`}
           onClick={() => setSubTab('editor')}
         >
-          İntibak Editörü (Intibak Editor)
+          {lang === 'tr' ? 'İntibak Editörü' : 'Intibak Editor'}
         </button>
       </div>
 
@@ -152,49 +153,51 @@ export default function YgkDashboard() {
         <div>
           <div className="page-header">
             <div>
-              <h2 className="page-title">Yatay Geçiş Komisyonu (YGK)</h2>
-              <p className="page-description">
-                Bölümünüze yatay geçiş yapacak adayların intibak ders muafiyet tablosunu hazırlayın ve onaylayın.
-              </p>
+          <h2 className="page-title">{lang === 'tr' ? 'Yatay Geçiş Komisyonu (YGK)' : 'Horizontal Transfer Committee (YGK)'}</h2>
+          <p className="page-description">
+            {lang === 'tr'
+              ? 'Bölümünüze yatay geçiş yapacak adayların intibak ders muafiyet tablosunu hazırlayın ve onaylayın.'
+              : 'Prepare and approve the course equivalency exemption table for candidates transferring to your department.'}
+          </p>
             </div>
           </div>
 
           <div className="card-grid">
             <div className="card">
-              <span className="card-title">İntibak Bekleyen</span>
+              <span className="card-title">{lang === 'tr' ? 'İntibak Bekleyen' : 'Pending Equivalency'}</span>
               <span className="card-value">{ygkApps.length}</span>
-              <span className="card-subtitle">Değerlendirme sırasındaki bölüm başvuruları</span>
+              <span className="card-subtitle">{lang === 'tr' ? 'Değerlendirme sırasındaki bölüm başvuruları' : 'Department applications under evaluation'}</span>
             </div>
             <div className="card">
-              <span className="card-title">Tamamlanan İntibaklar</span>
+              <span className="card-title">{lang === 'tr' ? 'Tamamlanan İntibaklar' : 'Completed Equivalencies'}</span>
               <span className="card-value">
                 {applications.filter(a => a.status === 'intibak_complete' && PROGRAM_DEPARTMENT_MAP[a.targetProgram] === ygkDept).length}
               </span>
-              <span className="card-subtitle">Sıralama aşamasına gönderilenler</span>
+              <span className="card-subtitle">{lang === 'tr' ? 'Sıralama aşamasına gönderilenler' : 'Sent to the ranking phase'}</span>
             </div>
           </div>
 
           <div className="table-container">
             <div className="table-header-bar">
-              <h3 className="table-title">İntibak Onay Bekleyen Adaylar</h3>
+              <h3 className="table-title">{lang === 'tr' ? 'İntibak Onay Bekleyen Adaylar' : 'Applicants Pending Equivalency Approval'}</h3>
             </div>
 
             <table className="ubys-table">
               <thead>
                 <tr>
-                  <th>Aday Öğrenci</th>
-                  <th>Geleceği Üniversite</th>
-                  <th>Hedef Program</th>
-                  <th>Giriş GPA</th>
-                  <th>ÖSYM Puanı</th>
-                  <th>Ders Muafiyet Tablosu</th>
+                  <th>{lang === 'tr' ? 'Aday Öğrenci' : 'Applicant Student'}</th>
+                  <th>{lang === 'tr' ? 'Geleceği Üniversite' : 'Source University'}</th>
+                  <th>{lang === 'tr' ? 'Hedef Program' : 'Target Program'}</th>
+                  <th>{lang === 'tr' ? 'Giriş GPA' : 'Entry GPA'}</th>
+                  <th>{lang === 'tr' ? 'ÖSYM Puanı' : 'OSYM Score'}</th>
+                  <th>{lang === 'tr' ? 'Ders Muafiyet Tablosu' : 'Course Exemption Table'}</th>
                 </tr>
               </thead>
               <tbody>
                 {ygkApps.length === 0 ? (
                   <tr>
                     <td colSpan="6" style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
-                      İntibak aşamasında bekleyen öğrenci bulunmamaktadır.
+                      {lang === 'tr' ? 'İntibak aşamasında bekleyen öğrenci bulunmamaktadır.' : 'There are no students pending equivalency evaluation.'}
                     </td>
                   </tr>
                 ) : (
@@ -202,13 +205,13 @@ export default function YgkDashboard() {
                     <tr key={app.id}>
                       <td style={{ fontWeight: 600 }}>{app.fullName}</td>
                       <td>{app.sourceUniversity}</td>
-                      <td>{app.targetProgram}</td>
+                      <td>{translateProgram(app.targetProgram, lang)}</td>
                       <td>{app.currentGpa} / 4.00</td>
                       <td>{app.osymPoints}</td>
                       <td>
                         {app.status === 'intibak_complete' ? (
                           <span style={{ color: 'var(--color-success)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                            <Check size={14} /> Intibak Complete ✓
+                            <Check size={14} /> {lang === 'tr' ? 'İntibak Tamamlandı ✓' : 'Intibak Complete ✓'}
                           </span>
                         ) : (
                           <button 
@@ -217,7 +220,7 @@ export default function YgkDashboard() {
                             style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}
                             onClick={() => handleOpenEditor(app.id)}
                           >
-                            <FileSpreadsheet size={12} /> Open intibak table (İntibak Tablosu Düzenle)
+                            <FileSpreadsheet size={12} /> {lang === 'tr' ? 'Tabloyu Düzenle' : 'Open intibak table'}
                           </button>
                         )}
                       </td>
@@ -232,23 +235,25 @@ export default function YgkDashboard() {
         <div>
           {!activeApp ? (
             <div className="card" style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>
-              <h3 style={{ fontSize: '1.2rem', marginBottom: '0.5rem', fontWeight: 600 }}>No applicant selected</h3>
-              <p style={{ fontSize: '0.85rem' }}>Lütfen intibak değerlendirmesi yapmak için öncelikle Aday Listesi sekmesinden bir öğrenci seçiniz.</p>
+              <h3 style={{ fontSize: '1.2rem', marginBottom: '0.5rem', fontWeight: 600 }}>{lang === 'tr' ? 'Aday seçilmedi' : 'No applicant selected'}</h3>
+              <p style={{ fontSize: '0.85rem' }}>{lang === 'tr' ? 'Lütfen intibak değerlendirmesi yapmak için öncelikle Aday Listesi sekmesinden bir öğrenci seçiniz.' : 'Please select a student from the Applicants List tab first to perform equivalency evaluation.'}</p>
             </div>
           ) : (
             <div>
               {/* Back link */}
               <div style={{ marginBottom: '1rem' }}>
                 <button className="btn btn-secondary btn-sm" onClick={() => { setSelectedAppId(null); setSubTab('list'); }}>
-                  ← Geri Dön
+                  {lang === 'tr' ? '← Geri Dön' : '← Go Back'}
                 </button>
               </div>
 
           <div className="page-header" style={{ marginBottom: '1rem' }}>
             <div>
-              <h2 className="page-title">{activeApp.fullName} - İntibak Tablosu Hazırlama</h2>
+              <h2 className="page-title">{activeApp.fullName} - {lang === 'tr' ? 'İntibak Tablosu Hazırlama' : 'Course Equivalency Table Preparation'}</h2>
               <p className="page-description">
-                Adayın transkript derslerini İYTE müfredat dersleriyle eşleştirerek muafiyet kararlarını giriniz.
+                {lang === 'tr'
+                  ? 'Adayın transkript derslerini İYTE müfredat dersleriyle eşleştirerek muafiyet kararlarını giriniz.'
+                  : 'Enter exemption decisions by matching the candidate transcript courses with the IZTECH curriculum courses.'}
               </p>
             </div>
             <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
@@ -262,13 +267,13 @@ export default function YgkDashboard() {
                 }}
                 style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontWeight: 600 }}
               >
-                <FileText size={16} /> Open Transcript (Transkript Aç)
+                <FileText size={16} /> {lang === 'tr' ? 'Transkripti Aç' : 'Open Transcript'}
               </button>
               <button className="btn btn-secondary" onClick={handleSaveTable}>
-                <Save size={16} /> Taslağı Kaydet
+                <Save size={16} /> {lang === 'tr' ? 'Taslağı Kaydet' : 'Save Draft'}
               </button>
               <button className="btn btn-success" id="sendToOidbBtn" onClick={handleApproveAndSend}>
-                <CheckCircle size={16} /> Send to OIDB (ÖİDB'ye Gönder)
+                <CheckCircle size={16} /> {lang === 'tr' ? 'ÖİDB\'ye Gönder' : 'Send to OIDB'}
               </button>
             </div>
           </div>
@@ -280,49 +285,49 @@ export default function YgkDashboard() {
             <div className="split-pane">
               <div className="card" style={{ height: '100%', minHeight: '450px' }}>
                 <h3 style={{ fontSize: '1rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem', marginBottom: '1rem', color: 'var(--primary-color)' }}>
-                  Aday Akademik Belgeleri ve Bilgileri
+                  {lang === 'tr' ? 'Aday Akademik Belgeleri ve Bilgileri' : 'Candidate Academic Documents & Info'}
                 </h3>
                 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem', fontSize: '0.8rem' }}>
                   <div>
-                    <span style={{ color: 'var(--text-muted)', display: 'block' }}>Mevcut Üniversite:</span>
+                    <span style={{ color: 'var(--text-muted)', display: 'block' }}>{lang === 'tr' ? 'Mevcut Üniversite:' : 'Current University:'}</span>
                     <strong>{activeApp.sourceUniversity}</strong>
                   </div>
                   <div>
-                    <span style={{ color: 'var(--text-muted)', display: 'block' }}>Hedef Program:</span>
-                    <strong>{activeApp.targetProgram}</strong>
+                    <span style={{ color: 'var(--text-muted)', display: 'block' }}>{lang === 'tr' ? 'Hedef Program:' : 'Target Program:'}</span>
+                    <strong>{translateProgram(activeApp.targetProgram, lang)}</strong>
                   </div>
                   <div>
-                    <span style={{ color: 'var(--text-muted)', display: 'block' }}>Kayıtlılık GPA:</span>
+                    <span style={{ color: 'var(--text-muted)', display: 'block' }}>{lang === 'tr' ? 'Kayıtlılık GPA:' : 'Current GPA:'}</span>
                     <strong>{activeApp.currentGpa} / 4.00</strong>
                   </div>
                   <div>
-                    <span style={{ color: 'var(--text-muted)', display: 'block' }}>YKS Giriş Puanı:</span>
+                    <span style={{ color: 'var(--text-muted)', display: 'block' }}>{lang === 'tr' ? 'YKS Giriş Puanı:' : 'YKS Entrance Score:'}</span>
                     <strong>{activeApp.osymPoints}</strong>
                   </div>
                 </div>
 
                 <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '1rem' }}>
-                  <h4 style={{ fontSize: '0.85rem', marginBottom: '0.5rem' }}>Öğrenci Transkript PDF Belgesi</h4>
+                  <h4 style={{ fontSize: '0.85rem', marginBottom: '0.5rem' }}>{lang === 'tr' ? 'Öğrenci Transkript PDF Belgesi' : 'Student Transcript PDF Document'}</h4>
                   <div style={{ padding: '0.75rem', border: '1px solid var(--border-color)', borderRadius: '4px', backgroundColor: '#f8fafc', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem' }}>
                     <FileText size={18} style={{ color: 'var(--primary-color)' }} />
                     <div style={{ flexGrow: 1 }}>
                       <strong>not_dokumu.pdf</strong> (2.4 MB)
                     </div>
-                    <button className="btn btn-secondary btn-sm" onClick={() => alert('PDF Görüntüleme simüle ediliyor.')}>İncele</button>
+                    <button className="btn btn-secondary btn-sm" onClick={() => alert(lang === 'tr' ? 'PDF Görüntüleme simüle ediliyor.' : 'Simulating PDF View.')}>{lang === 'tr' ? 'İncele' : 'Review'}</button>
                   </div>
                   
                   {/* Simulated transcript courses list */}
                   <div style={{ marginTop: '1rem' }}>
-                    <h5 style={{ fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.25rem' }}>Transkript Ders Özetleri (Simüle):</h5>
+                    <h5 style={{ fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.25rem' }}>{lang === 'tr' ? 'Transkript Ders Özetleri (Simüle):' : 'Transcript Course Summary (Simulated):'}</h5>
                     <div style={{ maxHeight: '180px', overflowY: 'auto', border: '1px solid var(--border-color)', borderRadius: '4px', fontSize: '0.75rem' }}>
                       <table className="ubys-table" style={{ fontSize: '0.75rem' }}>
                         <thead>
                           <tr>
-                            <th>Kod</th>
-                            <th>Ders Adı</th>
-                            <th>Kredi</th>
-                            <th>Harf Notu</th>
+                            <th>{lang === 'tr' ? 'Kod' : 'Code'}</th>
+                            <th>{lang === 'tr' ? 'Ders Adı' : 'Course Name'}</th>
+                            <th>{lang === 'tr' ? 'Kredi' : 'Credit'}</th>
+                            <th>{lang === 'tr' ? 'Harf Notu' : 'Letter Grade'}</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -343,12 +348,12 @@ export default function YgkDashboard() {
             <div className="split-pane" style={{ flex: 1.3 }}>
               <div className="card">
                 <h3 style={{ fontSize: '1rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem', marginBottom: '1rem', color: 'var(--primary-color)' }}>
-                  Ders Eşleştirme ve İntibak Editörü
+                  {lang === 'tr' ? 'Ders Eşleştirme ve İntibak Editörü' : 'Course Matching & Equivalency Editor'}
                 </h3>
 
                 {/* Add equivalence form */}
                 <div style={{ padding: '1rem', border: '1px solid var(--border-color)', borderRadius: '6px', backgroundColor: '#f8fafc', marginBottom: '1.5rem', fontSize: '0.8rem' }}>
-                  <h4 style={{ fontSize: '0.85rem', marginBottom: '0.75rem', fontWeight: 600 }}>Yeni Eşdeğerlik Ekle</h4>
+                  <h4 style={{ fontSize: '0.85rem', marginBottom: '0.75rem', fontWeight: 600 }}>{lang === 'tr' ? 'Yeni Eşdeğerlik Ekle' : 'Add New Equivalency'}</h4>
                   
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 1fr', gap: '0.5rem', marginBottom: '0.5rem' }}>
                     <div className="form-group" style={{ margin: 0 }}>
@@ -356,7 +361,7 @@ export default function YgkDashboard() {
                         type="text" 
                         id="sourceCodeInput"
                         className="form-control" 
-                        placeholder="Kaynak Kod" 
+                        placeholder={lang === 'tr' ? 'Kaynak Kod' : 'Source Code'} 
                         value={newCourse.sourceCode}
                         onChange={(e) => setNewCourse(prev => ({ ...prev, sourceCode: e.target.value }))}
                       />
@@ -366,7 +371,7 @@ export default function YgkDashboard() {
                         type="text" 
                         id="sourceNameInput"
                         className="form-control" 
-                        placeholder="Kaynak Ders Adı" 
+                        placeholder={lang === 'tr' ? 'Kaynak Ders Adı' : 'Source Course Name'} 
                         value={newCourse.sourceName}
                         onChange={(e) => setNewCourse(prev => ({ ...prev, sourceName: e.target.value }))}
                       />
@@ -386,7 +391,7 @@ export default function YgkDashboard() {
 
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '0.5rem', alignItems: 'center' }}>
                     <div style={{ display: 'flex', gap: '0.25rem', alignItems: 'center' }}>
-                      <span className="form-label" style={{ margin: 0 }}>Kredi (ECTS):</span>
+                      <span className="form-label" style={{ margin: 0 }}>{lang === 'tr' ? 'Kredi (ECTS):' : 'Credits (ECTS):'}</span>
                       <input 
                         type="number" 
                         id="sourceCreditsInput"
@@ -398,7 +403,7 @@ export default function YgkDashboard() {
                     </div>
                     
                     <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                      <span className="form-label" style={{ margin: 0, whiteSpace: 'nowrap' }}>İYTE Karşılığı:</span>
+                      <span className="form-label" style={{ margin: 0, whiteSpace: 'nowrap' }}>{lang === 'tr' ? 'İYTE Karşılığı:' : 'IZTECH Equivalent:'}</span>
                       <select 
                         className="form-control"
                         style={{ flexGrow: 1 }}
@@ -419,7 +424,7 @@ export default function YgkDashboard() {
                         onClick={() => setIsCurriculumModalOpen(true)}
                         id="addFromCurriculumBtn"
                       >
-                        Add from curriculum (Müfredattan Ders Seç)
+                        {lang === 'tr' ? 'Müfredattan Ders Seç' : 'Add from curriculum'}
                       </button>
 
                       <button 
@@ -428,32 +433,32 @@ export default function YgkDashboard() {
                         style={{ display: 'flex', alignItems: 'center', gap: '0.2rem' }}
                         onClick={handleAddCourseMapping}
                       >
-                        <Plus size={14} /> Eşleştir
+                        <Plus size={14} /> {lang === 'tr' ? 'Eşleştir' : 'Match'}
                       </button>
                     </div>
                   </div>
                 </div>
 
                 {/* Mappings Table */}
-                <h4 style={{ fontSize: '0.85rem', marginBottom: '0.5rem', fontWeight: 600 }}>Eşleştirilen Dersler (İntibak Tablosu)</h4>
+                <h4 style={{ fontSize: '0.85rem', marginBottom: '0.5rem', fontWeight: 600 }}>{lang === 'tr' ? 'Eşleştirilen Dersler (İntibak Tablosu)' : 'Matched Courses (Equivalency Table)'}</h4>
                 <div style={{ overflowX: 'auto' }}>
                   <table className="ubys-table" style={{ fontSize: '0.8rem' }}>
                     <thead>
                       <tr>
-                        <th>Kaynak Ders</th>
-                        <th>Kredi</th>
-                        <th>Not</th>
+                        <th>{lang === 'tr' ? 'Kaynak Ders' : 'Source Course'}</th>
+                        <th>{lang === 'tr' ? 'Kredi' : 'Credits'}</th>
+                        <th>{lang === 'tr' ? 'Not' : 'Grade'}</th>
                         <th></th>
-                        <th>İYTE Karşılığı</th>
-                        <th>Durum</th>
-                        <th>Aksiyon</th>
+                        <th>{lang === 'tr' ? 'İYTE Karşılığı' : 'IZTECH Equivalent'}</th>
+                        <th>{lang === 'tr' ? 'Durum' : 'Status'}</th>
+                        <th>{lang === 'tr' ? 'Aksiyon' : 'Action'}</th>
                       </tr>
                     </thead>
                     <tbody>
                       {editorCourses.length === 0 ? (
                         <tr>
                           <td colSpan="7" style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '1.5rem' }}>
-                            Henüz ders eşleştirmesi eklenmemiştir.
+                            {lang === 'tr' ? 'Henüz ders eşleştirmesi eklenmemiştir.' : 'No course matching added yet.'}
                           </td>
                         </tr>
                       ) : (
@@ -471,7 +476,7 @@ export default function YgkDashboard() {
                               <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{c.targetName}</div>
                             </td>
                             <td>
-                              <span style={{ color: 'var(--color-success)', fontWeight: 600, fontSize: '0.75rem' }}>KABUL</span>
+                              <span style={{ color: 'var(--color-success)', fontWeight: 600, fontSize: '0.75rem' }}>{lang === 'tr' ? 'KABUL' : 'ACCEPTED'}</span>
                             </td>
                             <td>
                               <button 
@@ -501,17 +506,17 @@ export default function YgkDashboard() {
       {/* Curriculum selection modal (TC-FWD-08 / YGK-Intibak-Positive) */}
       <Modal
         isOpen={isCurriculumModalOpen}
-        title="Müfredattan Ders Seç (Add from Curriculum)"
+        title={lang === 'tr' ? 'Müfredattan Ders Seç' : 'Add from Curriculum'}
         onClose={() => setIsCurriculumModalOpen(false)}
       >
         <div style={{ maxHeight: '350px', overflowY: 'auto' }}>
           <table className="ubys-table" style={{ fontSize: '0.8rem' }}>
             <thead>
               <tr>
-                <th>Ders Kodu</th>
-                <th>Ders Adı</th>
-                <th>AKTS</th>
-                <th>Aksiyon</th>
+                <th>{lang === 'tr' ? 'Ders Kodu' : 'Course Code'}</th>
+                <th>{lang === 'tr' ? 'Ders Adı' : 'Course Name'}</th>
+                <th>{lang === 'tr' ? 'AKTS' : 'ECTS'}</th>
+                <th>{lang === 'tr' ? 'Aksiyon' : 'Action'}</th>
               </tr>
             </thead>
             <tbody>
@@ -529,7 +534,7 @@ export default function YgkDashboard() {
                       }}
                       id="selectFromCurriculumBtn"
                     >
-                      add from curriculum (Dersi Seç)
+                      {lang === 'tr' ? 'Dersi Seç' : 'add from curriculum'}
                     </button>
                   </td>
                 </tr>

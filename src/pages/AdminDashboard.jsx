@@ -15,7 +15,8 @@ export default function AdminDashboard({ activeTab }) {
     createStaffAccount, 
     updateConfig, 
     triggerBackup, 
-    restoreBackup 
+    restoreBackup,
+    lang
   } = useApp();
 
   // New staff user form state
@@ -36,7 +37,7 @@ export default function AdminDashboard({ activeTab }) {
   const handleCreateStaff = (e) => {
     e.preventDefault();
     if (!newStaff.fullName || !newStaff.email || !newStaff.password) {
-      alert('Lütfen tüm zorunlu alanları doldurunuz!');
+      alert(lang === 'tr' ? 'Lütfen tüm zorunlu alanları doldurunuz!' : 'Please fill all required fields!');
       return;
     }
 
@@ -76,8 +77,8 @@ export default function AdminDashboard({ activeTab }) {
         <div>
           <div className="page-header">
             <div>
-              <h2 className="page-title">Kullanıcı Yönetimi</h2>
-              <p className="page-description">Sistemdeki tüm kullanıcıları görüntüleyin, rollerini düzenleyin veya yeni idari personel hesapları açın.</p>
+              <h2 className="page-title">{lang === 'tr' ? 'Kullanıcı Yönetimi' : 'User Management'}</h2>
+              <p className="page-description">{lang === 'tr' ? 'Sistemdeki tüm kullanıcıları görüntüleyin, rollerini düzenleyin veya yeni idari personel hesapları açın.' : 'View all users in the system, edit their roles, or open new administrative staff accounts.'}</p>
             </div>
           </div>
 
@@ -85,16 +86,16 @@ export default function AdminDashboard({ activeTab }) {
             {/* Left Column: Users List */}
             <div className="table-container" style={{ margin: 0 }}>
               <div className="table-header-bar">
-                <h3 className="table-title">Kayıtlı Kullanıcılar</h3>
+                <h3 className="table-title">{lang === 'tr' ? 'Kayıtlı Kullanıcılar' : 'Registered Users'}</h3>
               </div>
               <table className="ubys-table" style={{ fontSize: '0.8rem' }}>
                 <thead>
                   <tr>
-                    <th>Adı Soyadı</th>
-                    <th>E-Posta</th>
-                    <th>Mevcut Rol</th>
-                    <th>Bölüm Yetkisi</th>
-                    <th>Rol Değiştir</th>
+                    <th>{lang === 'tr' ? 'Adı Soyadı' : 'Full Name'}</th>
+                    <th>{lang === 'tr' ? 'E-Posta' : 'Email'}</th>
+                    <th>{lang === 'tr' ? 'Mevcut Rol' : 'Current Role'}</th>
+                    <th>{lang === 'tr' ? 'Bölüm Yetkisi' : 'Department Authority'}</th>
+                    <th>{lang === 'tr' ? 'Rol Değiştir' : 'Change Role'}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -112,10 +113,20 @@ export default function AdminDashboard({ activeTab }) {
                           borderRadius: '4px',
                           textTransform: 'uppercase'
                         }}>
-                          {u.role}
+                          {u.role === 'admin' 
+                            ? (lang === 'tr' ? 'YÖNETİCİ' : 'ADMIN') 
+                            : u.role === 'applicant' 
+                              ? (lang === 'tr' ? 'ADAY' : 'APPLICANT')
+                              : u.role.toUpperCase()}
                         </span>
                       </td>
-                      <td>{u.department ? u.department.replace('_', ' ').toUpperCase() : '-'}</td>
+                      <td>
+                        {u.department 
+                          ? (lang === 'tr' 
+                              ? (u.department === 'computer_engineering' ? 'BİLGİSAYAR MÜHENDİSLİĞİ' : 'ELEKTRİK-ELEKTRONİK MÜHENDİSLİĞİ') 
+                              : u.department.replace('_', ' ').toUpperCase()) 
+                          : '-'}
+                      </td>
                       <td>
                         {u.role !== 'admin' ? (
                           <select 
@@ -124,14 +135,14 @@ export default function AdminDashboard({ activeTab }) {
                             value={u.role}
                             onChange={(e) => updateUserRole(u.id, e.target.value)}
                           >
-                            <option value="applicant">applicant</option>
-                            <option value="oidb">oidb</option>
-                            <option value="ydyo">ydyo</option>
-                            <option value="dean">dean</option>
-                            <option value="ygk">ygk</option>
+                            <option value="applicant">{lang === 'tr' ? 'aday' : 'applicant'}</option>
+                            <option value="oidb">{lang === 'tr' ? 'öidb' : 'oidb'}</option>
+                            <option value="ydyo">{lang === 'tr' ? 'ydyo' : 'ydyo'}</option>
+                            <option value="dean">{lang === 'tr' ? 'dekan' : 'dean'}</option>
+                            <option value="ygk">{lang === 'tr' ? 'ygk' : 'ygk'}</option>
                           </select>
                         ) : (
-                          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Düzenlenemez</span>
+                          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{lang === 'tr' ? 'Düzenlenemez' : 'Cannot Edit'}</span>
                         )}
                       </td>
                     </tr>
@@ -143,15 +154,15 @@ export default function AdminDashboard({ activeTab }) {
             {/* Right Column: Add Staff Account Form (TODO completion!) */}
             <div className="card">
               <h3 style={{ fontSize: '1rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem', marginBottom: '1rem', color: 'var(--primary-color)' }}>
-                <Plus size={16} /> Yeni Personel Hesabı Ekle
+                <Plus size={16} /> {lang === 'tr' ? 'Yeni Personel Hesabı Ekle' : 'Add New Staff Account'}
               </h3>
               <form onSubmit={handleCreateStaff}>
                 <div className="form-group">
-                  <label className="form-label">Adı Soyadı <span style={{ color: 'red' }}>*</span></label>
+                  <label className="form-label">{lang === 'tr' ? 'Adı Soyadı' : 'Full Name'} <span style={{ color: 'red' }}>*</span></label>
                   <input 
                     type="text" 
                     className="form-control"
-                    placeholder="Örn: Prof. Dr. Kemal Ege"
+                    placeholder={lang === 'tr' ? 'Örn: Prof. Dr. Kemal Ege' : 'e.g. Prof. Dr. Kemal Ege'}
                     required
                     value={newStaff.fullName}
                     onChange={(e) => setNewStaff(prev => ({ ...prev, fullName: e.target.value }))}
@@ -159,7 +170,7 @@ export default function AdminDashboard({ activeTab }) {
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">E-Posta <span style={{ color: 'red' }}>*</span></label>
+                  <label className="form-label">{lang === 'tr' ? 'E-Posta' : 'Email'} <span style={{ color: 'red' }}>*</span></label>
                   <input 
                     type="email" 
                     className="form-control"
@@ -171,11 +182,11 @@ export default function AdminDashboard({ activeTab }) {
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Şifre <span style={{ color: 'red' }}>*</span></label>
+                  <label className="form-label">{lang === 'tr' ? 'Şifre' : 'Password'} <span style={{ color: 'red' }}>*</span></label>
                   <input 
                     type="password" 
                     className="form-control"
-                    placeholder="Şifre belirleyin"
+                    placeholder={lang === 'tr' ? 'Şifre belirleyin' : 'Set a password'}
                     required
                     value={newStaff.password}
                     onChange={(e) => setNewStaff(prev => ({ ...prev, password: e.target.value }))}
@@ -183,35 +194,35 @@ export default function AdminDashboard({ activeTab }) {
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Rolü</label>
+                  <label className="form-label">{lang === 'tr' ? 'Rolü' : 'Role'}</label>
                   <select 
                     className="form-control"
                     value={newStaff.role}
                     onChange={(e) => setNewStaff(prev => ({ ...prev, role: e.target.value }))}
                   >
-                    <option value="oidb">Öğrenci İşleri Memuru (oidb)</option>
-                    <option value="ydyo">Yabancı Diller Yetkilisi (ydyo)</option>
-                    <option value="dean">Dekanlık Yetkilisi (dean)</option>
-                    <option value="ygk">Komisyon Üyesi (ygk)</option>
+                    <option value="oidb">{lang === 'tr' ? 'Öğrenci İşleri Memuru' : 'Office of Student Affairs Officer'}</option>
+                    <option value="ydyo">{lang === 'tr' ? 'Yabancı Diller Yetkilisi' : 'Foreign Languages Official'}</option>
+                    <option value="dean">{lang === 'tr' ? 'Dekanlık Yetkilisi' : 'Deanery Official'}</option>
+                    <option value="ygk">{lang === 'tr' ? 'Komisyon Üyesi' : 'Committee Member'}</option>
                   </select>
                 </div>
 
                 {newStaff.role === 'ygk' && (
                   <div className="form-group">
-                    <label className="form-label">Sorumlu Olduğu Bölüm</label>
+                    <label className="form-label">{lang === 'tr' ? 'Sorumlu Olduğu Bölüm' : 'Responsible Department'}</label>
                     <select 
                       className="form-control"
                       value={newStaff.department}
                       onChange={(e) => setNewStaff(prev => ({ ...prev, department: e.target.value }))}
                     >
-                      <option value="computer_engineering">Computer Engineering</option>
-                      <option value="electrical_electronics_engineering">Electrical-Electronics Engineering</option>
+                      <option value="computer_engineering">{lang === 'tr' ? 'Bilgisayar Mühendisliği' : 'Computer Engineering'}</option>
+                      <option value="electrical_electronics_engineering">{lang === 'tr' ? 'Elektrik-Elektronik Mühendisliği' : 'Electrical-Electronics Engineering'}</option>
                     </select>
                   </div>
                 )}
 
                 <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '0.5rem' }}>
-                  Personel Hesabı Oluştur
+                  {lang === 'tr' ? 'Personel Hesabı Oluştur' : 'Create Staff Account'}
                 </button>
               </form>
             </div>
@@ -223,8 +234,8 @@ export default function AdminDashboard({ activeTab }) {
         <div>
           <div className="page-header">
             <div>
-              <h2 className="page-title">Sistem Ayarları</h2>
-              <p className="page-description">Yatay geçiş başvuru sisteminin aktiflik durumunu, dönem ve kontenjan parametrelerini düzenleyin.</p>
+              <h2 className="page-title">{lang === 'tr' ? 'Sistem Ayarları' : 'System Settings'}</h2>
+              <p className="page-description">{lang === 'tr' ? 'Yatay geçiş başvuru sisteminin aktiflik durumunu, dönem ve kontenjan parametrelerini düzenleyin.' : 'Edit system active status, semester, and ranking quota parameters.'}</p>
             </div>
           </div>
 
@@ -239,24 +250,24 @@ export default function AdminDashboard({ activeTab }) {
                   style={{ width: '18px', height: '18px', cursor: 'pointer' }}
                 />
                 <label htmlFor="sysActive" style={{ fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer', margin: 0 }}>
-                  Yatay Geçiş Başvuru Sistemini Öğrencilere Aç (Aktif)
+                  {lang === 'tr' ? 'Yatay Geçiş Başvuru Sistemini Öğrencilere Aç (Aktif)' : 'Open Horizontal Transfer System to Students (Active)'}
                 </label>
               </div>
 
               <div className="form-group">
-                <label className="form-label">Akademik Başvuru Dönemi</label>
+                <label className="form-label">{lang === 'tr' ? 'Akademik Başvuru Dönemi' : 'Academic Application Semester'}</label>
                 <input 
                   type="text" 
                   className="form-control"
                   value={sysSemester}
                   onChange={(e) => setSysSemester(e.target.value)}
-                  placeholder="Örn: 2026-2027 Güz"
+                  placeholder={lang === 'tr' ? 'Örn: 2026-2027 Güz' : 'e.g. 2026-2027 Fall'}
                   required
                 />
               </div>
 
               <div className="form-group">
-                <label className="form-label">Son Başvuru Tarihi</label>
+                <label className="form-label">{lang === 'tr' ? 'Son Başvuru Tarihi' : 'Application Deadline'}</label>
                 <input 
                   type="date" 
                   className="form-control"
@@ -267,7 +278,7 @@ export default function AdminDashboard({ activeTab }) {
               </div>
 
               <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-                <label className="form-label">Sıralama Kontenjan Limiti (Asil Aday Adedi)</label>
+                <label className="form-label">{lang === 'tr' ? 'Sıralama Kontenjan Limiti (Asil Aday Adedi)' : 'Ranking Quota Limit (Number of Main Candidates)'}</label>
                 <input 
                   type="number" 
                   className="form-control"
@@ -279,7 +290,7 @@ export default function AdminDashboard({ activeTab }) {
               </div>
 
               <button type="submit" className="btn btn-primary">
-                Ayarları Kaydet ve Güncelle
+                {lang === 'tr' ? 'Ayarları Kaydet ve Güncelle' : 'Save & Update Settings'}
               </button>
             </form>
           </div>
@@ -290,26 +301,26 @@ export default function AdminDashboard({ activeTab }) {
         <div>
           <div className="page-header">
             <div>
-              <h2 className="page-title">Yedekleme ve Geri Yükleme</h2>
-              <p className="page-description">Tüm başvuru durumlarını, kullanıcı verilerini ve komisyon kararlarını yedekleyin veya geri yükleyin.</p>
+              <h2 className="page-title">{lang === 'tr' ? 'Yedekleme ve Geri Yükleme' : 'Backup & Restore'}</h2>
+              <p className="page-description">{lang === 'tr' ? 'Tüm başvuru durumlarını, kullanıcı verilerini ve komisyon kararlarını yedekleyin veya geri yükleyin.' : 'Backup or restore all application states, user data, and committee decisions.'}</p>
             </div>
             <button className="btn btn-primary" onClick={triggerBackup}>
-              <Plus size={16} /> Yeni Veritabanı Yedeği Al
+              <Plus size={16} /> {lang === 'tr' ? 'Yeni Veritabanı Yedeği Al' : 'Take New Database Backup'}
             </button>
           </div>
 
           <div className="table-container">
             <div className="table-header-bar">
-              <h3 className="table-title">Yedek Dosyaları (instance/backups/)</h3>
+              <h3 className="table-title">{lang === 'tr' ? 'Yedek Dosyaları (instance/backups/)' : 'Backup Files (instance/backups/)'}</h3>
             </div>
             <table className="ubys-table">
               <thead>
                 <tr>
-                  <th>Yedek Dosya Adı</th>
-                  <th>Alınma Zamanı</th>
-                  <th>Kullanıcı Sayısı</th>
-                  <th>Başvuru Sayısı</th>
-                  <th>Yedek İşlemi</th>
+                  <th>{lang === 'tr' ? 'Yedek Dosya Adı' : 'Backup File Name'}</th>
+                  <th>{lang === 'tr' ? 'Alınma Zamanı' : 'Created Time'}</th>
+                  <th>{lang === 'tr' ? 'Kullanıcı Sayısı' : 'User Count'}</th>
+                  <th>{lang === 'tr' ? 'Başvuru Sayısı' : 'Application Count'}</th>
+                  <th>{lang === 'tr' ? 'Yedek İşlemi' : 'Backup Action'}</th>
                 </tr>
               </thead>
               <tbody>
@@ -317,19 +328,19 @@ export default function AdminDashboard({ activeTab }) {
                   <tr key={bak.filename}>
                     <td style={{ fontWeight: 600, color: 'var(--primary-color)' }}>{bak.filename}</td>
                     <td>{bak.date}</td>
-                    <td>{bak.data.users.length} Kayıtlı Kullanıcı</td>
-                    <td>{bak.data.applications.length} Başvuru</td>
+                    <td>{bak.data.users.length} {lang === 'tr' ? 'Kayıtlı Kullanıcı' : 'Registered Users'}</td>
+                    <td>{bak.data.applications.length} {lang === 'tr' ? 'Başvuru' : 'Applications'}</td>
                     <td>
                       <button 
                         className="btn btn-secondary btn-sm"
                         style={{ display: 'flex', alignItems: 'center', gap: '0.2rem' }}
                         onClick={() => {
-                          if (window.confirm(`${bak.filename} yedeğini geri yüklemek istiyor musunuz? Mevcut tüm canlı verileriniz bu yedeğe göre sıfırlanacaktır.`)) {
+                          if (window.confirm(lang === 'tr' ? `${bak.filename} yedeğini geri yüklemek istiyor musunuz? Mevcut tüm canlı verileriniz bu yedeğe göre sıfırlanacaktır.` : `Are you sure you want to restore the backup ${bak.filename}? All current live data will be reset according to this backup.`)) {
                             restoreBackup(bak.filename);
                           }
                         }}
                       >
-                        <RotateCcw size={12} /> Canlıya Yükle (Restore)
+                        <RotateCcw size={12} /> {lang === 'tr' ? 'Canlıya Yükle (Restore)' : 'Restore to Live'}
                       </button>
                     </td>
                   </tr>

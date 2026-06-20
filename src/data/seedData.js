@@ -205,3 +205,116 @@ export const INITIAL_INTIBAC_TABLES = [
     ]
   }
 ];
+
+export const getSlotName = (slotId, lang) => {
+  const trans = {
+    1: { tr: "Öğrenci Belgesi", en: "Student Certificate" },
+    2: { tr: "Not Dökümü (Transkript)", en: "Transcript" },
+    3: { tr: "ÖSYM Sonuç Belgesi", en: "OSYM Score Report" },
+    4: { tr: "İngilizce Muafiyet Belgesi", en: "English Proficiency Certificate" },
+    5: { tr: "ÖSYM Yerleştirme Belgesi", en: "OSYM Placement Certificate" }
+  };
+  return (lang === 'tr' ? trans[slotId]?.tr : trans[slotId]?.en) || "Document";
+};
+
+export const translateReason = (reason, lang) => {
+  if (!reason) return '';
+  const isTr = lang === 'tr';
+  
+  // Seed data has some English reasons
+  if (reason.includes('Official transcript is missing the notary stamp.')) {
+    return isTr ? 'Resmi transkriptte noter onayı eksiktir.' : 'Official transcript is missing the notary stamp.';
+  }
+  if (reason.includes('Official transcript is missing the notary stamp')) {
+    return isTr ? 'Resmi transkriptte noter onayı eksiktir.' : 'Official transcript is missing the notary stamp.';
+  }
+  if (reason.includes('Student certificate must be issued within the last 6 months.')) {
+    return isTr ? 'Öğrenci belgesi son 6 ay içinde düzenlenmiş olmalıdır.' : 'Student certificate must be issued within the last 6 months.';
+  }
+  if (reason.includes('Student certificate must be issued within the last 6 months')) {
+    return isTr ? 'Öğrenci belgesi son 6 ay içinde düzenlenmiş olmalıdır.' : 'Student certificate must be issued within the last 6 months.';
+  }
+  if (reason.includes('Lise diploma copy is not certified.')) {
+    return isTr ? 'Lise diploması sureti onaylı değildir.' : 'High school diploma copy is not certified.';
+  }
+  if (reason.includes('Lise diploma copy is not certified')) {
+    return isTr ? 'Lise diploması sureti onaylı değildir.' : 'High school diploma copy is not certified.';
+  }
+  if (reason.includes('GPA 1.80 is below the minimum required 2.00.')) {
+    return isTr ? 'GNO 1.80 asgari koşul olan 2.00\'nin altındadır.' : 'GPA 1.80 is below the minimum required 2.00.';
+  }
+  if (reason.includes('GPA 1.80 is below the minimum required 2.00')) {
+    return isTr ? 'GNO 1.80 asgari koşul olan 2.00\'nin altındadır.' : 'GPA 1.80 is below the minimum required 2.00.';
+  }
+  if (reason.includes('Transcript is missing.')) {
+    return isTr ? 'Transkript belgesi eksiktir.' : 'Transcript is missing.';
+  }
+  if (reason.includes('Transcript is missing')) {
+    return isTr ? 'Transkript belgesi eksiktir.' : 'Transcript is missing.';
+  }
+  if (reason.includes('YKS Score Report is missing.')) {
+    return isTr ? 'YKS Sonuç Belgesi eksiktir.' : 'YKS Score Report is missing.';
+  }
+  if (reason.includes('YKS Score Report is missing')) {
+    return isTr ? 'YKS Sonuç Belgesi eksiktir.' : 'YKS Score Report is missing.';
+  }
+  if (reason.includes('ID number must contain only digits.')) {
+    return isTr ? 'T.C. Kimlik numarası sadece rakamlardan oluşmalıdır.' : 'ID number must contain only digits.';
+  }
+  if (reason.includes('ID number must contain only digits')) {
+    return isTr ? 'T.C. Kimlik numarası sadece rakamlardan oluşmalıdır.' : 'ID number must contain only digits.';
+  }
+  if (reason.includes('Student Certificate is missing.')) {
+    return isTr ? 'Öğrenci Belgesi eksiktir.' : 'Student Certificate is missing.';
+  }
+  if (reason.includes('Student Certificate is missing')) {
+    return isTr ? 'Öğrenci Belgesi eksiktir.' : 'Student Certificate is missing.';
+  }
+  if (reason.includes('English proficiency certificate is missing.')) {
+    return isTr ? 'İngilizce muafiyet belgesi eksiktir.' : 'English proficiency certificate is missing.';
+  }
+  if (reason.includes('English proficiency certificate is missing')) {
+    return isTr ? 'İngilizce muafiyet belgesi eksiktir.' : 'English proficiency certificate is missing.';
+  }
+
+  // Live validator has Turkish reasons
+  if (reason.includes('geçerli bir aralıkta olmalıdır')) {
+    return isTr ? reason : 'GPA must be in a valid range (0.00 - 4.00).';
+  }
+  if (reason.includes('minimum şart olan 2.00')) {
+    const match = reason.match(/GPA\s+([0-9.]+)/);
+    const val = match ? match[1] : '1.80';
+    return isTr ? reason : `GPA ${val} is below the minimum required 2.00.`;
+  }
+  if (reason.includes('TC Kimlik numarası')) {
+    return isTr ? reason : 'TR Identity number format or algorithm is invalid.';
+  }
+  if (reason.includes('Öğrenci Belgesi eksiktir')) {
+    return isTr ? reason : 'Student Certificate is missing.';
+  }
+  if (reason.includes('Transkript') && reason.includes('eksiktir')) {
+    return isTr ? reason : 'Transcript is missing.';
+  }
+  if (reason.includes('ÖSYM Sonuç Belgesi eksiktir')) {
+    return isTr ? reason : 'OSYM Score Report is missing.';
+  }
+  if (reason.includes('İngilizce Hazırlık Muafiyet Belgesi')) {
+    return isTr ? reason : 'English Prep School Exemption Certificate is not uploaded (recommended for English programs).';
+  }
+  
+  return reason;
+};
+
+export const translateProgram = (prog, lang) => {
+  if (!prog) return '';
+  const isTr = lang === 'tr';
+  const trans = {
+    "Computer Engineering": { tr: "Bilgisayar Mühendisliği", en: "Computer Engineering" },
+    "Software Engineering": { tr: "Yazılım Mühendisliği", en: "Software Engineering" },
+    "Electrical-Electronics Engineering": { tr: "Elektrik-Elektronik Mühendisliği", en: "Electrical-Electronics Engineering" },
+    "Mechanical Engineering": { tr: "Makine Mühendisliği", en: "Mechanical Engineering" }
+  };
+  return (isTr ? trans[prog]?.tr : trans[prog]?.en) || prog;
+};
+
+

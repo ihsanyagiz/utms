@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { DOCUMENT_SLOTS, PROGRAM_DEPARTMENT_MAP } from '../data/seedData';
+import { DOCUMENT_SLOTS, PROGRAM_DEPARTMENT_MAP, getSlotName, translateReason, translateProgram } from '../data/seedData';
 import { 
   Eye, Check, RotateCcw, AlertTriangle, FileText, Play,
   TrendingUp, Award, HelpCircle, ArrowRight, ShieldCheck, ChevronDown, ChevronUp
@@ -8,7 +8,7 @@ import {
 import Modal from '../components/Modal';
 
 export default function DeanDashboard() {
-  const { applications, forwardToYgk, returnFromDean } = useApp();
+  const { applications, forwardToYgk, returnFromDean, lang } = useApp();
   const [expandedAppId, setExpandedAppId] = useState(null);
 
   // Return Modal State
@@ -44,50 +44,52 @@ export default function DeanDashboard() {
     <div className="content-body">
       <div className="page-header">
         <div>
-          <h2 className="page-title">Mühendislik Fakültesi Dekanlığı</h2>
+          <h2 className="page-title">{lang === 'tr' ? 'Mühendislik Fakültesi Dekanlığı' : 'Engineering Faculty Deanery'}</h2>
           <p className="page-description">
-            Öğrenci işleri ve YDYO kontrolleri tamamlanmış başvuruları inceleyin, ilgili bölümlerin komisyonlarına (YGK) havale edin.
+            {lang === 'tr'
+              ? 'Öğrenci işleri ve YDYO kontrolleri tamamlanmış başvuruları inceleyin, ilgili bölümlerin komisyonlarına (YGK) havale edin.'
+              : 'Review applications that have completed student affairs and YDYO checks, and forward them to the relevant department committees (YGK).'}
           </p>
         </div>
       </div>
 
       <div className="card-grid">
         <div className="card">
-          <span className="card-title">Komisyon Havale Bekleyen</span>
+          <span className="card-title">{lang === 'tr' ? 'Komisyon Havale Bekleyen' : 'Pending Committee Forwarding'}</span>
           <span className="card-value">{deanApps.length}</span>
-          <span className="card-subtitle">Dekanlık onay sırasındaki adaylar</span>
+          <span className="card-subtitle">{lang === 'tr' ? 'Dekanlık onay sırasındaki adaylar' : 'Applicants in the Deanery approval queue'}</span>
         </div>
         <div className="card">
-          <span className="card-title">Bölümlere Gönderilen</span>
+          <span className="card-title">{lang === 'tr' ? 'Bölümlere Gönderilen' : 'Forwarded to Departments'}</span>
           <span className="card-value">
             {applications.filter(a => a.status === 'forwarded_to_ygk' || a.status === 'intibak_complete').length}
           </span>
-          <span className="card-subtitle">Komisyon değerlendirmesinde olan toplam aday</span>
+          <span className="card-subtitle">{lang === 'tr' ? 'Komisyon değerlendirmesinde olan toplam aday' : 'Total applicants under committee evaluation'}</span>
         </div>
       </div>
 
       <div className="table-container">
         <div className="table-header-bar">
-          <h3 className="table-title">Fakülte Değerlendirme Listesi</h3>
+          <h3 className="table-title">{lang === 'tr' ? 'Fakülte Değerlendirme Listesi' : 'Faculty Evaluation List'}</h3>
         </div>
 
         <table className="ubys-table">
           <thead>
             <tr>
               <th style={{ width: '40px' }}></th>
-              <th>Aday Öğrenci</th>
-              <th>Hedef Program</th>
-              <th>YKS / GPA</th>
-              <th>Hazırlık Muafiyeti</th>
-              <th>Durum</th>
-              <th>Komisyon Havalesi</th>
+              <th>{lang === 'tr' ? 'Aday Öğrenci' : 'Applicant Student'}</th>
+              <th>{lang === 'tr' ? 'Hedef Program' : 'Target Program'}</th>
+              <th>{lang === 'tr' ? 'YKS / GPA' : 'YKS / GPA'}</th>
+              <th>{lang === 'tr' ? 'Hazırlık Muafiyeti' : 'Prep Exemption'}</th>
+              <th>{lang === 'tr' ? 'Durum' : 'Status'}</th>
+              <th>{lang === 'tr' ? 'Komisyon Havalesi' : 'Committee Forwarding'}</th>
             </tr>
           </thead>
           <tbody>
             {deanApps.length === 0 ? (
               <tr>
                 <td colSpan="7" style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
-                  Dekanlık onay aşamasında bekleyen başvuru bulunmamaktadır.
+                  {lang === 'tr' ? 'Dekanlık onay aşamasında bekleyen başvuru bulunmamaktadır.' : 'There are no applications pending approval in the Deanery.'}
                 </td>
               </tr>
             ) : (
@@ -107,25 +109,25 @@ export default function DeanDashboard() {
                       </td>
                       <td>
                         <div style={{ fontWeight: 600 }}>{app.fullName}</div>
-                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Mevcut: {app.sourceUniversity}</div>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{lang === 'tr' ? 'Mevcut: ' : 'Current: '}{app.sourceUniversity}</div>
                       </td>
                       <td>
-                        <div>{app.targetProgram}</div>
-                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Dönem: {app.targetSemester}</div>
+                        <div>{translateProgram(app.targetProgram, lang)}</div>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{lang === 'tr' ? 'Dönem: ' : 'Semester: '}{app.targetSemester}</div>
                       </td>
                       <td>
-                        <div>YKS: {app.osymPoints}</div>
-                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Ort.: {app.currentGpa} / 4.00</div>
+                        <div>{lang === 'tr' ? 'YKS: ' : 'YKS: '}{app.osymPoints}</div>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{lang === 'tr' ? 'Ort.: ' : 'GPA: '}{app.currentGpa} / 4.00</div>
                       </td>
                       <td>
                         {app.prepSchoolStatus === 'eligible' ? (
-                          <span style={{ color: 'var(--color-success)', fontWeight: 600, fontSize: '0.8rem' }}>Muaf (Eligible)</span>
+                          <span style={{ color: 'var(--color-success)', fontWeight: 600, fontSize: '0.8rem' }}>{lang === 'tr' ? 'Muaf' : 'Eligible'}</span>
                         ) : (
-                          <span style={{ color: 'var(--color-warning)', fontWeight: 600, fontSize: '0.8rem' }}>Sınava Girmeli</span>
+                          <span style={{ color: 'var(--color-warning)', fontWeight: 600, fontSize: '0.8rem' }}>{lang === 'tr' ? 'Sınava Girmeli' : 'Must Take Exam'}</span>
                         )}
                       </td>
                       <td>
-                        <span className="status-badge status-pending-dean">Dekanlıkta</span>
+                        <span className="status-badge status-pending-dean">{lang === 'tr' ? 'Dekanlıkta' : 'At Deanery'}</span>
                       </td>
                       <td>
                         <div style={{ display: 'flex', gap: '0.35rem' }}>
@@ -134,7 +136,7 @@ export default function DeanDashboard() {
                             style={{ display: 'flex', alignItems: 'center', gap: '0.2rem' }}
                             onClick={() => handleForwardToYgk(app.id, app.targetProgram)}
                           >
-                            Forward to YGK (Komisyona Sevk) <ArrowRight size={12} />
+                            {lang === 'tr' ? 'Komisyona Sevk Et' : 'Forward to YGK'} <ArrowRight size={12} />
                           </button>
                           <button 
                             className="btn btn-danger btn-sm"
@@ -143,7 +145,7 @@ export default function DeanDashboard() {
                               setIsReturnModalOpen(true);
                             }}
                           >
-                            Return (İade Et)
+                            {lang === 'tr' ? 'İade Et / Geri Gönder' : 'Return'}
                           </button>
                         </div>
                       </td>
@@ -156,19 +158,19 @@ export default function DeanDashboard() {
                             {/* Left Column: Documents & Checker Banner */}
                             <div>
                               <h4 style={{ fontSize: '0.85rem', marginBottom: '0.5rem', fontWeight: 600, color: 'var(--secondary-color)' }}>
-                                Belge Kontrol Sonuçları
+                                {lang === 'tr' ? 'Belge Kontrol Sonuçları' : 'Document Control Results'}
                               </h4>
                               
                               {/* Doc Checker Status Banner */}
                               {app.docCheckerErrors && app.docCheckerErrors.length === 0 ? (
                                 <div className="doc-checker-banner doc-checker-banner-passed">
                                   <ShieldCheck size={16} />
-                                  ÖİDB Otomatik Belge Kontrolünden Geçti (Herhangi bir hata bulunamadı).
+                                  {lang === 'tr' ? 'ÖİDB Otomatik Belge Kontrolünden Geçti (Herhangi bir hata bulunamadı).' : 'Passed OIDB Automatic Document Control (No errors found).'}
                                 </div>
                               ) : (
                                 <div className="doc-checker-banner doc-checker-banner-failed">
                                   <AlertTriangle size={16} />
-                                  ÖİDB Otomatik Kontrolünde Uyarılara Rastlandı ({app.docCheckerErrors?.length} adet).
+                                  {lang === 'tr' ? `ÖİDB Otomatik Kontrolünde Uyarılara Rastlandı (${app.docCheckerErrors?.length} adet).` : `Warnings Found in OIDB Automatic Control (${app.docCheckerErrors?.length} items).`}
                                 </div>
                               )}
 
@@ -177,17 +179,17 @@ export default function DeanDashboard() {
                                   const doc = app.documents.find(d => d.slot === slot.id);
                                   return (
                                     <div key={slot.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.4rem 0.6rem', border: '1px solid var(--border-color)', borderRadius: '4px', backgroundColor: '#ffffff', fontSize: '0.8rem' }}>
-                                      <span>{slot.name}</span>
+                                      <span>{getSlotName(slot.id, lang)}</span>
                                       {doc ? (
                                         <button 
                                           className="btn btn-secondary btn-sm" 
                                           style={{ padding: '0.15rem 0.35rem', fontSize: '0.7rem' }}
-                                          onClick={() => setViewingDoc({ ...doc, slotName: slot.name, applicantName: app.fullName })}
+                                          onClick={() => setViewingDoc({ ...doc, slotName: getSlotName(slot.id, lang), applicantName: app.fullName })}
                                         >
-                                          İncele
+                                          {lang === 'tr' ? 'İncele' : 'Review'}
                                         </button>
                                       ) : (
-                                        <span style={{ color: 'var(--color-danger)', fontSize: '0.75rem' }}>Yüklenmedi</span>
+                                        <span style={{ color: 'var(--color-danger)', fontSize: '0.75rem' }}>{lang === 'tr' ? 'Yüklenmedi' : 'Not Uploaded'}</span>
                                       )}
                                     </div>
                                   );
@@ -198,27 +200,27 @@ export default function DeanDashboard() {
                             {/* Right Column: Academic Details & Logs */}
                             <div>
                               <h4 style={{ fontSize: '0.85rem', marginBottom: '0.5rem', fontWeight: 600, color: 'var(--secondary-color)' }}>
-                                Akademik Kontrol Bilgileri
+                                {lang === 'tr' ? 'Akademik Kontrol Bilgileri' : 'Academic Control Information'}
                               </h4>
                               <div style={{ padding: '0.75rem', border: '1px solid var(--border-color)', borderRadius: '4px', backgroundColor: '#ffffff', fontSize: '0.8rem' }}>
                                 <div style={{ marginBottom: '0.35rem' }}>
-                                  <strong>Kayıtlılık Durumu:</strong> {app.isCurrentlyEnrolled ? 'Aktif Öğrenci' : 'Okulla İlişiği Kesilmiş'}
+                                  <strong>{lang === 'tr' ? 'Kayıtlılık Durumu:' : 'Enrollment Status:'}</strong> {app.isCurrentlyEnrolled ? (lang === 'tr' ? 'Aktif Öğrenci' : 'Active Student') : (lang === 'tr' ? 'Okulla İlişiği Kesilmiş' : 'Dismissed from School')}
                                 </div>
                                 <div style={{ marginBottom: '0.35rem' }}>
-                                  <strong>Öğrenci YKS Yerleşme Puanı:</strong> {app.osymPoints}
+                                  <strong>{lang === 'tr' ? 'Öğrenci YKS Yerleşme Puanı:' : 'Student YKS Placement Score:'}</strong> {app.osymPoints}
                                 </div>
                                 <div style={{ marginBottom: '0.35rem' }}>
-                                  <strong>Adayın Not Ortalaması (GPA):</strong> {app.currentGpa} / 4.00
+                                  <strong>{lang === 'tr' ? 'Adayın Not Ortalaması (GPA):' : 'Applicant GPA:'}</strong> {app.currentGpa} / 4.00
                                 </div>
                                 <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '0.5rem', marginTop: '0.5rem' }}>
-                                  <strong>ÖİDB Kontrol Logları:</strong> {app.docCheckerErrors && app.docCheckerErrors.length > 0 ? (
+                                  <strong>{lang === 'tr' ? 'ÖİDB Kontrol Logları:' : 'OIDB Control Logs:'}</strong> {app.docCheckerErrors && app.docCheckerErrors.length > 0 ? (
                                     <ul style={{ paddingLeft: '1rem', marginTop: '0.25rem', color: '#b91c1c' }}>
                                       {app.docCheckerErrors.map((err, idx) => (
-                                        <li key={idx}>{err.reason}</li>
+                                        <li key={idx}>{translateReason(err.reason, lang)}</li>
                                       ))}
                                     </ul>
                                   ) : (
-                                    <span style={{ color: '#047857' }}>Herhangi bir hata veya eksik belge uyarısı bulunmamaktadır.</span>
+                                    <span style={{ color: '#047857' }}>{lang === 'tr' ? 'Herhangi bir hata veya eksik belge uyarısı bulunmamaktadır.' : 'There are no errors or missing document warnings.'}</span>
                                   )}
                                 </div>
                               </div>
@@ -256,9 +258,9 @@ export default function DeanDashboard() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Yeni Sekmede Aç / İndir (Open / Download)
+                {lang === 'tr' ? 'Yeni Sekmede Aç / İndir' : 'Open / Download in New Tab'}
               </a>
-              <button className="btn btn-secondary btn-sm" onClick={() => setViewingDoc(null)}>Kapat</button>
+              <button className="btn btn-secondary btn-sm" onClick={() => setViewingDoc(null)}>{lang === 'tr' ? 'Kapat' : 'Close'}</button>
             </div>
           </div>
         )}
@@ -267,31 +269,31 @@ export default function DeanDashboard() {
       {/* Return Modal for Dean */}
       <Modal
         isOpen={isReturnModalOpen}
-        title="Başvuru İade ve Geri Gönderme Formu"
+        title={lang === 'tr' ? 'Başvuru İade ve Geri Gönderme Formu' : 'Application Return Form'}
         onClose={() => setIsReturnModalOpen(false)}
         onConfirm={handleReturnSubmit}
-        confirmText="Return (İade Kararı Ver)"
+        confirmText={lang === 'tr' ? 'İade Kararı Ver' : 'Return'}
         confirmType="danger"
       >
         <div className="form-group">
-          <label className="form-label">Geri Gönderilecek Hedef Birim</label>
+          <label className="form-label">{lang === 'tr' ? 'Geri Gönderilecek Hedef Birim' : 'Target Unit for Return'}</label>
           <select 
             className="form-control"
             value={returnTarget}
             onChange={(e) => setReturnTarget(e.target.value)}
           >
-            <option value="applicant">Return to Applicant (Aday Öğrenci - Düzeltme İçin)</option>
-            <option value="oidb">Return to OIDB (Öğrenci İşleri)</option>
-            <option value="ydyo">Return to YDYO (Yabancı Diller)</option>
+            <option value="applicant">{lang === 'tr' ? 'Aday Öğrenci (Düzeltme İçin)' : 'Return to Applicant'}</option>
+            <option value="oidb">{lang === 'tr' ? 'Öğrenci İşleri (Evrak İnceleme)' : 'Return to OIDB'}</option>
+            <option value="ydyo">{lang === 'tr' ? 'Yabancı Diller Yüksekokulu' : 'Return to YDYO'}</option>
           </select>
         </div>
 
         <div className="form-group">
-          <label className="form-label">İade / Geri Gönderme Açıklaması <span style={{ color: 'red' }}>*</span></label>
+          <label className="form-label">{lang === 'tr' ? 'İade / Geri Gönderme Açıklaması' : 'Return / Referral Explanation'} <span style={{ color: 'red' }}>*</span></label>
           <textarea 
             className="form-control" 
             rows="4" 
-            placeholder="İade veya geri gönderme gerekçesini yazınız..."
+            placeholder={lang === 'tr' ? 'İade veya geri gönderme gerekçesini yazınız...' : 'Write the reason for return or referral...'}
             required
             value={returnNotes}
             onChange={(e) => setReturnNotes(e.target.value)}
