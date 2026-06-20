@@ -52,13 +52,16 @@ export default function Sidebar({ isCollapsed, activeTab, setActiveTab }) {
   return (
     <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
       <div className="sidebar-brand">
-        <div className="sidebar-logo" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <img src={IyteLogoUrl} alt="İYTE" style={{ width: '28px', height: '28px' }} />
-          <span>İYTE<span>UBYS</span></span>
-        </div>
-        <div className="sidebar-logo-abbr" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-          <img src={IyteLogoUrl} alt="İYTE" style={{ width: '24px', height: '24px' }} />
-        </div>
+        {!isCollapsed ? (
+          <div className="sidebar-logo" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <img src={IyteLogoUrl} alt="İYTE" style={{ width: '28px', height: '28px' }} />
+            <span>İYTE<span>UBYS</span></span>
+          </div>
+        ) : (
+          <div className="sidebar-logo-abbr" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <img src={IyteLogoUrl} alt="İYTE" style={{ width: '24px', height: '24px' }} />
+          </div>
+        )}
       </div>
       
       <ul className="sidebar-menu">
