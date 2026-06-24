@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { PROGRAM_DEPARTMENT_MAP } from '../data/seedData';
 
 const AppContext = createContext();
 
@@ -366,7 +367,7 @@ export const AppProvider = ({ children }) => {
   };
 
   const forwardToYgk = async (appId, programName) => {
-    const dept = programName.includes('Electrical') ? 'electrical_electronics_engineering' : 'computer_engineering';
+    const dept = PROGRAM_DEPARTMENT_MAP[programName] || 'computer_engineering';
     const res = await updateApplication(appId, { status: 'forwarded_to_ygk', forwardedFaculty: dept });
     if (res.success) {
       showToast('Application forwarded to YGK successfully.', 'success');

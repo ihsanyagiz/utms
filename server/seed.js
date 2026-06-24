@@ -88,10 +88,28 @@ const INITIAL_INTIBAC_TABLES = [
 ];
 
 const PROGRAM_DEPARTMENT_MAP = {
+  // Mühendislik Fakültesi
   "Computer Engineering": "computer_engineering",
   "Software Engineering": "computer_engineering",
   "Electrical-Electronics Engineering": "electrical_electronics_engineering",
-  "Mechanical Engineering": "electrical_electronics_engineering"
+  "Mechanical Engineering": "mechanical_engineering",
+  "Bioengineering": "bioengineering",
+  "Civil Engineering": "civil_engineering",
+  "Chemical Engineering": "chemical_engineering",
+  "Environmental Engineering": "environmental_engineering",
+  "Energy Systems Engineering": "energy_systems_engineering",
+  "Food Engineering": "food_engineering",
+  "Materials Science and Engineering": "materials_science_engineering",
+  // Fen Fakültesi
+  "Physics": "physics",
+  "Photonics": "photonics",
+  "Chemistry": "chemistry",
+  "Mathematics": "mathematics",
+  "Molecular Biology and Genetics": "molecular_biology_genetics",
+  // Mimarlık Fakültesi
+  "Architecture": "architecture",
+  "City and Regional Planning": "city_regional_planning",
+  "Industrial Design": "industrial_design"
 };
 
 async function seed() {

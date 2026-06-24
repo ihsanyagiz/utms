@@ -1,10 +1,28 @@
 // UTMS Seed Data for IYTE UBYS Simulation
 
 export const PROGRAMS = [
+  // Mühendislik Fakültesi / Faculty of Engineering
   "Computer Engineering",
   "Software Engineering",
   "Electrical-Electronics Engineering",
-  "Mechanical Engineering"
+  "Mechanical Engineering",
+  "Bioengineering",
+  "Civil Engineering",
+  "Chemical Engineering",
+  "Environmental Engineering",
+  "Energy Systems Engineering",
+  "Food Engineering",
+  "Materials Science and Engineering",
+  // Fen Fakültesi / Faculty of Science
+  "Physics",
+  "Photonics",
+  "Chemistry",
+  "Mathematics",
+  "Molecular Biology and Genetics",
+  // Mimarlık Fakültesi / Faculty of Architecture
+  "Architecture",
+  "City and Regional Planning",
+  "Industrial Design"
 ];
 
 export const SEMESTERS = [
@@ -58,10 +76,28 @@ export const CURRICULA = {
 };
 
 export const PROGRAM_DEPARTMENT_MAP = {
+  // Mühendislik Fakültesi
   "Computer Engineering": "computer_engineering",
   "Software Engineering": "computer_engineering",
   "Electrical-Electronics Engineering": "electrical_electronics_engineering",
-  "Mechanical Engineering": "electrical_electronics_engineering" // mapped to simplify routing in seed
+  "Mechanical Engineering": "mechanical_engineering",
+  "Bioengineering": "bioengineering",
+  "Civil Engineering": "civil_engineering",
+  "Chemical Engineering": "chemical_engineering",
+  "Environmental Engineering": "environmental_engineering",
+  "Energy Systems Engineering": "energy_systems_engineering",
+  "Food Engineering": "food_engineering",
+  "Materials Science and Engineering": "materials_science_engineering",
+  // Fen Fakültesi
+  "Physics": "physics",
+  "Photonics": "photonics",
+  "Chemistry": "chemistry",
+  "Mathematics": "mathematics",
+  "Molecular Biology and Genetics": "molecular_biology_genetics",
+  // Mimarlık Fakültesi
+  "Architecture": "architecture",
+  "City and Regional Planning": "city_regional_planning",
+  "Industrial Design": "industrial_design"
 };
 
 // Required documents: 1. Student Certificate, 2. Transcript, 3. OSYM Score
@@ -309,12 +345,28 @@ export const translateProgram = (prog, lang) => {
   if (!prog) return '';
   const isTr = lang === 'tr';
   const trans = {
+    // Mühendislik Fakültesi
     "Computer Engineering": { tr: "Bilgisayar Mühendisliği", en: "Computer Engineering" },
     "Software Engineering": { tr: "Yazılım Mühendisliği", en: "Software Engineering" },
     "Electrical-Electronics Engineering": { tr: "Elektrik-Elektronik Mühendisliği", en: "Electrical-Electronics Engineering" },
-    "Mechanical Engineering": { tr: "Makine Mühendisliği", en: "Mechanical Engineering" }
+    "Mechanical Engineering": { tr: "Makine Mühendisliği", en: "Mechanical Engineering" },
+    "Bioengineering": { tr: "Biyomühendislik", en: "Bioengineering" },
+    "Civil Engineering": { tr: "İnşaat Mühendisliği", en: "Civil Engineering" },
+    "Chemical Engineering": { tr: "Kimya Mühendisliği", en: "Chemical Engineering" },
+    "Environmental Engineering": { tr: "Çevre Mühendisliği", en: "Environmental Engineering" },
+    "Energy Systems Engineering": { tr: "Enerji Sistemleri Mühendisliği", en: "Energy Systems Engineering" },
+    "Food Engineering": { tr: "Gıda Mühendisliği", en: "Food Engineering" },
+    "Materials Science and Engineering": { tr: "Malzeme Bilimi ve Mühendisliği", en: "Materials Science and Engineering" },
+    // Fen Fakültesi
+    "Physics": { tr: "Fizik", en: "Physics" },
+    "Photonics": { tr: "Fotonik", en: "Photonics" },
+    "Chemistry": { tr: "Kimya", en: "Chemistry" },
+    "Mathematics": { tr: "Matematik", en: "Mathematics" },
+    "Molecular Biology and Genetics": { tr: "Moleküler Biyoloji ve Genetik", en: "Molecular Biology and Genetics" },
+    // Mimarlık Fakültesi
+    "Architecture": { tr: "Mimarlık", en: "Architecture" },
+    "City and Regional Planning": { tr: "Şehir ve Bölge Planlama", en: "City and Regional Planning" },
+    "Industrial Design": { tr: "Endüstriyel Tasarım", en: "Industrial Design" }
   };
   return (isTr ? trans[prog]?.tr : trans[prog]?.en) || prog;
 };
-
-

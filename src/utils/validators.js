@@ -56,9 +56,9 @@ export const runAutomatedDocChecker = (app) => {
     errors.push({ type: 'document', slot: 3, reason: 'ÖSYM Sonuç Belgesi eksiktir.' });
   }
 
-  // English Prof. Check (if target program is CENG/SENG, and it requires English prep, and it has no english cert)
-  if ((app.targetProgram === 'Computer Engineering' || app.targetProgram === 'Software Engineering') && !uploadedSlots.includes(4)) {
-    errors.push({ type: 'document', slot: 4, reason: 'İngilizce Hazırlık Muafiyet Belgesi yüklenmemiştir (İngilizce programlar için tavsiye edilir).' });
+  // English Prof. Check (İYTE is a fully English-medium institution - all programs require English proficiency)
+  if (!uploadedSlots.includes(4)) {
+    errors.push({ type: 'document', slot: 4, reason: 'İngilizce Hazırlık Muafiyet Belgesi yüklenmemiştir (İYTE tüm programlarda İngilizce eğitim verir).' });
   }
 
   return errors;

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { PROGRAMS } from '../data/seedData';
+import { PROGRAMS, PROGRAM_DEPARTMENT_MAP, translateProgram } from '../data/seedData';
 import { 
   Users, Settings, Database, Plus, Check, Play, 
   RotateCcw, Trash2, Shield, Calendar, ShieldAlert
@@ -122,9 +122,13 @@ export default function AdminDashboard({ activeTab }) {
                       </td>
                       <td>
                         {u.department 
-                          ? (lang === 'tr' 
-                              ? (u.department === 'computer_engineering' ? 'BİLGİSAYAR MÜHENDİSLİĞİ' : 'ELEKTRİK-ELEKTRONİK MÜHENDİSLİĞİ') 
-                              : u.department.replace('_', ' ').toUpperCase()) 
+                          ? (() => {
+                              const entry = Object.entries(PROGRAM_DEPARTMENT_MAP).find(([, v]) => v === u.department);
+                              if (entry) {
+                                return translateProgram(entry[0], lang).toUpperCase();
+                              }
+                              return u.department.replace(/_/g, ' ').toUpperCase();
+                            })()
                           : '-'}
                       </td>
                       <td>
@@ -215,8 +219,13 @@ export default function AdminDashboard({ activeTab }) {
                       value={newStaff.department}
                       onChange={(e) => setNewStaff(prev => ({ ...prev, department: e.target.value }))}
                     >
-                      <option value="computer_engineering">{lang === 'tr' ? 'Bilgisayar Mühendisliği' : 'Computer Engineering'}</option>
-                      <option value="electrical_electronics_engineering">{lang === 'tr' ? 'Elektrik-Elektronik Mühendisliği' : 'Electrical-Electronics Engineering'}</option>
+                      {Object.entries(PROGRAM_DEPARTMENT_MAP)
+                        .filter((entry, index, self) => self.findIndex(e => e[1] === entry[1]) === index)
+                        .map(([progName, deptKey]) => (
+                          <option key={deptKey} value={deptKey}>
+                            {translateProgram(progName, lang)}
+                          </option>
+                        ))}
                     </select>
                   </div>
                 )}
