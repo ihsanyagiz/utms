@@ -1,0 +1,11 @@
+node_modules
+server/node_modules
+dist
+server/uploads
+server/backups
+server/*.db
+server/*.db-*
+.git
+.env
+.env.*
+npm-debug.log*

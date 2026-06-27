@@ -3,6 +3,7 @@ import { useApp } from '../context/AppContext';
 import { DOCUMENT_SLOTS, translateProgram } from '../data/seedData';
 import { FileText, Eye, CheckCircle2, Search, ArrowRight } from 'lucide-react';
 import Modal from '../components/Modal';
+import { getDocumentUrl } from '../utils/documentUrl';
 
 export default function YdyoDashboard() {
   const { applications, setPrepStatusAndForward, lang } = useApp();
@@ -156,13 +157,13 @@ export default function YdyoDashboard() {
         {viewingDoc && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', alignItems: 'center', width: '100%' }}>
             <iframe 
-              src={`/${viewingDoc.filePath}`} 
+              src={getDocumentUrl(viewingDoc.filePath)} 
               title="PDF Viewer" 
               style={{ width: '100%', height: '450px', border: '1px solid var(--border-color)', borderRadius: '4px' }}
             />
             <div style={{ display: 'flex', gap: '0.5rem' }}>
               <a 
-                href={`/${viewingDoc.filePath}`}
+                href={getDocumentUrl(viewingDoc.filePath)}
                 download={viewingDoc.filename}
                 className="btn btn-primary btn-sm"
                 target="_blank"
