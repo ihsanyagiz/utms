@@ -25,7 +25,9 @@ COPY src/utils/ ./src/utils/
 EXPOSE 5000
 
 ENV PORT=5000
+ENV NODE_ENV=production
+ENV DATA_DIR=/app/data
 WORKDIR /app/server
 
-# Seed the database and start the Express server
-CMD ["sh", "-c", "node seed.js && node index.js"]
+# Start the Express server. Run `node seed.js` manually only for demo data.
+CMD ["node", "index.js"]

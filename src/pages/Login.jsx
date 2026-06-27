@@ -72,7 +72,7 @@ export default function Login({ onBackToLanding, initialMode = 'login' }) {
       verifyTitle: 'E-Posta Doğrulama Gerekli',
       verifySub: 'Hesabınızı aktifleştirmek için e-postanıza gönderilen bağlantıyı doğrulayın.',
       verifyBtn: 'E-Postayı Doğrula (Simüle)',
-      resendMail: 'noreply@utms.dev adresinden aktivasyon maili gönderildi.',
+      resendMail: 'Aktivasyon maili gönderildi.',
       kvkkAgree: 'Kişisel verilerimin işlenmesine ilişkin KVKK Aydınlatma Metni ve Kullanım Koşulları\'nı okudum ve kabul ediyorum.',
       quickLogins: 'Hızlı Giriş Hesapları (Demo Kolaylığı)',
       clickToPrefill: '*Tıkladığınızda bilgiler forma yazılır. Giriş Yap butonuna basarak devam edebilirsiniz.*',
@@ -98,7 +98,7 @@ export default function Login({ onBackToLanding, initialMode = 'login' }) {
       verifyTitle: 'Email Verification Required',
       verifySub: 'Please verify the activation link sent to your email to activate your account.',
       verifyBtn: 'Verify Email (Simulated)',
-      resendMail: 'Activation email sent from noreply@utms.dev.',
+      resendMail: 'Activation email sent.',
       kvkkAgree: 'I have read and agree to the KVKK Privacy Statement and Terms of Use.',
       quickLogins: 'Quick Demo Logins (Evaluation Tool)',
       clickToPrefill: '*Clicking a button pre-fills the form. Press Log In to proceed.*',
@@ -161,6 +161,10 @@ export default function Login({ onBackToLanding, initialMode = 'login' }) {
       showToast('Ağ bağlantı hatası!', 'error');
     }
   };
+
+  const activationUrl = verificationEmail
+    ? `${window.location.origin}/api/auth/verify-email?email=${encodeURIComponent(verificationEmail)}`
+    : '';
 
   return (
     <div className="auth-container">
@@ -439,7 +443,7 @@ export default function Login({ onBackToLanding, initialMode = 'login' }) {
             </p>
 
             <div style={{ padding: '0.75rem', border: '1px solid var(--border-color)', borderRadius: '6px', backgroundColor: '#f8fafc', marginBottom: '1.5rem', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-              Aktivasyon adresi: <code style={{ color: 'var(--primary-color)', fontWeight: 600 }}>https://utms.dev/register/verify?email={verificationEmail}</code>
+              Aktivasyon adresi: <code style={{ color: 'var(--primary-color)', fontWeight: 600 }}>{activationUrl}</code>
             </div>
 
             <button 

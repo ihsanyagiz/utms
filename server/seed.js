@@ -1,11 +1,8 @@
-import { db, initDb } from './db.js';
+import { db, initDb, syncSequences } from './db.js';
 import bcrypt from 'bcryptjs';
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import { uploadDir, ensureRuntimeDirs } from './paths.js';
 
 
 const INITIAL_USERS = [
@@ -114,6 +111,7 @@ const PROGRAM_DEPARTMENT_MAP = {
 
 async function seed() {
   console.log('Veritabanı kuruluyor...');
+  ensureRuntimeDirs();
   await initDb();
   console.log('Veritabanı kuruldu. Veriler tohumlanıyor...');
 
@@ -179,11 +177,6 @@ async function seed() {
       4: 'ingilizce_muafiyet.pdf'
     };
 
-    const uploadDir = path.join(__dirname, 'uploads');
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-
     const dummyPdfContent = `%PDF-1.4
 1 0 obj <</Type /Catalog /Pages 2 0 R>> endobj
 2 0 obj <</Type /Pages /Kids [3 0 R] /Count 1>> endobj
@@ -234,6 +227,8 @@ startxref
   for (const [key, value] of Object.entries(defaultConfig)) {
     await db.run('INSERT INTO system_config (key, value) VALUES (?, ?)', [key, value]);
   }
+
+  await syncSequences();
 
   console.log('Tohumlama tamamlandı!');
   process.exit(0);

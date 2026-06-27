@@ -6,6 +6,7 @@ import {
   CheckCircle, PlusCircle, Layout, ArrowLeftRight, FileSpreadsheet
 } from 'lucide-react';
 import Modal from '../components/Modal';
+import { getDocumentUrl } from '../utils/documentUrl';
 
 export default function YgkDashboard() {
   const { 
@@ -262,7 +263,7 @@ export default function YgkDashboard() {
                 id="openTranscriptBtn"
                 onClick={() => {
                   const doc = activeApp.documents?.find(d => d.slot === 2);
-                  const path = doc ? `/${doc.filePath}` : '/uploads/not_dokumu.pdf';
+                  const path = doc ? getDocumentUrl(doc.filePath) : '/uploads/not_dokumu.pdf';
                   window.open(path, '_blank');
                 }}
                 style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontWeight: 600 }}

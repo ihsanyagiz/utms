@@ -1,12 +1,13 @@
 import express from 'express';
 import cors from 'cors';
-import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import bcrypt from 'bcryptjs';
 import nodemailer from 'nodemailer';
-import { db } from './db.js';
+import { db, initDb, syncSequences } from './db.js';
+import { uploadDir, backupsDir, ensureRuntimeDirs } from './paths.js';
+import { upload, persistUploadedFile } from './storage.js';
 import { validateTurkishId, runAutomatedDocChecker, calcRankingScore } from '../src/utils/validators.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -19,30 +20,10 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-// Ensure directories exist
-const uploadDir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
-const backupsDir = path.join(__dirname, 'backups');
-if (!fs.existsSync(backupsDir)) {
-  fs.mkdirSync(backupsDir, { recursive: true });
-}
+ensureRuntimeDirs();
 
 // Serve uploaded files statically
 app.use('/uploads', express.static(uploadDir));
-
-// Multer storage configuration
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadDir);
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    cb(null, uniqueSuffix + '-' + file.originalname);
-  }
-});
-const upload = multer({ storage });
 
 // Email transporter configuration
 const transporter = nodemailer.createTransport({
@@ -58,7 +39,8 @@ const transporter = nodemailer.createTransport({
 async function sendVerificationEmail(toEmail) {
   const smtpPassword = process.env.SMTP_PASSWORD;
   const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-  const verifyUrl = `${frontendUrl}/register/verify?email=${toEmail}`;
+  const publicUrl = process.env.PUBLIC_URL || frontendUrl;
+  const verifyUrl = `${publicUrl}/api/auth/verify-email?email=${encodeURIComponent(toEmail)}`;
 
   if (!smtpPassword || smtpPassword.trim() === '') {
     console.log(`[Simüle E-posta] SMTP şifresi eksik. Aktivasyon linki:`);
@@ -66,7 +48,7 @@ async function sendVerificationEmail(toEmail) {
     return { success: true, simulated: true };
   }
 
-  const fromEmail = process.env.SMTP_FROM || 'noreply@utms.dev';
+  const fromEmail = process.env.SMTP_FROM || 'UTMS <noreply@example.com>';
   const mailOptions = {
     from: fromEmail,
     to: toEmail,
@@ -192,6 +174,28 @@ app.post('/api/auth/verify-email', async (req, res) => {
   }
 });
 
+async function bootstrapAdminAccount() {
+  const email = process.env.BOOTSTRAP_ADMIN_EMAIL;
+  const password = process.env.BOOTSTRAP_ADMIN_PASSWORD;
+  const fullName = process.env.BOOTSTRAP_ADMIN_NAME || 'Sistem Yoneticisi';
+
+  if (!email || !password) {
+    return;
+  }
+
+  const existing = await db.get('SELECT id FROM users WHERE email = ? AND role = "admin"', [email]);
+  if (existing) {
+    return;
+  }
+
+  const hashedPassword = bcrypt.hashSync(password, 10);
+  await db.run(
+    'INSERT INTO users (email, password, role, fullName, phone, tcNo, department, isVerified) VALUES (?, ?, ?, ?, ?, ?, ?, 1)',
+    [email, hashedPassword, 'admin', fullName, null, null, null]
+  );
+  console.log(`Bootstrap admin account created for ${email}.`);
+}
+
 app.post('/api/auth/edevlet', async (req, res) => {
   const { tcNo, fullName } = req.body;
   try {
@@ -266,7 +270,7 @@ app.post('/api/config', async (req, res) => {
 app.get('/api/applications', async (req, res) => {
   const { role, department } = req.query;
   try {
-    let query = 'SELECT * FROM applications WHERE status != "cancelled"';
+    let query = "SELECT * FROM applications WHERE status != 'cancelled'";
     const params = [];
 
     if (role === 'ygk' && department) {
@@ -293,7 +297,7 @@ app.get('/api/applications', async (req, res) => {
 app.get('/api/applications/my', async (req, res) => {
   const { applicantId } = req.query;
   try {
-    const appItem = await db.get('SELECT * FROM applications WHERE applicantId = ? AND status != "cancelled"', [applicantId]);
+    const appItem = await db.get("SELECT * FROM applications WHERE applicantId = ? AND status != 'cancelled'", [applicantId]);
     if (!appItem) {
       return res.json(null);
     }
@@ -319,7 +323,7 @@ app.post('/api/applications/submit', upload.any(), async (req, res) => {
 
     const { applicantId, fullName, idNumber, targetProgram, currentGpa, sourceUniversity, osymPoints, isCurrentlyEnrolled } = req.body;
 
-    const existing = await db.get('SELECT id FROM applications WHERE applicantId = ? AND status != "cancelled"', [applicantId]);
+    const existing = await db.get("SELECT id FROM applications WHERE applicantId = ? AND status != 'cancelled'", [applicantId]);
     if (existing) {
       return res.status(400).json({ error: 'Zaten aktif bir başvurunuz bulunmaktadır!' });
     }
@@ -347,9 +351,10 @@ app.post('/api/applications/submit', upload.any(), async (req, res) => {
         // fieldname corresponds to slotId
         const slot = parseInt(file.fieldname);
         const sizeStr = `${(file.size / (1024 * 1024)).toFixed(1)} MB`;
+        const storedFilePath = await persistUploadedFile(file);
         await db.run(
           'INSERT INTO documents (applicationId, slot, filename, fileSize, uploadDate, filePath) VALUES (?, ?, ?, ?, ?, ?)',
-          [appInsertedId, slot, file.originalname, sizeStr, dateStr, `uploads/${file.filename}`]
+          [appInsertedId, slot, file.originalname, sizeStr, dateStr, storedFilePath]
         );
       }
     }
@@ -363,7 +368,7 @@ app.post('/api/applications/submit', upload.any(), async (req, res) => {
     const errors = runAutomatedDocChecker(appRow);
 
     await db.run(
-      'UPDATE applications SET docCheckerStatus = "auto_checked", docCheckerErrors = ? WHERE id = ?',
+      "UPDATE applications SET docCheckerStatus = 'auto_checked', docCheckerErrors = ? WHERE id = ?",
       [JSON.stringify(errors), appInsertedId]
     );
 
@@ -382,8 +387,8 @@ app.post('/api/applications/resubmit', upload.any(), async (req, res) => {
     await db.run(
       `UPDATE applications SET 
         idNumber = ?, targetProgram = ?, currentGpa = ?, sourceUniversity = ?, 
-        osymPoints = ?, isCurrentlyEnrolled = ?, status = "submitted", 
-        docCheckerStatus = "needs_manual_check", docCheckerErrors = "[]", 
+        osymPoints = ?, isCurrentlyEnrolled = ?, status = 'submitted', 
+        docCheckerStatus = 'needs_manual_check', docCheckerErrors = '[]', 
         oidbNotes = NULL, deanNotes = NULL, prepSchoolStatus = NULL, 
         lastEditedById = ?, lastEditedAt = ? 
       WHERE id = ? AND applicantId = ?`,
@@ -403,9 +408,10 @@ app.post('/api/applications/resubmit', upload.any(), async (req, res) => {
         await db.run('DELETE FROM documents WHERE applicationId = ? AND slot = ?', [id, slot]);
 
         // Insert new
+        const storedFilePath = await persistUploadedFile(file);
         await db.run(
           'INSERT INTO documents (applicationId, slot, filename, fileSize, uploadDate, filePath) VALUES (?, ?, ?, ?, ?, ?)',
-          [id, slot, file.originalname, sizeStr, dateStr, `uploads/${file.filename}`]
+          [id, slot, file.originalname, sizeStr, dateStr, storedFilePath]
         );
       }
     }
@@ -419,7 +425,7 @@ app.post('/api/applications/resubmit', upload.any(), async (req, res) => {
     const errors = runAutomatedDocChecker(appRow);
 
     await db.run(
-      'UPDATE applications SET docCheckerStatus = "auto_checked", docCheckerErrors = ? WHERE id = ?',
+      "UPDATE applications SET docCheckerStatus = 'auto_checked', docCheckerErrors = ? WHERE id = ?",
       [JSON.stringify(errors), id]
     );
 
@@ -435,7 +441,7 @@ app.post('/api/applications/cancel', async (req, res) => {
   const dateStr = new Date().toLocaleString('tr-TR');
   try {
     await db.run(
-      'UPDATE applications SET status = "cancelled", lastEditedById = ?, lastEditedAt = ? WHERE id = ? AND applicantId = ?',
+      "UPDATE applications SET status = 'cancelled', lastEditedById = ?, lastEditedAt = ? WHERE id = ? AND applicantId = ?",
       [applicantId, dateStr, id, applicantId]
     );
     res.json({ success: true });
@@ -460,7 +466,7 @@ app.post('/api/applications/:id/checker', async (req, res) => {
     const errors = runAutomatedDocChecker(appRow);
 
     await db.run(
-      'UPDATE applications SET docCheckerStatus = "auto_checked", docCheckerErrors = ? WHERE id = ?',
+      "UPDATE applications SET docCheckerStatus = 'auto_checked', docCheckerErrors = ? WHERE id = ?",
       [JSON.stringify(errors), id]
     );
 
@@ -736,6 +742,8 @@ app.post('/api/backups/restore', async (req, res) => {
       await db.run('INSERT INTO system_config (key, value) VALUES (?, ?)', [c.key, c.value]);
     }
 
+    await syncSequences();
+
     res.json({ success: true });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -744,14 +752,30 @@ app.post('/api/backups/restore', async (req, res) => {
 
 // Serve frontend assets in production
 const distPath = path.join(__dirname, '../dist');
-if (fs.existsSync(distPath)) {
+if (!process.env.VERCEL && fs.existsSync(distPath)) {
   app.use(express.static(distPath));
   app.get('*', (req, res) => {
     res.sendFile(path.join(distPath, 'index.html'));
   });
 }
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+async function prepareApp() {
+  await initDb();
+  await bootstrapAdminAccount();
+}
+
+try {
+  await prepareApp();
+  if (!process.env.VERCEL) {
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
+    });
+  }
+} catch (error) {
+  console.error('Failed to start server:', error);
+  if (!process.env.VERCEL) {
+    process.exit(1);
+  }
+}
+
+export default app;

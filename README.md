@@ -88,6 +88,12 @@ Sistemdeki farklı rolleri ve iş akışlarını test edebilmeniz için hazır t
 * **Kimlik Doğrulama / Auth:** BcryptJS (Şifre şifreleme), e-Devlet entegrasyon simülasyonu.
 * **Test Suite:** Vitest (Birim testleri).
 
+### Production Deployment
+
+Canli ortamda Docker container `node index.js` ile baslar; `node seed.js` otomatik calismaz. SQLite database, uploads ve backups dosyalari `DATA_DIR` altinda saklanir. CapRover/VPS deploy adimlari icin `DEPLOYMENT.md` dosyasina bakin.
+
+Vercel uzerinde tam deployment icin `VERCEL_DEPLOYMENT.md` dosyasina bakin. Vercel modunda backend Function olarak calisir, SQLite yerine Postgres, upload klasoru yerine Vercel Blob kullanilir.
+
 ---
 
 ## 📋 İş Akışı / System Workflow
