@@ -15,6 +15,9 @@ export const backupsDir = resolveRuntimePath(process.env.BACKUPS_DIR, path.join(
 export const dbPath = resolveRuntimePath(process.env.DB_PATH, path.join(dataDir, 'utms.db'));
 
 export function ensureRuntimeDirs() {
+  if (process.env.VERCEL) {
+    return;
+  }
   fs.mkdirSync(dataDir, { recursive: true });
   fs.mkdirSync(uploadDir, { recursive: true });
   fs.mkdirSync(backupsDir, { recursive: true });
