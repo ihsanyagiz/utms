@@ -112,11 +112,11 @@ export default function AdminDashboard({ activeTab }) {
 
           <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '1.5rem', alignItems: 'start' }}>
             {/* Left Column: Users List */}
-            <div className="table-container" style={{ margin: 0 }}>
+            <div className="table-container" style={{ margin: 0, overflowX: 'auto' }}>
               <div className="table-header-bar">
                 <h3 className="table-title">{lang === 'tr' ? 'Kayıtlı Kullanıcılar' : 'Registered Users'}</h3>
               </div>
-              <table className="ubys-table" style={{ fontSize: '0.8rem' }}>
+              <table className="ubys-table" style={{ fontSize: '0.8rem', minWidth: '650px' }}>
                 <thead>
                   <tr>
                     <th>{lang === 'tr' ? 'Adı Soyadı' : 'Full Name'}</th>
