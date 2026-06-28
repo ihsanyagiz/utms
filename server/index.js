@@ -157,7 +157,7 @@ app.get('/api/auth/verify-email', async (req, res) => {
   try {
     await db.run('UPDATE users SET isVerified = 1 WHERE email = ?', [email]);
     // Redirect to frontend login view
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const frontendUrl = process.env.FRONTEND_URL || process.env.PUBLIC_URL || 'http://localhost:5173';
     res.redirect(`${frontendUrl}/?verified=true&email=${encodeURIComponent(email)}`);
   } catch (error) {
     res.status(500).send(`Doğrulama hatası: ${error.message}`);
