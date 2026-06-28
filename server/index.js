@@ -43,25 +43,24 @@ async function sendVerificationEmail(toEmail) {
   const verifyUrl = `${publicUrl}/api/auth/verify-email?email=${encodeURIComponent(toEmail)}`;
 
   if (!smtpPassword || smtpPassword.trim() === '') {
-    console.log(`[Simüle E-posta] SMTP şifresi eksik. Aktivasyon linki:`);
-    console.log(`Link: ${verifyUrl}`);
-    return { success: true, simulated: true };
+    console.log(`[Email Mock] Verification URL for ${toEmail}: ${verifyUrl}`);
+    return;
   }
 
-  const fromEmail = process.env.SMTP_FROM || 'UTMS <noreply@example.com>';
   const mailOptions = {
-    from: fromEmail,
+    from: process.env.SMTP_FROM || 'UTMS <noreply@example.edu.tr>',
     to: toEmail,
     subject: 'UTMS Yatay Geçiş Sistemi - E-posta Doğrulama',
     html: `
-      <h2>Yatay Geçiş Başvuru Sistemine Hoş Geldiniz</h2>
-      <p>Kayıt işleminizi tamamlamak ve hesabınızı aktifleştirmek için lütfen aşağıdaki bağlantıya tıklayınız:</p>
-      <p><a href="${verifyUrl}" style="background-color:#A21B24;color:#ffffff;padding:10px 20px;text-decoration:none;border-radius:4px;display:inline-block;font-weight:bold;">Hesabımı Aktifleştir</a></p>
-      <br/>
-      <p>Bağlantı çalışmıyorsa aşağıdaki linki tarayıcınıza yapıştırabilirsiniz:</p>
-      <p>${verifyUrl}</p>
-      <hr/>
-      <p>İzmir Yüksek Teknoloji Enstitüsü - Öğrenci İşleri Daire Başkanlığı</p>
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
+        <h2 style="color: #a21b24; text-align: center;">Yatay Geçiş Başvuru Sistemine Hoş Geldiniz</h2>
+        <p>Kayıt işleminizi tamamlamak ve hesabınızı aktifleştirmek için lütfen aşağıdaki bağlantıya tıklayınız:</p>
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${verifyUrl}" style="background-color: #a21b24; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Hesabımı Aktifleştir</a>
+        </div>
+        <p style="font-size: 0.8rem; color: #64748b;">Bağlantı çalışmıyorsa aşağıdaki linki tarayıcınıza yapıştırabilirsiniz:</p>
+        <p style="font-size: 0.8rem; color: #64748b; word-break: break-all;"><a href="${verifyUrl}">${verifyUrl}</a></p>
+      </div>
     `
   };
 
@@ -71,7 +70,7 @@ async function sendVerificationEmail(toEmail) {
     return { success: true, simulated: false };
   } catch (err) {
     console.error(`[E-posta Hatası] Gönderim başarısız:`, err);
-    return { success: false, error: err.message };
+    throw new Error(`E-posta gönderimi başarısız oldu: ${err.message}`);
   }
 }
 
