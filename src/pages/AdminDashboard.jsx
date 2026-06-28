@@ -116,7 +116,7 @@ export default function AdminDashboard({ activeTab }) {
               <div className="table-header-bar">
                 <h3 className="table-title">{lang === 'tr' ? 'Kayıtlı Kullanıcılar' : 'Registered Users'}</h3>
               </div>
-              <table className="ubys-table" style={{ fontSize: '0.8rem', minWidth: '650px' }}>
+              <table className="ubys-table" style={{ fontSize: '0.8rem' }}>
                 <thead>
                   <tr>
                     <th>{lang === 'tr' ? 'Adı Soyadı' : 'Full Name'}</th>
@@ -132,7 +132,7 @@ export default function AdminDashboard({ activeTab }) {
                   {users.map((u) => (
                     <tr key={u.id}>
                       <td style={{ fontWeight: 600 }}>{u.fullName}</td>
-                      <td>{u.email}</td>
+                      <td style={{ wordBreak: 'break-all', maxWidth: '180px' }}>{u.email}</td>
                       <td>
                         <span style={{ 
                           fontSize: '0.7rem', 
