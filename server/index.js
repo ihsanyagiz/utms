@@ -608,6 +608,23 @@ app.post('/api/users/role', async (req, res) => {
   }
 });
 
+app.delete('/api/users/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const user = await db.get('SELECT * FROM users WHERE id = ?', [id]);
+    if (!user) {
+      return res.status(404).json({ error: 'Kullanıcı bulunamadı.' });
+    }
+    if (user.role === 'admin') {
+      return res.status(400).json({ error: 'Yönetici hesapları silinemez.' });
+    }
+    await db.run('DELETE FROM users WHERE id = ?', [id]);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.post('/api/users/staff', async (req, res) => {
   const { email, password, role, department, fullName } = req.body;
   try {

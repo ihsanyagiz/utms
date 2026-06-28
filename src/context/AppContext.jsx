@@ -481,6 +481,25 @@ export const AppProvider = ({ children }) => {
     }
   };
 
+  const deleteUser = async (userId) => {
+    try {
+      const res = await fetch(`/api/users/${userId}`, {
+        method: 'DELETE'
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        showToast(data.error || 'Kullanıcı silinemedi!', 'error');
+        return { success: false };
+      }
+      showToast(lang === 'tr' ? 'Kullanıcı silindi.' : 'User deleted.');
+      await fetchData();
+      return { success: true };
+    } catch (err) {
+      showToast('Sunucu bağlantı hatası!', 'error');
+      return { success: false };
+    }
+  };
+
   const updateConfig = async (newConfig) => {
     try {
       const res = await fetch('/api/config', {
@@ -570,6 +589,7 @@ export const AppProvider = ({ children }) => {
       approveAndSendToOidb,
       createStaffAccount,
       updateUserRole,
+      deleteUser,
       updateConfig,
       triggerBackup,
       restoreBackup

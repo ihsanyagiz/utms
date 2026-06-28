@@ -13,6 +13,7 @@ export default function AdminDashboard({ activeTab }) {
     config, 
     updateUserRole, 
     createStaffAccount, 
+    deleteUser,
     updateConfig, 
     triggerBackup, 
     restoreBackup,
@@ -123,6 +124,7 @@ export default function AdminDashboard({ activeTab }) {
                     <th>{lang === 'tr' ? 'Mevcut Rol' : 'Current Role'}</th>
                     <th>{lang === 'tr' ? 'Bölüm Yetkisi' : 'Department Authority'}</th>
                     <th>{lang === 'tr' ? 'Rol Değiştir' : 'Change Role'}</th>
+                    <th style={{ width: '50px', textAlign: 'center' }}>{lang === 'tr' ? 'Sil' : 'Delete'}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -174,6 +176,35 @@ export default function AdminDashboard({ activeTab }) {
                           </select>
                         ) : (
                           <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{lang === 'tr' ? 'Düzenlenemez' : 'Cannot Edit'}</span>
+                        )}
+                      </td>
+                      <td style={{ textAlign: 'center' }}>
+                        {u.role !== 'admin' ? (
+                          <button 
+                            className="btn btn-secondary btn-sm"
+                            style={{ 
+                              padding: '0.2rem 0.4rem', 
+                              display: 'inline-flex', 
+                              alignItems: 'center', 
+                              justifyContent: 'center',
+                              backgroundColor: 'rgba(226, 27, 34, 0.08)',
+                              border: '1px solid rgba(226, 27, 34, 0.2)',
+                              color: '#e21b22',
+                              cursor: 'pointer',
+                              borderRadius: '4px'
+                            }}
+                            onClick={() => {
+                              if (window.confirm(lang === 'tr' 
+                                ? `"${u.fullName}" kullanıcısını silmek istediğinize emin misiniz? Bu işlem geri alınamaz ve kullanıcının tüm başvuruları ile yüklediği belgeler silinecektir.` 
+                                : `Are you sure you want to delete "${u.fullName}"? This action cannot be undone and all their applications/documents will be deleted.`)) {
+                                deleteUser(u.id);
+                              }
+                            }}
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        ) : (
+                          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>-</span>
                         )}
                       </td>
                     </tr>
