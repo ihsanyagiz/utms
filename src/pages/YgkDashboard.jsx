@@ -335,7 +335,7 @@ export default function YgkDashboard() {
                       onClick={() => {
                         const doc = activeApp.documents?.find(d => d.slot === 2);
                         if (doc) {
-                          window.open(`/${doc.filePath}`, '_blank');
+                          window.open(getDocumentUrl(doc.filePath), '_blank');
                         } else {
                           alert(lang === 'tr' ? 'Yüklenmiş transkript belgesi bulunamadı.' : 'No uploaded transcript document found.');
                         }
