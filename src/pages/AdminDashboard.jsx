@@ -128,6 +128,7 @@ export default function AdminDashboard({ activeTab }) {
                   </tr>
                 </thead>
                 <tbody>
+                  {/* Render registered users table with delete action */}
                   {users.map((u) => (
                     <tr key={u.id}>
                       <td style={{ fontWeight: 600 }}>{u.fullName}</td>
