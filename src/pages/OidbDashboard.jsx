@@ -41,6 +41,14 @@ export default function OidbDashboard({ activeTab }) {
   const [cancellingForwardAppId, setCancellingForwardAppId] = useState(null);
   const [anonymize, setAnonymize] = useState(false);
 
+  // New confirmation states
+  const [isPublishModalOpen, setIsPublishModalOpen] = useState(false);
+  const [isForwardYdyoModalOpen, setIsForwardYdyoModalOpen] = useState(false);
+  const [forwardingYdyoAppId, setForwardingYdyoAppId] = useState(null);
+  const [isReturnConfirmModalOpen, setIsReturnConfirmModalOpen] = useState(false);
+  const [returningConfirmAppId, setReturningConfirmAppId] = useState(null);
+  const [returningConfirmNotes, setReturningConfirmNotes] = useState('');
+
   // Filter applications for search
   const filteredApps = applications.filter(app => {
     const matchesSearch = app.fullName.toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -80,6 +88,24 @@ export default function OidbDashboard({ activeTab }) {
   const handlePublishRankings = () => {
     updateConfig({ rankingQuota: quota });
     showToast(lang === 'tr' ? 'Yatay Geçiş Asil/Yedek Sonuçları Başarıyla İlan Edilmiştir!' : 'Horizontal Transfer Main/Substitute Results Published Successfully!', 'success');
+    setIsPublishModalOpen(false);
+  };
+
+  const handleForwardYdyoConfirm = () => {
+    if (forwardingYdyoAppId) {
+      forwardToYdyo(forwardingYdyoAppId);
+      setIsForwardYdyoModalOpen(false);
+      setForwardingYdyoAppId(null);
+    }
+  };
+
+  const handleReturnConfirmSubmit = () => {
+    if (returningConfirmAppId) {
+      returnToApplicantFromOidb(returningConfirmAppId, returningConfirmNotes);
+      setIsReturnConfirmModalOpen(false);
+      setReturningConfirmAppId(null);
+      setReturningConfirmNotes('');
+    }
   };
 
   const handleCancelForwardClick = (id) => {
@@ -123,11 +149,11 @@ export default function OidbDashboard({ activeTab }) {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.setAttribute('href', url);
-    link.setAttribute('download', `Yatay_Gecis_Siralama_${anonymize ? 'Anonim_' : ''}${config.semester.replace(/\s+/g, '_')}.xlsx`);
+    link.setAttribute('download', `Yatay_Gecis_Siralama_${anonymize ? 'Anonim_' : ''}${config.semester.replace(/\s+/g, '_')}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    showToast('Ranking list downloaded successfully.', 'success');
+    showToast(lang === 'tr' ? 'Sıralama listesi başarıyla indirildi.' : 'Ranking list downloaded successfully.', 'success');
   };
 
   return (
@@ -352,7 +378,10 @@ export default function OidbDashboard({ activeTab }) {
                                     <button 
                                       className="btn btn-success btn-sm"
                                       disabled={app.status === 'returned'}
-                                      onClick={() => forwardToYdyo(app.id)}
+                                      onClick={() => {
+                                        setForwardingYdyoAppId(app.id);
+                                        setIsForwardYdyoModalOpen(true);
+                                      }}
                                     >
                                       {lang === 'tr' ? 'Onayla ve YDYO\'ya Sevk Et' : 'Approve & forward to YDYO'}
                                     </button>
@@ -369,7 +398,9 @@ export default function OidbDashboard({ activeTab }) {
                                         className="btn btn-danger btn-sm"
                                         disabled={!(expandedReturnReasons[app.id] || '').trim()}
                                         onClick={() => {
-                                          returnToApplicantFromOidb(app.id, expandedReturnReasons[app.id]);
+                                          setReturningConfirmAppId(app.id);
+                                          setReturningConfirmNotes(expandedReturnReasons[app.id]);
+                                          setIsReturnConfirmModalOpen(true);
                                         }}
                                       >
                                         {lang === 'tr' ? 'Adaya İade Et' : 'Return to Applicant'}
@@ -511,7 +542,7 @@ export default function OidbDashboard({ activeTab }) {
                   style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}
                   onClick={handleDownloadXlsx}
                 >
-                  <FileSpreadsheet size={14} /> {lang === 'tr' ? 'Excel İndir (CSV)' : 'Download XLSX'}
+                  <FileSpreadsheet size={14} /> {lang === 'tr' ? 'Excel İndir (CSV)' : 'Download Excel (CSV)'}
                 </button>
 
                 <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--color-success)' }}>
@@ -573,6 +604,55 @@ export default function OidbDashboard({ activeTab }) {
           </div>
         </div>
       )}
+
+      {/* YDYO Forward Confirmation Modal */}
+      <Modal
+        isOpen={isForwardYdyoModalOpen}
+        title={lang === 'tr' ? 'YDYO Sevk Onayı' : 'YDYO Forward Confirmation'}
+        onClose={() => {
+          setIsForwardYdyoModalOpen(false);
+          setForwardingYdyoAppId(null);
+        }}
+        onConfirm={handleForwardYdyoConfirm}
+        confirmText={lang === 'tr' ? 'Evet, Sevk Et' : 'Yes, Forward'}
+        confirmType="success"
+        cancelText={lang === 'tr' ? 'İptal' : 'Cancel'}
+      >
+        <p>{lang === 'tr' ? 'Bu başvuruyu onaylayıp yabancı dil muafiyet kontrolü için YDYO yetkilisine sevk etmek istediğinize emin misiniz?' : 'Are you sure you want to approve this application and forward it to YDYO for foreign language exemption control?'}</p>
+      </Modal>
+
+      {/* Return to Applicant Confirmation Modal */}
+      <Modal
+        isOpen={isReturnConfirmModalOpen}
+        title={lang === 'tr' ? 'İade Onayı' : 'Return Confirmation'}
+        onClose={() => {
+          setIsReturnConfirmModalOpen(false);
+          setReturningConfirmAppId(null);
+          setReturningConfirmNotes('');
+        }}
+        onConfirm={handleReturnConfirmSubmit}
+        confirmText={lang === 'tr' ? 'Evet, İade Et' : 'Yes, Return'}
+        confirmType="danger"
+        cancelText={lang === 'tr' ? 'İptal' : 'Cancel'}
+      >
+        <p>{lang === 'tr' ? 'Bu başvuruyu belirtilen gerekçe ile adaya iade etmek istediğinize emin misiniz?' : 'Are you sure you want to return this application to the applicant with the specified reason?'}</p>
+        <div style={{ marginTop: '0.75rem', padding: '0.5rem 0.75rem', backgroundColor: '#f8fafc', border: '1px solid var(--border-color)', borderRadius: '4px', fontSize: '0.85rem' }}>
+          <strong>{lang === 'tr' ? 'İade Gerekçesi:' : 'Return Reason:'}</strong> {returningConfirmNotes}
+        </div>
+      </Modal>
+
+      {/* Publish Rankings Confirmation Modal */}
+      <Modal
+        isOpen={isPublishModalOpen}
+        title={lang === 'tr' ? 'Sonuçları İlan Etme Onayı' : 'Publish Results Confirmation'}
+        onClose={() => setIsPublishModalOpen(false)}
+        onConfirm={handlePublishRankings}
+        confirmText={lang === 'tr' ? 'Evet, İlan Et' : 'Yes, Publish'}
+        confirmType="primary"
+        cancelText={lang === 'tr' ? 'İptal' : 'Cancel'}
+      >
+        <p>{lang === 'tr' ? 'Tüm başvuru sonuçlarını ilan etmek istediğinize emin misiniz? Bu işlem sonucunda asil ve yedek sıralamalar adayların ekranlarında görünecektir.' : 'Are you sure you want to publish all application results? As a result of this action, the main and substitute rankings will be visible on the candidates\' screens.'}</p>
+      </Modal>
     </div>
   );
 }

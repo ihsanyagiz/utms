@@ -3,7 +3,6 @@
 export const PROGRAMS = [
   // Mühendislik Fakültesi / Faculty of Engineering
   "Computer Engineering",
-  "Software Engineering",
   "Electrical-Electronics Engineering",
   "Mechanical Engineering",
   "Bioengineering",
@@ -37,29 +36,86 @@ export const CURRICULA = {
     { code: "CENG111", name: "Concepts in Computer Engineering", credits: "3", akts: "5" },
     { code: "CENG113", name: "Programming Basics", credits: "4", akts: "6" },
     { code: "CENG115", name: "Discrete Structures", credits: "3", akts: "5" },
-    { code: "ENG101",  name: "Development of Reading and Writing Skills I", credits: "3", akts: "3" },
+    { code: "ENG101", name: "Development of Reading and Writing Skills I", credits: "3", akts: "3" },
     { code: "MATH142", name: "Calculus II", credits: "4", akts: "6" },
     { code: "PHYS122", name: "General Physics II", credits: "4", akts: "8" },
     { code: "MATH144", name: "Finite Mathematics", credits: "3", akts: "5" },
     { code: "CENG112", name: "Data Structures", credits: "3", akts: "5" },
     { code: "ECON106", name: "Principles of Economics", credits: "3", akts: "3" },
-    { code: "ENG102",  name: "Development of Reading and Writing Skills II", credits: "3", akts: "3" },
+    { code: "ENG102", name: "Development of Reading and Writing Skills II", credits: "3", akts: "3" },
+    { code: "GCC101", name: "Career Planning and Development", credits: "0", akts: "2" },
     { code: "CENG211", name: "Programming Fundamentals", credits: "3", akts: "5" },
     { code: "CENG213", name: "Theory of Computation", credits: "3", akts: "5" },
     { code: "CENG215", name: "Circuits and Electronics", credits: "4", akts: "6" },
     { code: "MATH255", name: "Differential Equations", credits: "4", akts: "6" },
     { code: "HIST201", name: "Principles of Ataturk I", credits: "0", akts: "2" },
     { code: "TURK201", name: "Turkish Language I", credits: "0", akts: "2" },
+    { code: "HIST203", name: "History of the Turkish Revolution I", credits: "0", akts: "2" },
+    { code: "TURK203", name: "Turkish for Foreigners", credits: "0", akts: "2" },
     { code: "CENG212", name: "Concepts of Programming Languages", credits: "3", akts: "5" },
     { code: "CENG214", name: "Logic Design", credits: "4", akts: "6" },
     { code: "CENG216", name: "Numerical Computation", credits: "3", akts: "5" },
     { code: "CENG218", name: "Analysis and Design of Algorithms", credits: "3", akts: "5" },
     { code: "CENG222", name: "Probability and Statistics", credits: "3", akts: "5" },
+    { code: "HIST202", name: "Principles of Ataturk II", credits: "0", akts: "2" },
+    { code: "TURK202", name: "Turkish Language II", credits: "0", akts: "2" },
+    { code: "HIST204", name: "History of the Turkish Revolution II", credits: "0", akts: "2" },
+    { code: "TURK204", name: "Turkish for Foreigners", credits: "0", akts: "2" },
     { code: "CENG311", name: "Computer Architecture", credits: "4", akts: "8" },
     { code: "CENG315", name: "Information Management", credits: "3", akts: "6" },
     { code: "CENG312", name: "Computer Networks", credits: "3", akts: "6" },
     { code: "CENG316", name: "Software Engineering", credits: "3", akts: "6" },
-    { code: "CENG322", name: "Operating Systems", credits: "4", akts: "8" }
+    { code: "CENG318", name: "Human Computer Interaction", credits: "3", akts: "6" },
+    { code: "CENG322", name: "Operating Systems", credits: "4", akts: "8" },
+    { code: "CENG411", name: "Professional Issues in Computer Engineering", credits: "3", akts: "6" },
+    { code: "CENG415", name: "Senior Design Project & Seminar I", credits: "3", akts: "8" },
+    { code: "CENG400", name: "Summer Practice", credits: "0", akts: "4" },
+    { code: "CENG416", name: "Senior Design Project & Seminar II", credits: "3", akts: "8" },
+    { code: "CENG323", name: "Project Management", credits: "3", akts: "6" },
+    { code: "CENG370", name: "Mainframe Computing", credits: "3", akts: "6" },
+    { code: "CENG381", name: "Stochastic Processes", credits: "3", akts: "6" },
+    { code: "CENG382", name: "Information Theory", credits: "3", akts: "6" },
+    { code: "CENG383", name: "Real-Time Systems", credits: "3", akts: "6" },
+    { code: "CENG384", name: "Microprocessors", credits: "3", akts: "6" },
+    { code: "CENG385", name: "Mathematical Logic", credits: "3", akts: "6" },
+    { code: "CENG386", name: "Fuzzy Logic Systems", credits: "3", akts: "6" },
+    { code: "CENG388", name: "Web Programming", credits: "3", akts: "6" },
+    { code: "CENG389", name: "Mobile Application Development", credits: "3", akts: "6" },
+    { code: "CENG390", name: "Cloud Computing", credits: "3", akts: "6" },
+    { code: "CENG391", name: "Introduction to Image Understanding", credits: "3", akts: "6" },
+    { code: "CENG418", name: "Information Security", credits: "3", akts: "6" },
+    { code: "CENG421", name: "Network Programming", credits: "3", akts: "6" },
+    { code: "CENG422", name: "Network Design & Management", credits: "3", akts: "6" },
+    { code: "CENG424", name: "Embedded Computer Systems", credits: "3", akts: "6" },
+    { code: "CENG431", name: "Building Software Systems", credits: "3", akts: "6" },
+    { code: "CENG432", name: "Fundamentals of Enterprise Application Development", credits: "3", akts: "6" },
+    { code: "CENG433", name: "Scalable Software Development for Internet", credits: "3", akts: "6" },
+    { code: "CENG434", name: "Enterprise Application Integration", credits: "3", akts: "6" },
+    { code: "CENG435", name: "Database System Design and Implementation", credits: "3", akts: "6" },
+    { code: "CENG436", name: "Distributed Information Management", credits: "3", akts: "6" },
+    { code: "CENG437", name: "Software Quality Management", credits: "3", akts: "6" },
+    { code: "CENG441", name: "Introduction to Parallel Programming", credits: "3", akts: "6" },
+    { code: "CENG442", name: "Multicore Architectures and Operating Systems", credits: "3", akts: "6" },
+    { code: "CENG443", name: "Heterogenous Parallel Programming", credits: "3", akts: "6" },
+    { code: "CENG444", name: "Parallel Programming Patterns", credits: "3", akts: "6" },
+    { code: "CENG451", name: "Advanced Digital System Design", credits: "3", akts: "6" },
+    { code: "CENG452", name: "Building Software for Embedded Systems", credits: "3", akts: "6" },
+    { code: "CENG461", name: "Artificial Intelligence", credits: "3", akts: "6" },
+    { code: "CENG462", name: "Soft Computing", credits: "3", akts: "6" },
+    { code: "CENG463", name: "Introduction to Machine Learning", credits: "3", akts: "6" },
+    { code: "CENG464", name: "Text Mining", credits: "3", akts: "6" },
+    { code: "CENG465", name: "Principles of Data-Intensive Systems", credits: "3", akts: "6" },
+    { code: "CENG467", name: "NATURAL LANGUAGE UNDERSTANDING AND GENERATION", credits: "3", akts: "6" },
+    { code: "CENG471", name: "Cryptography", credits: "3", akts: "6" },
+    { code: "CENG472", name: "Network Security", credits: "3", akts: "6" },
+    { code: "CENG473", name: "Security of Information and Communication Technologies", credits: "3", akts: "6" },
+    { code: "CENG481", name: "Theoretical Approaches in Computer Science", credits: "3", akts: "6" },
+    { code: "CENG482", name: "Evolutionary Computation", credits: "3", akts: "6" },
+    { code: "CENG483", name: "Behavioural Robotics", credits: "3", akts: "6" },
+    { code: "CENG484", name: "Data Mining", credits: "3", akts: "6" },
+    { code: "CENG485", name: "Information Technology Entrepreneurship", credits: "3", akts: "6" },
+    { code: "CENG486", name: "Entrepreneurship for Smart Business", credits: "3", akts: "6" },
+    { code: "CENG487", name: "Introduction to Computer Graphics", credits: "3", akts: "6" }
   ],
   "electrical_electronics_engineering": [
     { code: "MATH141", name: "Calculus I", credits: "4", akts: "5" },
@@ -78,7 +134,6 @@ export const CURRICULA = {
 export const PROGRAM_DEPARTMENT_MAP = {
   // Mühendislik Fakültesi
   "Computer Engineering": "computer_engineering",
-  "Software Engineering": "computer_engineering",
   "Electrical-Electronics Engineering": "electrical_electronics_engineering",
   "Mechanical Engineering": "mechanical_engineering",
   "Bioengineering": "bioengineering",
@@ -123,26 +178,26 @@ export const INITIAL_USERS = [
 const APPLICANT_SCENARIOS = [
   { id: 101, name: "Emre Yıldız", email: "emre.yildiz@test", status: "submitted", program: "Computer Engineering", gpa: "3.20", osym: "420.50", checkerStatus: "needs_manual_check", checkerErrors: [], oidbNotes: null, deanNotes: null, prepSchoolStatus: null, enrolled: true, uni: "Boğaziçi University", idNumber: "12345678902" },
   { id: 102, name: "Selin Kaya", email: "selin.kaya@test", status: "submitted", program: "Electrical-Electronics Engineering", gpa: "3.55", osym: "430.00", checkerStatus: "needs_manual_check", checkerErrors: [], oidbNotes: null, deanNotes: null, prepSchoolStatus: null, enrolled: true, uni: "Middle East Technical University", idNumber: "23456789012" },
-  { id: 103, name: "Burak Demir", email: "burak.demir@test", status: "submitted", program: "Software Engineering", gpa: "1.80", osym: "310.00", checkerStatus: "auto_checked", checkerErrors: [{ type: "field", field: "current_gpa", reason: "GPA 1.80 is below the minimum required 2.00." }], oidbNotes: null, deanNotes: null, prepSchoolStatus: null, enrolled: true, uni: "Hacettepe University", idNumber: "34567890122" },
+  { id: 103, name: "Burak Demir", email: "burak.demir@test", status: "submitted", program: "Computer Engineering", gpa: "1.80", osym: "310.00", checkerStatus: "auto_checked", checkerErrors: [{ type: "field", field: "current_gpa", reason: "GPA 1.80 is below the minimum required 2.00." }], oidbNotes: null, deanNotes: null, prepSchoolStatus: null, enrolled: true, uni: "Hacettepe University", idNumber: "34567890122" },
   { id: 104, name: "Fatma Arslan", email: "fatma.arslan@test", status: "submitted", program: "Computer Engineering", gpa: "2.90", osym: "385.40", checkerStatus: "auto_checked", checkerErrors: [{ type: "document", slot: 2, reason: "Transcript is missing." }, { type: "document", slot: 3, reason: "YKS Score Report is missing." }], oidbNotes: null, deanNotes: null, prepSchoolStatus: null, enrolled: false, uni: "Ankara University", idNumber: "45678901232" },
   { id: 105, name: "Mert Çelik", email: "mert.celik@test", status: "submitted", program: "Mechanical Engineering", gpa: "3.10", osym: "395.00", checkerStatus: "auto_checked", checkerErrors: [{ type: "field", field: "id_number", reason: "ID number must contain only digits." }, { type: "document", slot: 1, reason: "Student Certificate is missing." }], oidbNotes: null, deanNotes: null, prepSchoolStatus: null, enrolled: true, uni: "Ege University", idNumber: "5567890123A" },
   { id: 106, name: "Ayşe Şahin", email: "ayse.sahin@test", status: "submitted", program: "Computer Engineering", gpa: "3.40", osym: "420.00", checkerStatus: "auto_checked", checkerErrors: [], oidbNotes: null, deanNotes: null, prepSchoolStatus: null, enrolled: true, uni: "Istanbul Technical University", idNumber: "65789012342" },
-  { id: 107, name: "Hakan Öztürk", email: "hakan.ozturk@test", status: "forwarded_to_ydyo", program: "Software Engineering", gpa: "3.60", osym: "455.00", checkerStatus: "auto_checked", checkerErrors: [], oidbNotes: null, deanNotes: null, prepSchoolStatus: null, enrolled: true, uni: "Koç University", idNumber: "76890123452" },
+  { id: 107, name: "Hakan Öztürk", email: "hakan.ozturk@test", status: "forwarded_to_ydyo", program: "Computer Engineering", gpa: "3.60", osym: "455.00", checkerStatus: "auto_checked", checkerErrors: [], oidbNotes: null, deanNotes: null, prepSchoolStatus: null, enrolled: true, uni: "Koç University", idNumber: "76890123452" },
   { id: 108, name: "Zeynep Aydın", email: "zeynep.aydin@test", status: "forwarded_to_ydyo", program: "Computer Engineering", gpa: "2.95", osym: "360.00", checkerStatus: "auto_checked", checkerErrors: [{ type: "document", slot: 4, reason: "English proficiency certificate is missing." }], oidbNotes: null, deanNotes: null, prepSchoolStatus: null, enrolled: true, uni: "Sabancı University", idNumber: "87901234562" },
   { id: 109, name: "Onur Koç", email: "onur.koc@test", status: "forwarded_to_ydyo", program: "Electrical-Electronics Engineering", gpa: "3.75", osym: "470.00", checkerStatus: "auto_checked", checkerErrors: [], oidbNotes: null, deanNotes: null, prepSchoolStatus: null, enrolled: false, uni: "Bilkent University", idNumber: "98012345672" },
   { id: 110, name: "Merve Doğan", email: "merve.dogan@test", status: "forwarded_to_dean", program: "Computer Engineering", gpa: "3.80", osym: "488.00", checkerStatus: "auto_checked", checkerErrors: [], oidbNotes: null, deanNotes: null, prepSchoolStatus: "eligible", enrolled: true, uni: "Yıldız Technical University", idNumber: "10987654322" },
-  { id: 111, name: "Tolga Polat", email: "tolga.polat@test", status: "forwarded_to_dean", program: "Software Engineering", gpa: "3.25", osym: "410.00", checkerStatus: "auto_checked", checkerErrors: [], oidbNotes: null, deanNotes: null, prepSchoolStatus: "needs_test", enrolled: true, uni: "Boğaziçi University", idNumber: "21098765432" },
+  { id: 111, name: "Tolga Polat", email: "tolga.polat@test", status: "forwarded_to_dean", program: "Computer Engineering", gpa: "3.25", osym: "410.00", checkerStatus: "auto_checked", checkerErrors: [], oidbNotes: null, deanNotes: null, prepSchoolStatus: "needs_test", enrolled: true, uni: "Boğaziçi University", idNumber: "21098765432" },
   { id: 112, name: "İrem Güneş", email: "irem.gunes@test", status: "forwarded_to_ygk", program: "Computer Engineering", gpa: "3.90", osym: "495.00", checkerStatus: "auto_checked", checkerErrors: [], oidbNotes: null, deanNotes: null, prepSchoolStatus: "eligible", enrolled: true, uni: "Middle East Technical University", idNumber: "32109876542" },
-  { id: 113, name: "Berkay Erdoğan", email: "berkay.erdogan@test", status: "forwarded_to_ygk", program: "Software Engineering", gpa: "3.50", osym: "445.00", checkerStatus: "auto_checked", checkerErrors: [], oidbNotes: null, deanNotes: null, prepSchoolStatus: "eligible", enrolled: true, uni: "Hacettepe University", idNumber: "43210987652" },
+  { id: 113, name: "Berkay Erdoğan", email: "berkay.erdogan@test", status: "forwarded_to_ygk", program: "Computer Engineering", gpa: "3.50", osym: "445.00", checkerStatus: "auto_checked", checkerErrors: [], oidbNotes: null, deanNotes: null, prepSchoolStatus: "eligible", enrolled: true, uni: "Hacettepe University", idNumber: "43210987652" },
   { id: 114, name: "Naz Yılmaz", email: "naz.yilmaz@test", status: "forwarded_to_ygk", program: "Computer Engineering", gpa: "3.65", osym: "460.00", checkerStatus: "auto_checked", checkerErrors: [], oidbNotes: null, deanNotes: null, prepSchoolStatus: "needs_test", enrolled: false, uni: "Ankara University", idNumber: "54321098762" },
   { id: 115, name: "Alper Tan", email: "alper.tan@test", status: "intibak_complete", program: "Computer Engineering", gpa: "3.70", osym: "472.00", checkerStatus: "auto_checked", checkerErrors: [], oidbNotes: null, deanNotes: null, prepSchoolStatus: "eligible", enrolled: true, uni: "Ege University", idNumber: "65432109872" },
-  { id: 116, name: "Ceren Özdemir", email: "ceren.ozdemir@test", status: "intibak_complete", program: "Software Engineering", gpa: "3.85", osym: "491.00", checkerStatus: "auto_checked", checkerErrors: [], oidbNotes: null, deanNotes: null, prepSchoolStatus: "eligible", enrolled: true, uni: "Istanbul Technical University", idNumber: "76543210982" },
+  { id: 116, name: "Ceren Özdemir", email: "ceren.ozdemir@test", status: "intibak_complete", program: "Computer Engineering", gpa: "3.85", osym: "491.00", checkerStatus: "auto_checked", checkerErrors: [], oidbNotes: null, deanNotes: null, prepSchoolStatus: "eligible", enrolled: true, uni: "Istanbul Technical University", idNumber: "76543210982" },
   { id: 117, name: "Yusuf Aktaş", email: "yusuf.aktas@test", status: "intibak_complete", program: "Computer Engineering", gpa: "3.45", osym: "438.00", checkerStatus: "auto_checked", checkerErrors: [], oidbNotes: null, deanNotes: null, prepSchoolStatus: "needs_test", enrolled: true, uni: "Koç University", idNumber: "87654321092" },
   { id: 118, name: "Gizem Sarı", email: "gizem.sari@test", status: "intibak_complete", program: "Computer Engineering", gpa: "4.00", osym: "510.00", checkerStatus: "auto_checked", checkerErrors: [], oidbNotes: null, deanNotes: null, prepSchoolStatus: "eligible", enrolled: true, uni: "Sabancı University", idNumber: "98765432102" },
   { id: 119, name: "Kaan Acar", email: "kaan.acar@test", status: "returned", program: "Computer Engineering", gpa: "2.50", osym: "320.00", checkerStatus: "needs_manual_check", checkerErrors: [], oidbNotes: "Official transcript is missing the notary stamp.", deanNotes: null, prepSchoolStatus: null, enrolled: true, uni: "Bilkent University", idNumber: "11223344552" },
   { id: 120, name: "Eda Bozkurt", email: "eda.bozkurt@test", status: "returned", program: "Mechanical Engineering", gpa: "3.05", osym: "388.00", checkerStatus: "auto_checked", checkerErrors: [], oidbNotes: "Student certificate must be issued within the last 6 months.", deanNotes: null, prepSchoolStatus: null, enrolled: false, uni: "Yıldız Technical University", idNumber: "22334455662" },
   { id: 121, name: "Canan Şen", email: "canan.sen@test", status: "returned", program: "Computer Engineering", gpa: "3.15", osym: "405.00", checkerStatus: "auto_checked", checkerErrors: [], oidbNotes: null, deanNotes: "Lise diploma copy is not certified.", prepSchoolStatus: "eligible", enrolled: true, uni: "Boğaziçi University", idNumber: "33445566772" },
-  { id: 122, name: "Deniz Yıldırım", email: "deniz.yildirim@test", status: "cancelled", program: "Software Engineering", gpa: "3.35", osym: "415.00", checkerStatus: "auto_checked", checkerErrors: [], oidbNotes: null, deanNotes: null, prepSchoolStatus: null, enrolled: true, uni: "Middle East Technical University", idNumber: "44556677882" },
+  { id: 122, name: "Deniz Yıldırım", email: "deniz.yildirim@test", status: "cancelled", program: "Computer Engineering", gpa: "3.35", osym: "415.00", checkerStatus: "auto_checked", checkerErrors: [], oidbNotes: null, deanNotes: null, prepSchoolStatus: null, enrolled: true, uni: "Middle East Technical University", idNumber: "44556677882" },
   { id: 123, name: "Murat Güler", email: "murat.guler@test", status: "submitted", program: "Computer Engineering", gpa: "3.85", osym: "460.00", checkerStatus: "needs_manual_check", checkerErrors: [], oidbNotes: null, deanNotes: null, prepSchoolStatus: null, enrolled: true, uni: "Hacettepe University", idNumber: "55667788992" },
   { id: 124, name: "Pınar Tekin", email: "pinar.tekin@test", status: "submitted", program: "Electrical-Electronics Engineering", gpa: "3.72", osym: "450.00", checkerStatus: "needs_manual_check", checkerErrors: [], oidbNotes: null, deanNotes: null, prepSchoolStatus: null, enrolled: true, uni: "Ankara University", idNumber: "66778899002" }
 ];
@@ -205,9 +260,9 @@ export const INITIAL_INTIBAC_TABLES = [
     estimatedGpa: 3.65,
     rankingScore: 84.8071,
     courses: [
-      { id: 1, sourceCode: "CS101", sourceName: "Intro to programming", sourceCredits: "4", sourceGrade: "AA", targetCode: "CENG113", targetName: "Programming Basics", status: "accepted" },
-      { id: 2, sourceCode: "MATH101", sourceName: "Calculus I", sourceCredits: "5", sourceGrade: "BA", targetCode: "MATH141", targetName: "Calculus I", status: "accepted" },
-      { id: 3, sourceCode: "PHYS101", sourceName: "Physics I", sourceCredits: "5", sourceGrade: "BB", targetCode: "PHYS121", targetName: "General Physics I", status: "accepted" }
+      { id: 1, sourceCode: "CS101", sourceName: "Intro to programming", sourceCredits: "4", sourceAkts: "6", sourceGrade: "AA", targetCode: "CENG113", targetName: "Programming Basics", targetCredits: "4", targetAkts: "6", status: "accepted" },
+      { id: 2, sourceCode: "MATH101", sourceName: "Calculus I", sourceCredits: "5", sourceAkts: "7", sourceGrade: "BA", targetCode: "MATH141", targetName: "Calculus I", targetCredits: "4", targetAkts: "5", status: "accepted" },
+      { id: 3, sourceCode: "PHYS101", sourceName: "Physics I", sourceCredits: "5", sourceAkts: "6", sourceGrade: "BB", targetCode: "PHYS121", targetName: "General Physics I", targetCredits: "4", targetAkts: "7", status: "accepted" }
     ]
   },
   {
@@ -215,9 +270,9 @@ export const INITIAL_INTIBAC_TABLES = [
     estimatedGpa: 3.82,
     rankingScore: 88.5134,
     courses: [
-      { id: 4, sourceCode: "SENG102", sourceName: "Programming Basics", sourceCredits: "4", sourceGrade: "AA", targetCode: "CENG113", targetName: "Programming Basics", status: "accepted" },
-      { id: 5, sourceCode: "MTH111", sourceName: "Calculus I", sourceCredits: "4", sourceGrade: "AA", targetCode: "MATH141", targetName: "Calculus I", status: "accepted" },
-      { id: 6, sourceCode: "ENG101", sourceName: "English I", sourceCredits: "3", sourceGrade: "CB", targetCode: "ENG101", targetName: "Development of Reading and Writing Skills I", status: "accepted" }
+      { id: 4, sourceCode: "SENG102", sourceName: "Programming Basics", sourceCredits: "4", sourceAkts: "6", sourceGrade: "AA", targetCode: "CENG113", targetName: "Programming Basics", targetCredits: "4", targetAkts: "6", status: "accepted" },
+      { id: 5, sourceCode: "MTH111", sourceName: "Calculus I", sourceCredits: "4", sourceAkts: "6", sourceGrade: "AA", targetCode: "MATH141", targetName: "Calculus I", targetCredits: "4", targetAkts: "5", status: "accepted" },
+      { id: 6, sourceCode: "ENG101", sourceName: "English I", sourceCredits: "3", sourceAkts: "3", sourceGrade: "CB", targetCode: "ENG101", targetName: "Development of Reading and Writing Skills I", targetCredits: "3", targetAkts: "3", status: "accepted" }
     ]
   },
   {
@@ -225,8 +280,8 @@ export const INITIAL_INTIBAC_TABLES = [
     estimatedGpa: 3.20,
     rankingScore: 78.9643,
     courses: [
-      { id: 7, sourceCode: "COMP111", sourceName: "Python Programming", sourceCredits: "3", sourceGrade: "CC", targetCode: "CENG113", targetName: "Programming Basics", status: "accepted" },
-      { id: 8, sourceCode: "MAT101", sourceName: "Calculus I", sourceCredits: "4", sourceGrade: "BB", targetCode: "MATH141", targetName: "Calculus I", status: "accepted" }
+      { id: 7, sourceCode: "COMP111", sourceName: "Python Programming", sourceCredits: "3", sourceAkts: "5", sourceGrade: "CC", targetCode: "CENG113", targetName: "Programming Basics", targetCredits: "4", targetAkts: "6", status: "accepted" },
+      { id: 8, sourceCode: "MAT101", sourceName: "Calculus I", sourceCredits: "4", sourceAkts: "6", sourceGrade: "BB", targetCode: "MATH141", targetName: "Calculus I", targetCredits: "4", targetAkts: "5", status: "accepted" }
     ]
   },
   {
@@ -234,10 +289,10 @@ export const INITIAL_INTIBAC_TABLES = [
     estimatedGpa: 4.00,
     rankingScore: 92.0000,
     courses: [
-      { id: 9, sourceCode: "CENG101", sourceName: "Intro to CS", sourceCredits: "4", sourceGrade: "AA", targetCode: "CENG113", targetName: "Programming Basics", status: "accepted" },
-      { id: 10, sourceCode: "MATH101", sourceName: "Calculus I", sourceCredits: "5", sourceGrade: "AA", targetCode: "MATH141", targetName: "Calculus I", status: "accepted" },
-      { id: 11, sourceCode: "PHYS101", sourceName: "General Physics I", sourceCredits: "6", sourceGrade: "AA", targetCode: "PHYS121", targetName: "General Physics I", status: "accepted" },
-      { id: 12, sourceCode: "ENG101", sourceName: "Academic English I", sourceCredits: "3", sourceGrade: "AA", targetCode: "ENG101", targetName: "Development of Reading and Writing Skills I", status: "accepted" }
+      { id: 9, sourceCode: "CENG101", sourceName: "Intro to CS", sourceCredits: "4", sourceAkts: "6", sourceGrade: "AA", targetCode: "CENG113", targetName: "Programming Basics", targetCredits: "4", targetAkts: "6", status: "accepted" },
+      { id: 10, sourceCode: "MATH101", sourceName: "Calculus I", sourceCredits: "5", sourceAkts: "7", sourceGrade: "AA", targetCode: "MATH141", targetName: "Calculus I", targetCredits: "4", targetAkts: "5", status: "accepted" },
+      { id: 11, sourceCode: "PHYS101", sourceName: "General Physics I", sourceCredits: "6", sourceAkts: "8", sourceGrade: "AA", targetCode: "PHYS121", targetName: "General Physics I", targetCredits: "4", targetAkts: "7", status: "accepted" },
+      { id: 12, sourceCode: "ENG101", sourceName: "Academic English I", sourceCredits: "3", sourceAkts: "4", sourceGrade: "AA", targetCode: "ENG101", targetName: "Development of Reading and Writing Skills I", targetCredits: "3", targetAkts: "3", status: "accepted" }
     ]
   }
 ];
@@ -347,7 +402,6 @@ export const translateProgram = (prog, lang) => {
   const trans = {
     // Mühendislik Fakültesi
     "Computer Engineering": { tr: "Bilgisayar Mühendisliği", en: "Computer Engineering" },
-    "Software Engineering": { tr: "Yazılım Mühendisliği", en: "Software Engineering" },
     "Electrical-Electronics Engineering": { tr: "Elektrik-Elektronik Mühendisliği", en: "Electrical-Electronics Engineering" },
     "Mechanical Engineering": { tr: "Makine Mühendisliği", en: "Mechanical Engineering" },
     "Bioengineering": { tr: "Biyomühendislik", en: "Bioengineering" },

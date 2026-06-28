@@ -4,7 +4,7 @@ import { PROGRAMS, PROGRAM_DEPARTMENT_MAP, translateProgram } from '../data/seed
 import { 
   Users, Settings, Database, Plus, Check, Play, 
   RotateCcw, Trash2, Shield, Calendar, ShieldAlert
-} from 'lucide-react';
+} from 'lucide-react';import Modal from '../components/Modal';
 
 export default function AdminDashboard({ activeTab }) {
   const { 
@@ -33,6 +33,33 @@ export default function AdminDashboard({ activeTab }) {
   const [sysSemester, setSysSemester] = useState(config.semester);
   const [sysDeadline, setSysDeadline] = useState(config.deadlineDate);
   const [sysQuota, setSysQuota] = useState(config.rankingQuota);
+
+  // Backup and restore confirmation states
+  const [isRestoreConfirmOpen, setIsRestoreConfirmOpen] = useState(false);
+  const [restoringFilename, setRestoringFilename] = useState('');
+  const [isBackupConfirmOpen, setIsBackupConfirmOpen] = useState(false);
+
+  const handleRestoreClick = (filename) => {
+    setRestoringFilename(filename);
+    setIsRestoreConfirmOpen(true);
+  };
+
+  const handleRestoreConfirm = () => {
+    if (restoringFilename) {
+      restoreBackup(restoringFilename);
+      setIsRestoreConfirmOpen(false);
+      setRestoringFilename('');
+    }
+  };
+
+  const handleBackupClick = () => {
+    setIsBackupConfirmOpen(true);
+  };
+
+  const handleBackupConfirm = () => {
+    triggerBackup();
+    setIsBackupConfirmOpen(false);
+  };
 
   const handleCreateStaff = (e) => {
     e.preventDefault();
@@ -313,11 +340,11 @@ export default function AdminDashboard({ activeTab }) {
               <h2 className="page-title">{lang === 'tr' ? 'Yedekleme ve Geri Yükleme' : 'Backup & Restore'}</h2>
               <p className="page-description">{lang === 'tr' ? 'Tüm başvuru durumlarını, kullanıcı verilerini ve komisyon kararlarını yedekleyin veya geri yükleyin.' : 'Backup or restore all application states, user data, and committee decisions.'}</p>
             </div>
-            <button className="btn btn-primary" onClick={triggerBackup}>
+            <button className="btn btn-primary" onClick={handleBackupClick}>
               <Plus size={16} /> {lang === 'tr' ? 'Yeni Veritabanı Yedeği Al' : 'Take New Database Backup'}
             </button>
           </div>
-
+ 
           <div className="table-container">
             <div className="table-header-bar">
               <h3 className="table-title">{lang === 'tr' ? 'Yedek Dosyaları (instance/backups/)' : 'Backup Files (instance/backups/)'}</h3>
@@ -343,11 +370,7 @@ export default function AdminDashboard({ activeTab }) {
                       <button 
                         className="btn btn-secondary btn-sm"
                         style={{ display: 'flex', alignItems: 'center', gap: '0.2rem' }}
-                        onClick={() => {
-                          if (window.confirm(lang === 'tr' ? `${bak.filename} yedeğini geri yüklemek istiyor musunuz? Mevcut tüm canlı verileriniz bu yedeğe göre sıfırlanacaktır.` : `Are you sure you want to restore the backup ${bak.filename}? All current live data will be reset according to this backup.`)) {
-                            restoreBackup(bak.filename);
-                          }
-                        }}
+                        onClick={() => handleRestoreClick(bak.filename)}
                       >
                         <RotateCcw size={12} /> {lang === 'tr' ? 'Canlıya Yükle (Restore)' : 'Restore to Live'}
                       </button>
@@ -359,6 +382,47 @@ export default function AdminDashboard({ activeTab }) {
           </div>
         </div>
       )}
+      {/* Backup Database Confirmation Modal */}
+      <Modal
+        isOpen={isBackupConfirmOpen}
+        title={lang === 'tr' ? 'Veritabanı Yedekleme Onayı' : 'Database Backup Confirmation'}
+        onClose={() => setIsBackupConfirmOpen(false)}
+        onConfirm={handleBackupConfirm}
+        confirmText={lang === 'tr' ? 'Yedek Al' : 'Take Backup'}
+        confirmType="primary"
+        cancelText={lang === 'tr' ? 'İptal' : 'Cancel'}
+      >
+        <p>
+          {lang === 'tr'
+            ? 'Yeni bir veritabanı yedeği almak istediğinize emin misiniz? Bu yedek dosyasını daha sonra istediğiniz zaman geri yükleyebilirsiniz.'
+            : 'Are you sure you want to take a new database backup? You can restore this backup file at any time later.'}
+        </p>
+      </Modal>
+
+      {/* Restore Database Confirmation Modal */}
+      <Modal
+        isOpen={isRestoreConfirmOpen}
+        title={lang === 'tr' ? 'Veritabanı Geri Yükleme Onayı' : 'Database Restore Confirmation'}
+        onClose={() => {
+          setIsRestoreConfirmOpen(false);
+          setRestoringFilename('');
+        }}
+        onConfirm={handleRestoreConfirm}
+        confirmText={lang === 'tr' ? 'Geri Yükle' : 'Restore'}
+        confirmType="danger"
+        cancelText={lang === 'tr' ? 'İptal' : 'Cancel'}
+      >
+        <p>
+          {lang === 'tr'
+            ? `"${restoringFilename}" yedeğini geri yüklemek istediğinize emin misiniz?`
+            : `Are you sure you want to restore the backup "${restoringFilename}"?`}
+        </p>
+        <p style={{ marginTop: '0.5rem', fontWeight: 600, color: 'var(--color-danger)' }}>
+          {lang === 'tr'
+            ? 'UYARI: Mevcut tüm canlı verileriniz (yeni başvurular, kullanıcılar ve değerlendirmeler) silinecek ve bu yedek tarihindeki durum geri yüklenecektir. Bu işlem geri alınamaz!'
+            : 'WARNING: All current live data (new applications, users, and evaluations) will be deleted and the state as of this backup will be restored. This action cannot be undone!'}
+        </p>
+      </Modal>
     </div>
   );
 }

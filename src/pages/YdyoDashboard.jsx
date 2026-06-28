@@ -16,6 +16,11 @@ export default function YdyoDashboard() {
   // Document Viewer
   const [viewingDoc, setViewingDoc] = useState(null);
 
+  // Forward confirmation state
+  const [isForwardConfirmOpen, setIsForwardConfirmOpen] = useState(false);
+  const [forwardingAppId, setForwardingAppId] = useState(null);
+  const [forwardingStatus, setForwardingStatus] = useState('');
+
   const ydyoApps = applications.filter(app => {
     const isYdyoStatus = app.status === 'forwarded_to_ydyo';
     const matchesSearch = app.fullName.toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -27,11 +32,20 @@ export default function YdyoDashboard() {
     setPrepStatuses(prev => ({ ...prev, [appId]: val }));
   };
 
-  const handleForward = (appId) => {
-    const status = prepStatuses[appId] || 'eligible'; // Default to eligible
-    setPrepStatusAndForward(appId, status);
-    // Remove from UI selection
-    setSelectedAppId(null);
+  const handleForwardClick = (appId) => {
+    const status = prepStatuses[appId] || 'eligible';
+    setForwardingAppId(appId);
+    setForwardingStatus(status);
+    setIsForwardConfirmOpen(true);
+  };
+
+  const handleForwardConfirm = () => {
+    if (forwardingAppId) {
+      setPrepStatusAndForward(forwardingAppId, forwardingStatus);
+      setSelectedAppId(null);
+      setIsForwardConfirmOpen(false);
+      setForwardingAppId(null);
+    }
   };
 
   return (
@@ -131,7 +145,7 @@ export default function YdyoDashboard() {
                       <button 
                         className="btn btn-primary btn-sm"
                         style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontWeight: 600 }}
-                        onClick={() => handleForward(app.id)}
+                        onClick={() => handleForwardClick(app.id)}
                       >
                         {lang === 'tr' ? (
                           currentSelection === 'eligible' ? 'Hazırlıktan Muaf Olarak Sevk Et' : 'Sınava Girecek Olarak Sevk Et'
@@ -175,6 +189,26 @@ export default function YdyoDashboard() {
             </div>
           </div>
         )}
+      </Modal>
+
+      {/* Forward to Dean Confirmation Modal */}
+      <Modal
+        isOpen={isForwardConfirmOpen}
+        title={lang === 'tr' ? 'Dekanlığa Sevk Onayı' : 'Forward to Deanery Confirmation'}
+        onClose={() => {
+          setIsForwardConfirmOpen(false);
+          setForwardingAppId(null);
+        }}
+        onConfirm={handleForwardConfirm}
+        confirmText={lang === 'tr' ? 'Evet, Sevk Et' : 'Yes, Forward'}
+        confirmType="primary"
+        cancelText={lang === 'tr' ? 'İptal' : 'Cancel'}
+      >
+        <p>
+          {lang === 'tr' 
+            ? `Bu öğrenciyi ${forwardingStatus === 'eligible' ? 'Hazırlıktan Muaf' : 'Sınava Girecek'} olarak onaylayıp Dekanlığa sevk etmek istediğinize emin misiniz?` 
+            : `Are you sure you want to approve this student as ${forwardingStatus === 'eligible' ? 'Eligible' : 'Needs Test'} and forward to the Deanery?`}
+        </p>
       </Modal>
     </div>
   );

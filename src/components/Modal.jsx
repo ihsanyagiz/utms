@@ -8,6 +8,7 @@ export default function Modal({
   onConfirm, 
   confirmText = 'Onayla', 
   confirmType = 'primary', 
+  cancelText = 'İptal',
   children 
 }) {
   if (!isOpen) return null;
@@ -28,7 +29,7 @@ export default function Modal({
         
         <div className="modal-footer">
           <button className="btn btn-secondary" onClick={onClose}>
-            İptal
+            {cancelText}
           </button>
           {onConfirm && (
             <button className={`btn btn-${confirmType}`} onClick={onConfirm}>

@@ -163,10 +163,10 @@ export const AppProvider = ({ children }) => {
         showToast(msg, 'error');
         return { success: false };
       }
-      showToast('Account successfully created', 'success');
+      showToast(lang === 'tr' ? 'Hesap başarıyla oluşturuldu.' : 'Account successfully created', 'success');
       return { success: true };
     } catch (err) {
-      showToast('Sunucu bağlantı hatası!', 'error');
+      showToast(lang === 'tr' ? 'Sunucu bağlantı hatası!' : 'Server connection error!', 'error');
       return { success: false };
     }
   };
@@ -175,7 +175,7 @@ export const AppProvider = ({ children }) => {
     setCurrentUser(null);
     setApplications([]);
     setUsers([]);
-    showToast('Oturum kapatıldı.');
+    showToast(lang === 'tr' ? 'Oturum kapatıldı.' : 'Logged out successfully.');
   };
 
   const resetPassword = async (email, newPassword) => {
@@ -228,11 +228,11 @@ export const AppProvider = ({ children }) => {
         return { success: false };
       }
 
-      showToast('application submitted', 'success');
+      showToast(lang === 'tr' ? 'Başvuru başarıyla gönderildi.' : 'Application submitted successfully', 'success');
       await fetchData();
       return { success: true };
     } catch (err) {
-      showToast('Sunucu bağlantı hatası!', 'error');
+      showToast(lang === 'tr' ? 'Sunucu bağlantı hatası!' : 'Server connection error!', 'error');
       return { success: false };
     }
   };
@@ -324,45 +324,45 @@ export const AppProvider = ({ children }) => {
       });
       const data = await res.json();
       if (!res.ok) {
-        showToast(data.error || 'Belge kontrolü başarısız!', 'error');
+        showToast(data.error || (lang === 'tr' ? 'Belge kontrolü başarısız!' : 'Document check failed!'), 'error');
         return;
       }
-      showToast('Otomatik belge kontrolü çalıştırıldı.');
+      showToast(lang === 'tr' ? 'Otomatik belge kontrolü çalıştırıldı.' : 'Automatic document check executed successfully.');
       await fetchData();
     } catch (err) {
-      showToast('Sunucu bağlantı hatası!', 'error');
+      showToast(lang === 'tr' ? 'Sunucu bağlantı hatası!' : 'Server connection error!', 'error');
     }
   };
 
   const forwardToYdyo = async (appId) => {
     const res = await updateApplication(appId, { status: 'forwarded_to_ydyo' });
     if (res.success) {
-      showToast('Forwarded to YDYO successfully', 'success');
+      showToast(lang === 'tr' ? 'Başvuru başarıyla YDYO\'ya sevk edildi.' : 'Forwarded to YDYO successfully', 'success');
     }
   };
 
   const cancelForwardToYdyo = async (appId) => {
     const res = await updateApplication(appId, { status: 'submitted' });
     if (res.success) {
-      showToast('Forward to YDYO cancelled. Application reverted to submitted status.', 'success');
+      showToast(lang === 'tr' ? 'YDYO sevki iptal edildi. Başvuru incelemede durumuna geri döndü.' : 'Forward to YDYO cancelled. Application reverted to submitted status.', 'success');
     }
   };
 
   const returnToApplicantFromOidb = async (appId, notes) => {
     if (!notes || notes.trim() === '') {
-      showToast('Lütfen iade gerekçesini belirtiniz!', 'error');
+      showToast(lang === 'tr' ? 'Lütfen iade gerekçesini belirtiniz!' : 'Please write a return reason!', 'error');
       return;
     }
     const res = await updateApplication(appId, { status: 'returned', oidbNotes: notes });
     if (res.success) {
-      showToast('Application returned successfully.', 'success');
+      showToast(lang === 'tr' ? 'Başvuru başarıyla adaya iade edildi.' : 'Application returned successfully.', 'success');
     }
   };
 
   const setPrepStatusAndForward = async (appId, prepStatus) => {
     const res = await updateApplication(appId, { prepSchoolStatus: prepStatus, status: 'forwarded_to_dean' });
     if (res.success) {
-      showToast('Application marked and forwarded successfully.', 'success');
+      showToast(lang === 'tr' ? 'Hazırlık durumu işlendi ve başarıyla Dekanlığa sevk edildi.' : 'Application marked and forwarded successfully.', 'success');
     }
   };
 
@@ -370,13 +370,13 @@ export const AppProvider = ({ children }) => {
     const dept = PROGRAM_DEPARTMENT_MAP[programName] || 'computer_engineering';
     const res = await updateApplication(appId, { status: 'forwarded_to_ygk', forwardedFaculty: dept });
     if (res.success) {
-      showToast('Application forwarded to YGK successfully.', 'success');
+      showToast(lang === 'tr' ? 'Başvuru başarıyla Bölüm Komisyonuna (YGK) sevk edildi.' : 'Application forwarded to YGK successfully.', 'success');
     }
   };
 
   const returnFromDean = async (appId, target, notes) => {
     if (!notes || notes.trim() === '') {
-      showToast('Lütfen iade gerekçesini belirtiniz!', 'error');
+      showToast(lang === 'tr' ? 'Lütfen iade gerekçesini belirtiniz!' : 'Please write a return reason!', 'error');
       return;
     }
 
@@ -396,7 +396,9 @@ export const AppProvider = ({ children }) => {
 
     const res = await updateApplication(appId, updateFields);
     if (res.success) {
-      showToast(`Application returned to ${target} successfully.`, 'success');
+      const unitNamesTr = { applicant: 'adaya', oidb: 'ÖİDB\'ye', ydyo: 'YDYO\'ya' };
+      const unitNamesEn = { applicant: 'applicant', oidb: 'OIDB', ydyo: 'YDYO' };
+      showToast(lang === 'tr' ? `Başvuru başarıyla ${unitNamesTr[target] || target} iade edildi.` : `Application returned to ${unitNamesEn[target] || target} successfully.`, 'success');
     }
   };
 
@@ -434,7 +436,7 @@ export const AppProvider = ({ children }) => {
   const approveAndSendToOidb = async (appId) => {
     const res = await updateApplication(appId, { status: 'intibak_complete' });
     if (res.success) {
-      showToast('Application approved and sent to OIDB successfully.', 'success');
+      showToast(lang === 'tr' ? 'İntibak onaylandı ve nihai sıralama için ÖİDB\'ye gönderildi.' : 'Application approved and sent to OIDB successfully.', 'success');
     }
   };
 

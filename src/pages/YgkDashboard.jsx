@@ -11,7 +11,7 @@ import { getDocumentUrl } from '../utils/documentUrl';
 export default function YgkDashboard() {
   const { 
     applications, 
-    intibakTables, 
+    getIntibakTable, 
     currentUser, 
     saveIntibakTable, 
     approveAndSendToOidb,
@@ -21,6 +21,7 @@ export default function YgkDashboard() {
   const [selectedAppId, setSelectedAppId] = useState(null);
   const [subTab, setSubTab] = useState('list'); // 'list' | 'editor'
   const [isCurriculumModalOpen, setIsCurriculumModalOpen] = useState(false);
+  const [isApproveConfirmOpen, setIsApproveConfirmOpen] = useState(false);
   
   // Custom courses inside the active intibak editor
   const [editorCourses, setEditorCourses] = useState([]);
@@ -30,6 +31,7 @@ export default function YgkDashboard() {
     sourceCode: '',
     sourceName: '',
     sourceCredits: '3',
+    sourceAkts: '5',
     sourceGrade: 'AA',
     targetCode: '',
     status: 'accepted'
@@ -48,27 +50,27 @@ export default function YgkDashboard() {
   const activeCurriculum = CURRICULA[ygkDept] || [];
 
   // Open editor and load existing intibak table if any
-  const handleOpenEditor = (appId) => {
+  const handleOpenEditor = async (appId) => {
     setSelectedAppId(appId);
     setSubTab('editor');
-    const existingTable = intibakTables.find(t => t.applicationId === appId);
+    const existingTable = await getIntibakTable(appId);
     
-    if (existingTable) {
+    if (existingTable && existingTable.courses) {
       setEditorCourses(existingTable.courses);
     } else {
       // Seed some default course maps based on target program to speed up testing
       setEditorCourses([
-        { id: 1, sourceCode: 'MATH101', sourceName: 'Calculus I', sourceCredits: '5', sourceGrade: 'AA', targetCode: 'MATH141', targetName: 'Calculus I', status: 'accepted' },
-        { id: 2, sourceCode: 'COMP102', sourceName: 'Intro to Programming', sourceCredits: '6', sourceGrade: 'BA', targetCode: 'CENG113', targetName: 'Programming Basics', status: 'accepted' }
+        { id: 1, sourceCode: 'MATH101', sourceName: 'Calculus I', sourceCredits: '4', sourceAkts: '5', sourceGrade: 'AA', targetCode: 'MATH141', targetName: 'Calculus I', targetCredits: '4', targetAkts: '5', status: 'accepted' },
+        { id: 2, sourceCode: 'COMP102', sourceName: 'Intro to Programming', sourceCredits: '3', sourceAkts: '6', sourceGrade: 'BA', targetCode: 'CENG113', targetName: 'Programming Basics', targetCredits: '4', targetAkts: '6', status: 'accepted' }
       ]);
     }
-
+ 
     // Reset new course mapping targets
     if (activeCurriculum.length > 0) {
       setNewCourse(prev => ({ ...prev, targetCode: activeCurriculum[0].code }));
     }
   };
-
+ 
   const handleAddCourseMapping = () => {
     if (!newCourse.sourceCode) {
       document.getElementById('sourceCodeInput')?.focus();
@@ -82,21 +84,28 @@ export default function YgkDashboard() {
       document.getElementById('sourceCreditsInput')?.focus();
       return;
     }
-
+    if (!newCourse.sourceAkts) {
+      document.getElementById('sourceAktsInput')?.focus();
+      return;
+    }
+ 
     const targetCourseObj = activeCurriculum.find(c => c.code === newCourse.targetCode);
     const newId = editorCourses.length > 0 ? Math.max(...editorCourses.map(c => c.id)) + 1 : 1;
-
+ 
     const mapping = {
       id: newId,
       sourceCode: newCourse.sourceCode,
       sourceName: newCourse.sourceName,
       sourceCredits: newCourse.sourceCredits,
+      sourceAkts: newCourse.sourceAkts,
       sourceGrade: newCourse.sourceGrade,
       targetCode: newCourse.targetCode,
       targetName: targetCourseObj ? targetCourseObj.name : '',
+      targetCredits: targetCourseObj ? targetCourseObj.credits : '',
+      targetAkts: targetCourseObj ? targetCourseObj.akts : '',
       status: newCourse.status
     };
-
+ 
     setEditorCourses(prev => [...prev, mapping]);
     
     // Clear inputs
@@ -104,6 +113,7 @@ export default function YgkDashboard() {
       sourceCode: '',
       sourceName: '',
       sourceCredits: '3',
+      sourceAkts: '5',
       sourceGrade: 'AA',
       targetCode: activeCurriculum[0]?.code || '',
       status: 'accepted'
@@ -120,7 +130,11 @@ export default function YgkDashboard() {
     }
   };
 
-  const handleApproveAndSend = () => {
+  const handleApproveClick = () => {
+    setIsApproveConfirmOpen(true);
+  };
+
+  const handleApproveConfirm = () => {
     if (selectedAppId) {
       // Auto save first
       saveIntibakTable(selectedAppId, editorCourses);
@@ -129,6 +143,7 @@ export default function YgkDashboard() {
       // Exit editor
       setSelectedAppId(null);
       setSubTab('list');
+      setIsApproveConfirmOpen(false);
     }
   };
 
@@ -273,7 +288,7 @@ export default function YgkDashboard() {
               <button className="btn btn-secondary" onClick={handleSaveTable}>
                 <Save size={16} /> {lang === 'tr' ? 'Taslağı Kaydet' : 'Save Draft'}
               </button>
-              <button className="btn btn-success" id="sendToOidbBtn" onClick={handleApproveAndSend}>
+              <button className="btn btn-success" id="sendToOidbBtn" onClick={handleApproveClick}>
                 <CheckCircle size={16} /> {lang === 'tr' ? 'ÖİDB\'ye Gönder' : 'Send to OIDB'}
               </button>
             </div>
@@ -328,15 +343,16 @@ export default function YgkDashboard() {
                             <th>{lang === 'tr' ? 'Kod' : 'Code'}</th>
                             <th>{lang === 'tr' ? 'Ders Adı' : 'Course Name'}</th>
                             <th>{lang === 'tr' ? 'Kredi' : 'Credit'}</th>
+                            <th>{lang === 'tr' ? 'AKTS' : 'ECTS'}</th>
                             <th>{lang === 'tr' ? 'Harf Notu' : 'Letter Grade'}</th>
                           </tr>
                         </thead>
                         <tbody>
-                          <tr><td>MATH101</td><td>Calculus I</td><td>5 ECTS</td><td>AA</td></tr>
-                          <tr><td>PHYS101</td><td>General Physics I</td><td>6 ECTS</td><td>BA</td></tr>
-                          <tr><td>COMP102</td><td>Programming Basics</td><td>6 ECTS</td><td>BA</td></tr>
-                          <tr><td>ENG101</td><td>English I</td><td>3 ECTS</td><td>CB</td></tr>
-                          <tr><td>HIST101</td><td>Ataturk Principles I</td><td>2 ECTS</td><td>AA</td></tr>
+                          <tr><td>MATH101</td><td>Calculus I</td><td>4</td><td>5 ECTS</td><td>AA</td></tr>
+                          <tr><td>PHYS101</td><td>General Physics I</td><td>4</td><td>6 ECTS</td><td>BA</td></tr>
+                          <tr><td>COMP102</td><td>Programming Basics</td><td>3</td><td>6 ECTS</td><td>BA</td></tr>
+                          <tr><td>ENG101</td><td>English I</td><td>3</td><td>3 ECTS</td><td>CB</td></tr>
+                          <tr><td>HIST101</td><td>Ataturk Principles I</td><td>2</td><td>2 ECTS</td><td>AA</td></tr>
                         </tbody>
                       </table>
                     </div>
@@ -390,21 +406,33 @@ export default function YgkDashboard() {
                     </div>
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '0.5rem', alignItems: 'center' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1.2fr 2fr', gap: '0.5rem', alignItems: 'center' }}>
                     <div style={{ display: 'flex', gap: '0.25rem', alignItems: 'center' }}>
-                      <span className="form-label" style={{ margin: 0 }}>{lang === 'tr' ? 'Kredi (ECTS):' : 'Credits (ECTS):'}</span>
+                      <span className="form-label" style={{ margin: 0, whiteSpace: 'nowrap' }}>{lang === 'tr' ? 'Kredi:' : 'Credit:'}</span>
                       <input 
                         type="number" 
                         id="sourceCreditsInput"
                         className="form-control" 
-                        style={{ width: '60px' }}
+                        style={{ width: '50px' }}
                         value={newCourse.sourceCredits}
                         onChange={(e) => setNewCourse(prev => ({ ...prev, sourceCredits: e.target.value }))}
                       />
                     </div>
                     
+                    <div style={{ display: 'flex', gap: '0.25rem', alignItems: 'center' }}>
+                      <span className="form-label" style={{ margin: 0, whiteSpace: 'nowrap' }}>{lang === 'tr' ? 'AKTS:' : 'ECTS:'}</span>
+                      <input 
+                        type="number" 
+                        id="sourceAktsInput"
+                        className="form-control" 
+                        style={{ width: '50px' }}
+                        value={newCourse.sourceAkts}
+                        onChange={(e) => setNewCourse(prev => ({ ...prev, sourceAkts: e.target.value }))}
+                      />
+                    </div>
+                    
                     <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                      <span className="form-label" style={{ margin: 0, whiteSpace: 'nowrap' }}>{lang === 'tr' ? 'İYTE Karşılığı:' : 'IZTECH Equivalent:'}</span>
+                      <span className="form-label" style={{ margin: 0, whiteSpace: 'nowrap' }}>{lang === 'tr' ? 'Karşılık:' : 'Equivalent:'}</span>
                       <select 
                         className="form-control"
                         style={{ flexGrow: 1 }}
@@ -413,7 +441,7 @@ export default function YgkDashboard() {
                       >
                         {activeCurriculum.map((c) => (
                           <option key={c.code} value={c.code}>
-                            {c.code} - {c.name} ({c.akts} ECTS)
+                            {c.code} - {c.name} ({lang === 'tr' ? `${c.credits} Kredi, ${c.akts} AKTS` : `${c.credits} Credit, ${c.akts} ECTS`})
                           </option>
                         ))}
                       </select>
@@ -447,10 +475,13 @@ export default function YgkDashboard() {
                     <thead>
                       <tr>
                         <th>{lang === 'tr' ? 'Kaynak Ders' : 'Source Course'}</th>
-                        <th>{lang === 'tr' ? 'Kredi' : 'Credits'}</th>
+                        <th>{lang === 'tr' ? 'Kredi' : 'Credit'}</th>
+                        <th>{lang === 'tr' ? 'AKTS' : 'ECTS'}</th>
                         <th>{lang === 'tr' ? 'Not' : 'Grade'}</th>
                         <th></th>
                         <th>{lang === 'tr' ? 'İYTE Karşılığı' : 'IZTECH Equivalent'}</th>
+                        <th>{lang === 'tr' ? 'Kredi' : 'Credit'}</th>
+                        <th>{lang === 'tr' ? 'AKTS' : 'ECTS'}</th>
                         <th>{lang === 'tr' ? 'Durum' : 'Status'}</th>
                         <th>{lang === 'tr' ? 'Aksiyon' : 'Action'}</th>
                       </tr>
@@ -458,7 +489,7 @@ export default function YgkDashboard() {
                     <tbody>
                       {editorCourses.length === 0 ? (
                         <tr>
-                          <td colSpan="7" style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '1.5rem' }}>
+                          <td colSpan="10" style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '1.5rem' }}>
                             {lang === 'tr' ? 'Henüz ders eşleştirmesi eklenmemiştir.' : 'No course matching added yet.'}
                           </td>
                         </tr>
@@ -469,13 +500,16 @@ export default function YgkDashboard() {
                               <div style={{ fontWeight: 600 }}>{c.sourceCode}</div>
                               <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{c.sourceName}</div>
                             </td>
-                            <td>{c.sourceCredits} ECTS</td>
+                            <td style={{ fontWeight: 600 }}>{c.sourceCredits}</td>
+                            <td style={{ fontWeight: 600 }}>{c.sourceAkts || '—'}</td>
                             <td style={{ fontWeight: 600 }}>{c.sourceGrade}</td>
                             <td><ArrowLeftRight size={14} style={{ color: 'var(--text-muted)' }} /></td>
                             <td>
                               <div style={{ fontWeight: 600 }}>{c.targetCode}</div>
                               <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{c.targetName}</div>
                             </td>
+                            <td style={{ fontWeight: 600 }}>{c.targetCredits || '—'}</td>
+                            <td style={{ fontWeight: 600 }}>{c.targetAkts || '—'}</td>
                             <td>
                               <span style={{ color: 'var(--color-success)', fontWeight: 600, fontSize: '0.75rem' }}>{lang === 'tr' ? 'KABUL' : 'ACCEPTED'}</span>
                             </td>
@@ -516,6 +550,7 @@ export default function YgkDashboard() {
               <tr>
                 <th>{lang === 'tr' ? 'Ders Kodu' : 'Course Code'}</th>
                 <th>{lang === 'tr' ? 'Ders Adı' : 'Course Name'}</th>
+                <th>{lang === 'tr' ? 'Kredi' : 'Credit'}</th>
                 <th>{lang === 'tr' ? 'AKTS' : 'ECTS'}</th>
                 <th>{lang === 'tr' ? 'Aksiyon' : 'Action'}</th>
               </tr>
@@ -525,7 +560,8 @@ export default function YgkDashboard() {
                 <tr key={course.code}>
                   <td style={{ fontWeight: 600 }}>{course.code}</td>
                   <td>{course.name}</td>
-                  <td>{course.akts} ECTS</td>
+                  <td style={{ fontWeight: 600 }}>{course.credits}</td>
+                  <td style={{ fontWeight: 600 }}>{course.akts}</td>
                   <td>
                     <button 
                       className="btn btn-primary btn-sm"
@@ -543,6 +579,26 @@ export default function YgkDashboard() {
             </tbody>
           </table>
         </div>
+      </Modal>
+
+      {/* Approve and Send to OIDB Confirmation Modal */}
+      <Modal
+        isOpen={isApproveConfirmOpen}
+        title={lang === 'tr' ? 'Nihai Onay ve ÖİDB\'ye Gönderme' : 'Final Approval and Send to OIDB'}
+        onClose={() => setIsApproveConfirmOpen(false)}
+        onConfirm={handleApproveConfirm}
+        confirmText={lang === 'tr' ? 'Evet, Onayla ve Gönder' : 'Yes, Approve & Send'}
+        confirmType="success"
+        cancelText={lang === 'tr' ? 'İptal' : 'Cancel'}
+      >
+        <p>
+          {lang === 'tr'
+            ? 'Bu intibak tablosunu nihai olarak onaylayıp sonuçları işlenmek üzere Öğrenci İşleri Daire Başkanlığı\'na (ÖİDB) göndermek istediğinize emin misiniz?'
+            : 'Are you sure you want to finally approve this equivalency table and send it to the Student Affairs Department (OIDB) for processing?'}
+        </p>
+        <p style={{ marginTop: '0.5rem', fontWeight: 600, color: 'var(--color-success)' }}>
+          {lang === 'tr' ? 'Bu işlem sonucunda adayın intibak değerlendirmesi tamamlanmış olacaktır.' : 'As a result of this action, the candidate\'s equivalency evaluation will be completed.'}
+        </p>
       </Modal>
     </div>
   );

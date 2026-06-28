@@ -21,15 +21,30 @@ export default function DeanDashboard() {
   // Document Viewer
   const [viewingDoc, setViewingDoc] = useState(null);
 
+  // Forward confirmation state
+  const [isForwardConfirmOpen, setIsForwardConfirmOpen] = useState(false);
+  const [forwardingAppId, setForwardingAppId] = useState(null);
+  const [forwardingProgram, setForwardingProgram] = useState('');
+
   const deanApps = applications.filter(app => app.status === 'forwarded_to_dean');
 
   const handleToggleExpand = (id) => {
     setExpandedAppId(expandedAppId === id ? null : id);
   };
 
-  const handleForwardToYgk = (appId, targetProgram) => {
-    // Maps target program to department
-    forwardToYgk(appId, targetProgram);
+  const handleForwardClick = (appId, targetProgram) => {
+    setForwardingAppId(appId);
+    setForwardingProgram(targetProgram);
+    setIsForwardConfirmOpen(true);
+  };
+
+  const handleForwardConfirm = () => {
+    if (forwardingAppId) {
+      forwardToYgk(forwardingAppId, forwardingProgram);
+      setIsForwardConfirmOpen(false);
+      setForwardingAppId(null);
+      setForwardingProgram('');
+    }
   };
 
   const handleReturnSubmit = () => {
@@ -135,7 +150,7 @@ export default function DeanDashboard() {
                           <button 
                             className="btn btn-success btn-sm"
                             style={{ display: 'flex', alignItems: 'center', gap: '0.2rem' }}
-                            onClick={() => handleForwardToYgk(app.id, app.targetProgram)}
+                            onClick={() => handleForwardClick(app.id, app.targetProgram)}
                           >
                             {lang === 'tr' ? 'Komisyona Sevk Et' : 'Forward to YGK'} <ArrowRight size={12} />
                           </button>
@@ -299,6 +314,30 @@ export default function DeanDashboard() {
             value={returnNotes}
             onChange={(e) => setReturnNotes(e.target.value)}
           />
+        </div>
+      </Modal>
+
+      {/* Forward to YGK Confirmation Modal */}
+      <Modal
+        isOpen={isForwardConfirmOpen}
+        title={lang === 'tr' ? 'Bölüm Komisyonuna Sevk Onayı' : 'Forward to Committee Confirmation'}
+        onClose={() => {
+          setIsForwardConfirmOpen(false);
+          setForwardingAppId(null);
+          setForwardingProgram('');
+        }}
+        onConfirm={handleForwardConfirm}
+        confirmText={lang === 'tr' ? 'Evet, Sevk Et' : 'Yes, Forward'}
+        confirmType="success"
+        cancelText={lang === 'tr' ? 'İptal' : 'Cancel'}
+      >
+        <p>
+          {lang === 'tr'
+            ? `Bu başvuruyu ilgili Bölüm Yatay Geçiş Komisyonuna (YGK) sevk etmek istediğinize emin misiniz?`
+            : `Are you sure you want to forward this application to the relevant Department Horizontal Transfer Committee (YGK)?`}
+        </p>
+        <div style={{ marginTop: '0.5rem', fontWeight: 600 }}>
+          {lang === 'tr' ? 'Hedef Bölüm:' : 'Target Department:'} {translateProgram(forwardingProgram, lang)}
         </div>
       </Modal>
     </div>
