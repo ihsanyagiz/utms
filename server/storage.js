@@ -3,6 +3,7 @@ import path from 'path';
 import { uploadDir } from './paths.js';
 
 const useBlobStorage = Boolean(process.env.BLOB_READ_WRITE_TOKEN || process.env.VERCEL_BLOB_READ_WRITE_TOKEN);
+console.log('[Storage Init] Mode:', useBlobStorage ? 'Vercel Blob' : 'Local Disk', '| Token present:', Boolean(process.env.BLOB_READ_WRITE_TOKEN || process.env.VERCEL_BLOB_READ_WRITE_TOKEN));
 
 function safeName(name) {
   const ext = path.extname(name || '').toLowerCase();
