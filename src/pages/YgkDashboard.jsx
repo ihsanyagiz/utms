@@ -328,34 +328,21 @@ export default function YgkDashboard() {
                   <div style={{ padding: '0.75rem', border: '1px solid var(--border-color)', borderRadius: '4px', backgroundColor: '#f8fafc', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem' }}>
                     <FileText size={18} style={{ color: 'var(--primary-color)' }} />
                     <div style={{ flexGrow: 1 }}>
-                      <strong>not_dokumu.pdf</strong> (2.4 MB)
+                      <strong>{activeApp.documents?.find(d => d.slot === 2)?.filename || 'not_dokumu.pdf'}</strong>
                     </div>
-                    <button className="btn btn-secondary btn-sm" onClick={() => alert(lang === 'tr' ? 'PDF Görüntüleme simüle ediliyor.' : 'Simulating PDF View.')}>{lang === 'tr' ? 'İncele' : 'Review'}</button>
-                  </div>
-                  
-                  {/* Simulated transcript courses list */}
-                  <div style={{ marginTop: '1rem' }}>
-                    <h5 style={{ fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.25rem' }}>{lang === 'tr' ? 'Transkript Ders Özetleri (Simüle):' : 'Transcript Course Summary (Simulated):'}</h5>
-                    <div style={{ maxHeight: '180px', overflowY: 'auto', border: '1px solid var(--border-color)', borderRadius: '4px', fontSize: '0.75rem' }}>
-                      <table className="ubys-table" style={{ fontSize: '0.75rem' }}>
-                        <thead>
-                          <tr>
-                            <th>{lang === 'tr' ? 'Kod' : 'Code'}</th>
-                            <th>{lang === 'tr' ? 'Ders Adı' : 'Course Name'}</th>
-                            <th>{lang === 'tr' ? 'Kredi' : 'Credit'}</th>
-                            <th>{lang === 'tr' ? 'AKTS' : 'ECTS'}</th>
-                            <th>{lang === 'tr' ? 'Harf Notu' : 'Letter Grade'}</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr><td>MATH101</td><td>Calculus I</td><td>4</td><td>5 ECTS</td><td>AA</td></tr>
-                          <tr><td>PHYS101</td><td>General Physics I</td><td>4</td><td>6 ECTS</td><td>BA</td></tr>
-                          <tr><td>COMP102</td><td>Programming Basics</td><td>3</td><td>6 ECTS</td><td>BA</td></tr>
-                          <tr><td>ENG101</td><td>English I</td><td>3</td><td>3 ECTS</td><td>CB</td></tr>
-                          <tr><td>HIST101</td><td>Ataturk Principles I</td><td>2</td><td>2 ECTS</td><td>AA</td></tr>
-                        </tbody>
-                      </table>
-                    </div>
+                    <button 
+                      className="btn btn-secondary btn-sm" 
+                      onClick={() => {
+                        const doc = activeApp.documents?.find(d => d.slot === 2);
+                        if (doc) {
+                          window.open(`/${doc.filePath}`, '_blank');
+                        } else {
+                          alert(lang === 'tr' ? 'Yüklenmiş transkript belgesi bulunamadı.' : 'No uploaded transcript document found.');
+                        }
+                      }}
+                    >
+                      {lang === 'tr' ? 'İncele' : 'Review'}
+                    </button>
                   </div>
                 </div>
               </div>

@@ -264,65 +264,7 @@ export default function Login({ onBackToLanding, initialMode = 'login' }) {
               )}
             </form>
 
-            {/* Quick Demo Login Accounts panel */}
-            <div style={{ marginTop: '1.5rem', paddingTop: '1.25rem', borderTop: '1px dashed var(--border-color)', fontSize: '0.8rem' }}>
-              <span style={{ fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '0.5rem', textAlign: 'center' }}>
-                {t.quickLogins}
-              </span>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.4rem' }}>
-                <button 
-                  type="button" 
-                  className="btn btn-secondary btn-sm" 
-                  style={{ fontSize: '0.75rem', padding: '0.3rem' }}
-                  onClick={() => { setLoginEmail('emre.yildiz@test'); setLoginPassword('test'); setLoginRole('applicant'); }}
-                >
-                  {lang === 'tr' ? 'Aday (Emre)' : 'Applicant (Emre)'}
-                </button>
-                <button 
-                  type="button" 
-                  className="btn btn-secondary btn-sm" 
-                  style={{ fontSize: '0.75rem', padding: '0.3rem' }}
-                  onClick={() => { setLoginEmail('oidb@test'); setLoginPassword('test'); setLoginRole('oidb'); }}
-                >
-                  {lang === 'tr' ? 'ÖİDB Memuru' : 'OIDB Officer'}
-                </button>
-                <button 
-                  type="button" 
-                  className="btn btn-secondary btn-sm" 
-                  style={{ fontSize: '0.75rem', padding: '0.3rem' }}
-                  onClick={() => { setLoginEmail('ydyo@test'); setLoginPassword('test'); setLoginRole('ydyo'); }}
-                >
-                  {lang === 'tr' ? 'YDYO Sorumlusu' : 'YDYO Officer'}
-                </button>
-                <button 
-                  type="button" 
-                  className="btn btn-secondary btn-sm" 
-                  style={{ fontSize: '0.75rem', padding: '0.3rem' }}
-                  onClick={() => { setLoginEmail('dean@test'); setLoginPassword('test'); setLoginRole('dean'); }}
-                >
-                  {lang === 'tr' ? 'Dekanlık' : 'Deanery'}
-                </button>
-                <button 
-                  type="button" 
-                  className="btn btn-secondary btn-sm" 
-                  style={{ fontSize: '0.75rem', padding: '0.3rem' }}
-                  onClick={() => { setLoginEmail('ygk.ceng@test'); setLoginPassword('test'); setLoginRole('ygk'); }}
-                >
-                  {lang === 'tr' ? 'YGK Komisyonu' : 'YGK Committee'}
-                </button>
-                <button 
-                  type="button" 
-                  className="btn btn-secondary btn-sm" 
-                  style={{ fontSize: '0.75rem', padding: '0.3rem' }}
-                  onClick={() => { setLoginEmail('admin@admin'); setLoginPassword('admin'); setLoginRole('admin'); }}
-                >
-                  {lang === 'tr' ? 'Yönetici (Admin)' : 'System Admin'}
-                </button>
-              </div>
-              <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textAlign: 'center', marginTop: '0.5rem', fontStyle: 'italic' }}>
-                {t.clickToPrefill}
-              </p>
-            </div>
+            {/* Quick Demo Logins Removed for Production */}
           </>
         )}
 
@@ -429,30 +371,28 @@ export default function Login({ onBackToLanding, initialMode = 'login' }) {
           </form>
         )}
 
-        {/* Email Verification Mock Screen (V&V SMTP/Resend Requirement) */}
+        {/* Email Verification Info Screen */}
         {mode === 'verify_email' && (
           <div style={{ textAlign: 'center', padding: '1rem 0' }}>
             <Mail size={48} style={{ color: 'var(--primary-color)', margin: '0 auto 1rem auto' }} />
             <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '0.5rem' }}>
-              {t.verifyTitle}
+              {lang === 'tr' ? 'E-Posta Doğrulama' : 'Email Verification'}
             </h3>
-            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '1.5rem', lineHeight: 1.5 }}>
-              {t.verifySub}
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '1.5rem', lineHeight: 1.5 }}>
+              {lang === 'tr' 
+                ? 'Hesabınızı aktifleştirmek için lütfen e-posta adresinize gönderilen doğrulama bağlantısına tıklayınız.' 
+                : 'Please click on the verification link sent to your email address to activate your account.'}
               <br />
-              <strong style={{ color: 'var(--primary-color)' }}>{t.resendMail}</strong>
+              <strong style={{ color: 'var(--primary-color)', display: 'block', marginTop: '0.5rem' }}>{verificationEmail}</strong>
             </p>
-
-            <div style={{ padding: '0.75rem', border: '1px solid var(--border-color)', borderRadius: '6px', backgroundColor: '#f8fafc', marginBottom: '1.5rem', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-              Aktivasyon adresi: <code style={{ color: 'var(--primary-color)', fontWeight: 600 }}>{activationUrl}</code>
-            </div>
 
             <button 
               type="button" 
-              className="btn btn-primary" 
+              className="btn btn-secondary" 
               style={{ width: '100%', padding: '0.65rem', marginBottom: '1rem' }}
-              onClick={handleVerifyConfirm}
+              onClick={() => setMode('login')}
             >
-              {t.verifyBtn}
+              {lang === 'tr' ? 'Giriş Sayfasına Dön' : 'Back to Login'}
             </button>
           </div>
         )}
