@@ -344,9 +344,9 @@ app.post('/api/applications/submit', upload.any(), async (req, res) => {
 
     const appInsertedId = appResult.lastID;
 
-    // Handle files upload
+    // Handle files upload in parallel
     if (req.files && req.files.length > 0) {
-      for (const file of req.files) {
+      await Promise.all(req.files.map(async (file) => {
         // fieldname corresponds to slotId
         const slot = parseInt(file.fieldname);
         const sizeStr = `${(file.size / (1024 * 1024)).toFixed(1)} MB`;
@@ -355,7 +355,7 @@ app.post('/api/applications/submit', upload.any(), async (req, res) => {
           'INSERT INTO documents (applicationId, slot, filename, fileSize, uploadDate, filePath) VALUES (?, ?, ?, ?, ?, ?)',
           [appInsertedId, slot, file.originalname, sizeStr, dateStr, storedFilePath]
         );
-      }
+      }));
     }
 
     // Run automated checker
@@ -397,9 +397,9 @@ app.post('/api/applications/resubmit', upload.any(), async (req, res) => {
       ]
     );
 
-    // Handle uploaded files updates
+    // Handle uploaded files updates in parallel
     if (req.files && req.files.length > 0) {
-      for (const file of req.files) {
+      await Promise.all(req.files.map(async (file) => {
         const slot = parseInt(file.fieldname);
         const sizeStr = `${(file.size / (1024 * 1024)).toFixed(1)} MB`;
 
@@ -412,7 +412,7 @@ app.post('/api/applications/resubmit', upload.any(), async (req, res) => {
           'INSERT INTO documents (applicationId, slot, filename, fileSize, uploadDate, filePath) VALUES (?, ?, ?, ?, ?, ?)',
           [id, slot, file.originalname, sizeStr, dateStr, storedFilePath]
         );
-      }
+      }));
     }
 
     // Run automated checker
