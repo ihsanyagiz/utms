@@ -58,11 +58,7 @@ export default function YgkDashboard() {
     if (existingTable && existingTable.courses) {
       setEditorCourses(existingTable.courses);
     } else {
-      // Seed some default course maps based on target program to speed up testing
-      setEditorCourses([
-        { id: 1, sourceCode: 'MATH101', sourceName: 'Calculus I', sourceCredits: '4', sourceAkts: '5', sourceGrade: 'AA', targetCode: 'MATH141', targetName: 'Calculus I', targetCredits: '4', targetAkts: '5', status: 'accepted' },
-        { id: 2, sourceCode: 'COMP102', sourceName: 'Intro to Programming', sourceCredits: '3', sourceAkts: '6', sourceGrade: 'BA', targetCode: 'CENG113', targetName: 'Programming Basics', targetCredits: '4', targetAkts: '6', status: 'accepted' }
-      ]);
+      setEditorCourses([]);
     }
  
     // Reset new course mapping targets
@@ -298,7 +294,7 @@ export default function YgkDashboard() {
           <div className="split-view">
             
             {/* Left Pane: Student transcript details & Curriculum check */}
-            <div className="split-pane">
+            <div className="split-pane" style={{ flex: 0.7 }}>
               <div className="card" style={{ height: '100%', minHeight: '450px' }}>
                 <h3 style={{ fontSize: '1rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem', marginBottom: '1rem', color: 'var(--primary-color)' }}>
                   {lang === 'tr' ? 'Aday Akademik Belgeleri ve Bilgileri' : 'Candidate Academic Documents & Info'}
@@ -349,38 +345,28 @@ export default function YgkDashboard() {
             </div>
 
             {/* Right Pane: Intibak Equivalence Editor */}
-            <div className="split-pane" style={{ flex: 1.3 }}>
+            <div className="split-pane" style={{ flex: 1.8 }}>
               <div className="card">
                 <h3 style={{ fontSize: '1rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem', marginBottom: '1rem', color: 'var(--primary-color)' }}>
                   {lang === 'tr' ? 'Ders Eşleştirme ve İntibak Editörü' : 'Course Matching & Equivalency Editor'}
                 </h3>
 
                 {/* Add equivalence form */}
-                <div style={{ padding: '1rem', border: '1px solid var(--border-color)', borderRadius: '6px', backgroundColor: '#f8fafc', marginBottom: '1.5rem', fontSize: '0.8rem' }}>
-                  <h4 style={{ fontSize: '0.85rem', marginBottom: '0.75rem', fontWeight: 600 }}>{lang === 'tr' ? 'Yeni Eşdeğerlik Ekle' : 'Add New Equivalency'}</h4>
-                  
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 1fr', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                    <div className="form-group" style={{ margin: 0 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1.2fr', gap: '1rem', marginBottom: '1.5rem', fontSize: '0.8rem' }}>
+                  {/* Source Course Section */}
+                  <div style={{ padding: '0.75rem', backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '6px' }}>
+                    <div style={{ fontWeight: 600, color: '#475569', marginBottom: '0.5rem', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                      {lang === 'tr' ? '1. Eski Üniversite Dersi (Kaynak)' : '1. Old University Course (Source)'}
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '0.5rem', marginBottom: '0.5rem' }}>
                       <input 
                         type="text" 
                         id="sourceCodeInput"
                         className="form-control" 
-                        placeholder={lang === 'tr' ? 'Kaynak Kod' : 'Source Code'} 
+                        placeholder={lang === 'tr' ? 'Ders Kodu (Örn: MATH101)' : 'Course Code (e.g. MATH101)'} 
                         value={newCourse.sourceCode}
                         onChange={(e) => setNewCourse(prev => ({ ...prev, sourceCode: e.target.value }))}
                       />
-                    </div>
-                    <div className="form-group" style={{ margin: 0 }}>
-                      <input 
-                        type="text" 
-                        id="sourceNameInput"
-                        className="form-control" 
-                        placeholder={lang === 'tr' ? 'Kaynak Ders Adı' : 'Source Course Name'} 
-                        value={newCourse.sourceName}
-                        onChange={(e) => setNewCourse(prev => ({ ...prev, sourceName: e.target.value }))}
-                      />
-                    </div>
-                    <div className="form-group" style={{ margin: 0 }}>
                       <select 
                         className="form-control"
                         value={newCourse.sourceGrade}
@@ -391,62 +377,79 @@ export default function YgkDashboard() {
                         ))}
                       </select>
                     </div>
+                    <div style={{ marginBottom: '0.5rem' }}>
+                      <input 
+                        type="text" 
+                        id="sourceNameInput"
+                        className="form-control" 
+                        placeholder={lang === 'tr' ? 'Ders Adı (Örn: Calculus I)' : 'Course Name (e.g. Calculus I)'} 
+                        value={newCourse.sourceName}
+                        onChange={(e) => setNewCourse(prev => ({ ...prev, sourceName: e.target.value }))}
+                      />
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+                      <div style={{ display: 'flex', gap: '0.25rem', alignItems: 'center' }}>
+                        <span className="form-label" style={{ margin: 0, fontSize: '0.7rem', whiteSpace: 'nowrap' }}>{lang === 'tr' ? 'Kredi:' : 'Credit:'}</span>
+                        <input 
+                          type="number" 
+                          id="sourceCreditsInput"
+                          className="form-control" 
+                          style={{ padding: '0.2rem 0.4rem' }}
+                          value={newCourse.sourceCredits}
+                          onChange={(e) => setNewCourse(prev => ({ ...prev, sourceCredits: e.target.value }))}
+                        />
+                      </div>
+                      <div style={{ display: 'flex', gap: '0.25rem', alignItems: 'center' }}>
+                        <span className="form-label" style={{ margin: 0, fontSize: '0.7rem', whiteSpace: 'nowrap' }}>{lang === 'tr' ? 'AKTS:' : 'ECTS:'}</span>
+                        <input 
+                          type="number" 
+                          id="sourceAktsInput"
+                          className="form-control" 
+                          style={{ padding: '0.2rem 0.4rem' }}
+                          value={newCourse.sourceAkts}
+                          onChange={(e) => setNewCourse(prev => ({ ...prev, sourceAkts: e.target.value }))}
+                        />
+                      </div>
+                    </div>
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1.2fr 2fr', gap: '0.5rem', alignItems: 'center' }}>
-                    <div style={{ display: 'flex', gap: '0.25rem', alignItems: 'center' }}>
-                      <span className="form-label" style={{ margin: 0, whiteSpace: 'nowrap' }}>{lang === 'tr' ? 'Kredi:' : 'Credit:'}</span>
-                      <input 
-                        type="number" 
-                        id="sourceCreditsInput"
-                        className="form-control" 
-                        style={{ width: '50px' }}
-                        value={newCourse.sourceCredits}
-                        onChange={(e) => setNewCourse(prev => ({ ...prev, sourceCredits: e.target.value }))}
-                      />
+                  {/* Target Course Section */}
+                  <div style={{ padding: '0.75rem', backgroundColor: 'rgba(162, 27, 36, 0.03)', border: '1px solid rgba(162, 27, 36, 0.1)', borderRadius: '6px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                    <div>
+                      <div style={{ fontWeight: 600, color: '#a21b24', marginBottom: '0.5rem', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                        {lang === 'tr' ? '2. İYTE Karşılığı (Eşdeğer)' : '2. IZTECH Equivalent (Exempted)'}
+                      </div>
+                      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                        <select 
+                          className="form-control"
+                          style={{ flexGrow: 1 }}
+                          value={newCourse.targetCode}
+                          onChange={(e) => setNewCourse(prev => ({ ...prev, targetCode: e.target.value }))}
+                        >
+                          {activeCurriculum.map((c) => (
+                            <option key={c.code} value={c.code}>
+                              {c.code} - {c.name} ({lang === 'tr' ? `${c.credits} Kredi, ${c.akts} AKTS` : `${c.credits} Credit, ${c.akts} ECTS`})
+                            </option>
+                          ))}
+                        </select>
+                      </div>
                     </div>
                     
-                    <div style={{ display: 'flex', gap: '0.25rem', alignItems: 'center' }}>
-                      <span className="form-label" style={{ margin: 0, whiteSpace: 'nowrap' }}>{lang === 'tr' ? 'AKTS:' : 'ECTS:'}</span>
-                      <input 
-                        type="number" 
-                        id="sourceAktsInput"
-                        className="form-control" 
-                        style={{ width: '50px' }}
-                        value={newCourse.sourceAkts}
-                        onChange={(e) => setNewCourse(prev => ({ ...prev, sourceAkts: e.target.value }))}
-                      />
-                    </div>
-                    
-                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                      <span className="form-label" style={{ margin: 0, whiteSpace: 'nowrap' }}>{lang === 'tr' ? 'Karşılık:' : 'Equivalent:'}</span>
-                      <select 
-                        className="form-control"
-                        style={{ flexGrow: 1 }}
-                        value={newCourse.targetCode}
-                        onChange={(e) => setNewCourse(prev => ({ ...prev, targetCode: e.target.value }))}
-                      >
-                        {activeCurriculum.map((c) => (
-                          <option key={c.code} value={c.code}>
-                            {c.code} - {c.name} ({lang === 'tr' ? `${c.credits} Kredi, ${c.akts} AKTS` : `${c.credits} Credit, ${c.akts} ECTS`})
-                          </option>
-                        ))}
-                      </select>
-                      
+                    <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end', marginTop: '0.5rem' }}>
                       <button 
                         type="button" 
                         className="btn btn-secondary btn-sm"
-                        style={{ display: 'flex', alignItems: 'center', gap: '0.2rem', whiteSpace: 'nowrap' }}
+                        style={{ display: 'flex', alignItems: 'center', gap: '0.2rem', fontSize: '0.75rem' }}
                         onClick={() => setIsCurriculumModalOpen(true)}
                         id="addFromCurriculumBtn"
                       >
-                        {lang === 'tr' ? 'Müfredattan Ders Seç' : 'Add from curriculum'}
+                        {lang === 'tr' ? 'Müfredattan Seç' : 'Select from Curriculum'}
                       </button>
 
                       <button 
                         type="button" 
                         className="btn btn-primary btn-sm"
-                        style={{ display: 'flex', alignItems: 'center', gap: '0.2rem' }}
+                        style={{ display: 'flex', alignItems: 'center', gap: '0.2rem', backgroundColor: '#a21b24', borderColor: '#a21b24', fontSize: '0.75rem' }}
                         onClick={handleAddCourseMapping}
                       >
                         <Plus size={14} /> {lang === 'tr' ? 'Eşleştir' : 'Match'}
@@ -461,46 +464,63 @@ export default function YgkDashboard() {
                   <table className="ubys-table" style={{ fontSize: '0.8rem' }}>
                     <thead>
                       <tr>
-                        <th>{lang === 'tr' ? 'Kaynak Ders' : 'Source Course'}</th>
-                        <th>{lang === 'tr' ? 'Kredi' : 'Credit'}</th>
-                        <th>{lang === 'tr' ? 'AKTS' : 'ECTS'}</th>
-                        <th>{lang === 'tr' ? 'Not' : 'Grade'}</th>
-                        <th></th>
-                        <th>{lang === 'tr' ? 'İYTE Karşılığı' : 'IZTECH Equivalent'}</th>
-                        <th>{lang === 'tr' ? 'Kredi' : 'Credit'}</th>
-                        <th>{lang === 'tr' ? 'AKTS' : 'ECTS'}</th>
-                        <th>{lang === 'tr' ? 'Durum' : 'Status'}</th>
-                        <th>{lang === 'tr' ? 'Aksiyon' : 'Action'}</th>
+                        {/* Old University Course Group */}
+                        <th style={{ backgroundColor: '#f1f5f9', borderRight: '1px solid #cbd5e1', textAlign: 'center' }} colSpan="4">
+                          <span style={{ fontSize: '0.7rem', textTransform: 'uppercase', color: '#475569', fontWeight: 700 }}>
+                            {lang === 'tr' ? 'ESKİ ÜNİVERSİTE DERSİ (KAYNAK)' : 'OLD UNIVERSITY COURSE (SOURCE)'}
+                          </span>
+                        </th>
+                        <th style={{ backgroundColor: '#ffffff', width: '30px' }}></th>
+                        {/* IZTECH Equivalent Group */}
+                        <th style={{ backgroundColor: 'rgba(162, 27, 36, 0.08)', color: '#991b1b', textAlign: 'center' }} colSpan="3">
+                          <span style={{ fontSize: '0.7rem', textTransform: 'uppercase', fontWeight: 700 }}>
+                            {lang === 'tr' ? 'İYTE KARŞILIĞI (EŞDEĞER)' : 'IZTECH EQUIVALENT (EXEMPTED)'}
+                          </span>
+                        </th>
+                        <th style={{ textAlign: 'center' }}>{lang === 'tr' ? 'Durum' : 'Status'}</th>
+                        <th style={{ textAlign: 'center' }}>{lang === 'tr' ? 'Aksiyon' : 'Action'}</th>
+                      </tr>
+                      <tr>
+                        <th style={{ backgroundColor: '#f8fafc', borderRight: '1px solid #e2e8f0' }}>{lang === 'tr' ? 'Ders Kodu & Adı' : 'Course Code & Name'}</th>
+                        <th style={{ backgroundColor: '#f8fafc', borderRight: '1px solid #e2e8f0', width: '50px', textAlign: 'center' }}>{lang === 'tr' ? 'Kredi' : 'Credit'}</th>
+                        <th style={{ backgroundColor: '#f8fafc', borderRight: '1px solid #e2e8f0', width: '50px', textAlign: 'center' }}>{lang === 'tr' ? 'AKTS' : 'ECTS'}</th>
+                        <th style={{ backgroundColor: '#f8fafc', borderRight: '1px solid #cbd5e1', width: '50px', textAlign: 'center' }}>{lang === 'tr' ? 'Not' : 'Grade'}</th>
+                        <th style={{ width: '30px', textAlign: 'center' }}></th>
+                        <th style={{ backgroundColor: 'rgba(162, 27, 36, 0.03)', color: '#991b1b' }}>{lang === 'tr' ? 'Ders Kodu & Adı' : 'Course Code & Name'}</th>
+                        <th style={{ backgroundColor: 'rgba(162, 27, 36, 0.03)', color: '#991b1b', width: '50px', textAlign: 'center' }}>{lang === 'tr' ? 'Kredi' : 'Credit'}</th>
+                        <th style={{ backgroundColor: 'rgba(162, 27, 36, 0.03)', color: '#991b1b', width: '50px', textAlign: 'center' }}>{lang === 'tr' ? 'AKTS' : 'ECTS'}</th>
+                        <th style={{ textAlign: 'center' }}>{lang === 'tr' ? 'Durum' : 'Status'}</th>
+                        <th style={{ textAlign: 'center' }}>{lang === 'tr' ? 'Aksiyon' : 'Action'}</th>
                       </tr>
                     </thead>
                     <tbody>
                       {editorCourses.length === 0 ? (
                         <tr>
-                          <td colSpan="10" style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '1.5rem' }}>
+                          <td colSpan="10" style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '2rem' }}>
                             {lang === 'tr' ? 'Henüz ders eşleştirmesi eklenmemiştir.' : 'No course matching added yet.'}
                           </td>
                         </tr>
                       ) : (
                         editorCourses.map((c) => (
                           <tr key={c.id}>
-                            <td>
-                              <div style={{ fontWeight: 600 }}>{c.sourceCode}</div>
-                              <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{c.sourceName}</div>
+                            <td style={{ borderRight: '1px solid #e2e8f0' }}>
+                              <div style={{ fontWeight: 600, color: '#1e293b' }}>{c.sourceCode}</div>
+                              <div style={{ fontSize: '0.7rem', color: '#64748b' }}>{c.sourceName}</div>
                             </td>
-                            <td style={{ fontWeight: 600 }}>{c.sourceCredits}</td>
-                            <td style={{ fontWeight: 600 }}>{c.sourceAkts || '—'}</td>
-                            <td style={{ fontWeight: 600 }}>{c.sourceGrade}</td>
-                            <td><ArrowLeftRight size={14} style={{ color: 'var(--text-muted)' }} /></td>
-                            <td>
-                              <div style={{ fontWeight: 600 }}>{c.targetCode}</div>
-                              <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{c.targetName}</div>
+                            <td style={{ fontWeight: 600, textAlign: 'center', borderRight: '1px solid #e2e8f0' }}>{c.sourceCredits}</td>
+                            <td style={{ fontWeight: 600, textAlign: 'center', borderRight: '1px solid #e2e8f0' }}>{c.sourceAkts || '—'}</td>
+                            <td style={{ fontWeight: 600, textAlign: 'center', borderRight: '1px solid #cbd5e1', color: '#0f172a' }}>{c.sourceGrade}</td>
+                            <td style={{ textAlign: 'center' }}><ArrowLeftRight size={14} style={{ color: '#94a3b8' }} /></td>
+                            <td style={{ backgroundColor: 'rgba(162, 27, 36, 0.01)' }}>
+                              <div style={{ fontWeight: 600, color: '#a21b24' }}>{c.targetCode}</div>
+                              <div style={{ fontSize: '0.7rem', color: '#64748b' }}>{c.targetName}</div>
                             </td>
-                            <td style={{ fontWeight: 600 }}>{c.targetCredits || '—'}</td>
-                            <td style={{ fontWeight: 600 }}>{c.targetAkts || '—'}</td>
-                            <td>
+                            <td style={{ fontWeight: 600, textAlign: 'center', backgroundColor: 'rgba(162, 27, 36, 0.01)' }}>{c.targetCredits || '—'}</td>
+                            <td style={{ fontWeight: 600, textAlign: 'center', backgroundColor: 'rgba(162, 27, 36, 0.01)' }}>{c.targetAkts || '—'}</td>
+                            <td style={{ textAlign: 'center' }}>
                               <span style={{ color: 'var(--color-success)', fontWeight: 600, fontSize: '0.75rem' }}>{lang === 'tr' ? 'KABUL' : 'ACCEPTED'}</span>
                             </td>
-                            <td>
+                            <td style={{ textAlign: 'center' }}>
                               <button 
                                 className="btn btn-danger btn-sm btn-icon-only"
                                 onClick={() => handleRemoveCourseMapping(c.id)}
