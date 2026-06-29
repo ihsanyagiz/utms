@@ -30,10 +30,14 @@ export default function YgkDashboard() {
   const [newCourse, setNewCourse] = useState({
     sourceCode: '',
     sourceName: '',
-    sourceCredits: '3',
-    sourceAkts: '5',
+    sourceCredits: '',
+    sourceAkts: '',
     sourceGrade: 'AA',
     targetCode: '',
+    targetName: '',
+    targetCredits: '',
+    targetAkts: '',
+    targetGrade: 'AA',
     status: 'accepted'
   });
 
@@ -62,9 +66,19 @@ export default function YgkDashboard() {
     }
  
     // Reset new course mapping targets
-    if (activeCurriculum.length > 0) {
-      setNewCourse(prev => ({ ...prev, targetCode: activeCurriculum[0].code }));
-    }
+    setNewCourse({
+      sourceCode: '',
+      sourceName: '',
+      sourceCredits: '',
+      sourceAkts: '',
+      sourceGrade: 'AA',
+      targetCode: '',
+      targetName: '',
+      targetCredits: '',
+      targetAkts: '',
+      targetGrade: 'AA',
+      status: 'accepted'
+    });
   };
  
   const handleAddCourseMapping = () => {
@@ -84,34 +98,42 @@ export default function YgkDashboard() {
       document.getElementById('sourceAktsInput')?.focus();
       return;
     }
- 
-    const targetCourseObj = activeCurriculum.find(c => c.code === newCourse.targetCode);
+    if (!newCourse.targetCode) {
+      alert(lang === 'tr' ? 'Lütfen müfredattan bir ders seçin!' : 'Please select a course from the curriculum!');
+      return;
+    }
+
     const newId = editorCourses.length > 0 ? Math.max(...editorCourses.map(c => c.id)) + 1 : 1;
- 
+
     const mapping = {
       id: newId,
-      sourceCode: newCourse.sourceCode,
+      sourceCode: newCourse.sourceCode.toUpperCase(),
       sourceName: newCourse.sourceName,
       sourceCredits: newCourse.sourceCredits,
       sourceAkts: newCourse.sourceAkts,
       sourceGrade: newCourse.sourceGrade,
       targetCode: newCourse.targetCode,
-      targetName: targetCourseObj ? targetCourseObj.name : '',
-      targetCredits: targetCourseObj ? targetCourseObj.credits : '',
-      targetAkts: targetCourseObj ? targetCourseObj.akts : '',
-      status: newCourse.status
+      targetName: newCourse.targetName,
+      targetCredits: newCourse.targetCredits,
+      targetAkts: newCourse.targetAkts,
+      targetGrade: newCourse.targetGrade || newCourse.sourceGrade,
+      status: 'accepted'
     };
- 
+
     setEditorCourses(prev => [...prev, mapping]);
     
     // Clear inputs
     setNewCourse({
       sourceCode: '',
       sourceName: '',
-      sourceCredits: '3',
-      sourceAkts: '5',
+      sourceCredits: '',
+      sourceAkts: '',
       sourceGrade: 'AA',
-      targetCode: activeCurriculum[0]?.code || '',
+      targetCode: '',
+      targetName: '',
+      targetCredits: '',
+      targetAkts: '',
+      targetGrade: 'AA',
       status: 'accepted'
     });
   };
@@ -363,7 +385,7 @@ export default function YgkDashboard() {
                         type="text" 
                         id="sourceCodeInput"
                         className="form-control" 
-                        placeholder={lang === 'tr' ? 'Ders Kodu (Örn: MATH101)' : 'Course Code (e.g. MATH101)'} 
+                        placeholder={lang === 'tr' ? 'Ders Kodu (Örn: mat101)' : 'Course Code (e.g. MATH101)'} 
                         value={newCourse.sourceCode}
                         onChange={(e) => setNewCourse(prev => ({ ...prev, sourceCode: e.target.value }))}
                       />
@@ -382,7 +404,7 @@ export default function YgkDashboard() {
                         type="text" 
                         id="sourceNameInput"
                         className="form-control" 
-                        placeholder={lang === 'tr' ? 'Ders Adı (Örn: Calculus I)' : 'Course Name (e.g. Calculus I)'} 
+                        placeholder={lang === 'tr' ? 'Ders Adı (Örn: Matematik I)' : 'Course Name (e.g. Calculus I)'} 
                         value={newCourse.sourceName}
                         onChange={(e) => setNewCourse(prev => ({ ...prev, sourceName: e.target.value }))}
                       />
@@ -394,6 +416,7 @@ export default function YgkDashboard() {
                           type="number" 
                           id="sourceCreditsInput"
                           className="form-control" 
+                          placeholder="4"
                           style={{ padding: '0.2rem 0.4rem' }}
                           value={newCourse.sourceCredits}
                           onChange={(e) => setNewCourse(prev => ({ ...prev, sourceCredits: e.target.value }))}
@@ -405,6 +428,7 @@ export default function YgkDashboard() {
                           type="number" 
                           id="sourceAktsInput"
                           className="form-control" 
+                          placeholder="5"
                           style={{ padding: '0.2rem 0.4rem' }}
                           value={newCourse.sourceAkts}
                           onChange={(e) => setNewCourse(prev => ({ ...prev, sourceAkts: e.target.value }))}
@@ -414,47 +438,100 @@ export default function YgkDashboard() {
                   </div>
 
                   {/* Target Course Section */}
-                  <div style={{ padding: '0.75rem', backgroundColor: 'rgba(162, 27, 36, 0.03)', border: '1px solid rgba(162, 27, 36, 0.1)', borderRadius: '6px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                  <div style={{ padding: '0.75rem', backgroundColor: 'rgba(162, 27, 36, 0.03)', border: '1px solid rgba(162, 27, 36, 0.1)', borderRadius: '6px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: '140px' }}>
                     <div>
-                      <div style={{ fontWeight: 600, color: '#a21b24', marginBottom: '0.5rem', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                        {lang === 'tr' ? '2. İYTE Karşılığı (Eşdeğer)' : '2. IZTECH Equivalent (Exempted)'}
+                      <div style={{ fontWeight: 600, color: '#a21b24', marginBottom: '0.5rem', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span>{lang === 'tr' ? '2. İYTE Karşılığı (Eşdeğer)' : '2. IZTECH Equivalent (Exempted)'}</span>
+                        {newCourse.targetCode && (
+                          <button 
+                            type="button" 
+                            style={{ background: 'none', border: 'none', color: '#e21b22', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 'bold', padding: 0 }}
+                            onClick={() => setNewCourse(prev => ({ 
+                              ...prev, 
+                              targetCode: '', 
+                              targetName: '', 
+                              targetCredits: '', 
+                              targetAkts: '',
+                              targetGrade: 'AA'
+                            }))}
+                            title={lang === 'tr' ? 'Temizle' : 'Clear'}
+                          >
+                            ✕
+                          </button>
+                        )}
                       </div>
-                      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                        <select 
-                          className="form-control"
-                          style={{ flexGrow: 1 }}
-                          value={newCourse.targetCode}
-                          onChange={(e) => setNewCourse(prev => ({ ...prev, targetCode: e.target.value }))}
-                        >
-                          {activeCurriculum.map((c) => (
-                            <option key={c.code} value={c.code}>
-                              {c.code} - {c.name} ({lang === 'tr' ? `${c.credits} Kredi, ${c.akts} AKTS` : `${c.credits} Credit, ${c.akts} ECTS`})
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    </div>
-                    
-                    <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end', marginTop: '0.5rem' }}>
-                      <button 
-                        type="button" 
-                        className="btn btn-secondary btn-sm"
-                        style={{ display: 'flex', alignItems: 'center', gap: '0.2rem', fontSize: '0.75rem' }}
-                        onClick={() => setIsCurriculumModalOpen(true)}
-                        id="addFromCurriculumBtn"
-                      >
-                        {lang === 'tr' ? 'Müfredattan Seç' : 'Select from Curriculum'}
-                      </button>
+                      
+                      {!newCourse.targetCode ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flexGrow: 1, height: '80px', border: '1px dashed rgba(162, 27, 36, 0.2)', borderRadius: '4px', backgroundColor: 'rgba(162, 27, 36, 0.01)' }}>
+                          <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem', marginBottom: '0.5rem' }}>
+                            {lang === 'tr' ? 'Henüz İYTE dersi seçilmedi' : 'No IZTECH course selected yet'}
+                          </span>
+                          <button 
+                            type="button" 
+                            className="btn btn-secondary btn-sm"
+                            style={{ fontSize: '0.7rem', padding: '0.2rem 0.6rem' }}
+                            onClick={() => setIsCurriculumModalOpen(true)}
+                            id="addFromCurriculumBtn"
+                          >
+                            {lang === 'tr' ? '+ Müfredattan Ders Seç' : '+ Select from Curriculum'}
+                          </button>
+                        </div>
+                      ) : (
+                        <div>
+                          {/* Selected Course Display */}
+                          <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '0.5rem', alignItems: 'center', backgroundColor: '#ffffff', padding: '0.5rem', border: '1px solid rgba(162, 27, 36, 0.15)', borderRadius: '4px', marginBottom: '0.5rem' }}>
+                            <div>
+                              <strong style={{ color: '#a21b24', fontSize: '0.8rem' }}>{newCourse.targetCode}</strong>
+                              <div style={{ fontSize: '0.75rem', color: 'var(--text-main)', fontWeight: 500 }}>{newCourse.targetName}</div>
+                              <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
+                                {lang === 'tr' 
+                                  ? `Kredi: ${newCourse.targetCredits} | AKTS: ${newCourse.targetAkts}` 
+                                  : `Credit: ${newCourse.targetCredits} | ECTS: ${newCourse.targetAkts}`}
+                              </div>
+                            </div>
+                          </div>
 
-                      <button 
-                        type="button" 
-                        className="btn btn-primary btn-sm"
-                        style={{ display: 'flex', alignItems: 'center', gap: '0.2rem', backgroundColor: '#a21b24', borderColor: '#a21b24', fontSize: '0.75rem' }}
-                        onClick={handleAddCourseMapping}
-                      >
-                        <Plus size={14} /> {lang === 'tr' ? 'Eşleştir' : 'Match'}
-                      </button>
+                          {/* Target Grade Dropdown */}
+                          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                            <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-main)' }}>
+                              {lang === 'tr' ? 'Muafiyet Harf Notu:' : 'Exemption Letter Grade:'}
+                            </span>
+                            <select 
+                              className="form-control"
+                              style={{ width: '70px', padding: '0.2rem', fontSize: '0.75rem' }}
+                              value={newCourse.targetGrade || 'AA'}
+                              onChange={(e) => setNewCourse(prev => ({ ...prev, targetGrade: e.target.value }))}
+                            >
+                              {['AA', 'BA', 'BB', 'CB', 'CC', 'DC', 'DD', 'FD', 'FF'].map(g => (
+                                <option key={g} value={g}>{g}</option>
+                              ))}
+                            </select>
+                          </div>
+                        </div>
+                      )}
                     </div>
+
+                    {newCourse.targetCode && (
+                      <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end', marginTop: '0.75rem' }}>
+                        <button 
+                          type="button" 
+                          className="btn btn-secondary btn-sm"
+                          style={{ fontSize: '0.75rem', padding: '0.2rem 0.5rem' }}
+                          onClick={() => setIsCurriculumModalOpen(true)}
+                        >
+                          {lang === 'tr' ? 'Değiştir' : 'Change'}
+                        </button>
+
+                        <button 
+                          type="button" 
+                          className="btn btn-primary btn-sm"
+                          style={{ display: 'flex', alignItems: 'center', gap: '0.2rem', backgroundColor: '#a21b24', borderColor: '#a21b24', fontSize: '0.75rem', padding: '0.2rem 0.5rem' }}
+                          onClick={handleAddCourseMapping}
+                        >
+                          <Plus size={14} /> {lang === 'tr' ? 'Eşleştir' : 'Match'}
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -472,7 +549,7 @@ export default function YgkDashboard() {
                         </th>
                         <th style={{ backgroundColor: '#ffffff', width: '30px' }}></th>
                         {/* IZTECH Equivalent Group */}
-                        <th style={{ backgroundColor: 'rgba(162, 27, 36, 0.08)', color: '#991b1b', textAlign: 'center' }} colSpan="3">
+                        <th style={{ backgroundColor: 'rgba(162, 27, 36, 0.08)', color: '#991b1b', textAlign: 'center' }} colSpan="4">
                           <span style={{ fontSize: '0.7rem', textTransform: 'uppercase', fontWeight: 700 }}>
                             {lang === 'tr' ? 'İYTE KARŞILIĞI (EŞDEĞER)' : 'IZTECH EQUIVALENT (EXEMPTED)'}
                           </span>
@@ -489,6 +566,7 @@ export default function YgkDashboard() {
                         <th style={{ backgroundColor: 'rgba(162, 27, 36, 0.03)', color: '#991b1b' }}>{lang === 'tr' ? 'Ders Kodu & Adı' : 'Course Code & Name'}</th>
                         <th style={{ backgroundColor: 'rgba(162, 27, 36, 0.03)', color: '#991b1b', width: '50px', textAlign: 'center' }}>{lang === 'tr' ? 'Kredi' : 'Credit'}</th>
                         <th style={{ backgroundColor: 'rgba(162, 27, 36, 0.03)', color: '#991b1b', width: '50px', textAlign: 'center' }}>{lang === 'tr' ? 'AKTS' : 'ECTS'}</th>
+                        <th style={{ backgroundColor: 'rgba(162, 27, 36, 0.03)', color: '#991b1b', width: '50px', textAlign: 'center' }}>{lang === 'tr' ? 'Not' : 'Grade'}</th>
                         <th style={{ textAlign: 'center' }}>{lang === 'tr' ? 'Durum' : 'Status'}</th>
                         <th style={{ textAlign: 'center' }}>{lang === 'tr' ? 'Aksiyon' : 'Action'}</th>
                       </tr>
@@ -517,6 +595,7 @@ export default function YgkDashboard() {
                             </td>
                             <td style={{ fontWeight: 600, textAlign: 'center', backgroundColor: 'rgba(162, 27, 36, 0.01)' }}>{c.targetCredits || '—'}</td>
                             <td style={{ fontWeight: 600, textAlign: 'center', backgroundColor: 'rgba(162, 27, 36, 0.01)' }}>{c.targetAkts || '—'}</td>
+                            <td style={{ fontWeight: 600, textAlign: 'center', backgroundColor: 'rgba(162, 27, 36, 0.01)', color: '#a21b24' }}>{c.targetGrade || '—'}</td>
                             <td style={{ textAlign: 'center' }}>
                               <span style={{ color: 'var(--color-success)', fontWeight: 600, fontSize: '0.75rem' }}>{lang === 'tr' ? 'KABUL' : 'ACCEPTED'}</span>
                             </td>
@@ -573,7 +652,14 @@ export default function YgkDashboard() {
                     <button 
                       className="btn btn-primary btn-sm"
                       onClick={() => {
-                        setNewCourse(prev => ({ ...prev, targetCode: course.code }));
+                        setNewCourse(prev => ({ 
+                          ...prev, 
+                          targetCode: course.code,
+                          targetName: course.name,
+                          targetCredits: course.credits,
+                          targetAkts: course.akts,
+                          targetGrade: prev.sourceGrade || 'AA'
+                        }));
                         setIsCurriculumModalOpen(false);
                       }}
                       id="selectFromCurriculumBtn"
