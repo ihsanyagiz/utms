@@ -10,6 +10,7 @@ import { getDocumentUrl } from '../utils/documentUrl';
 
 export default function OidbDashboard({ activeTab }) {
   const { 
+    loading,
     applications, 
     runCheckerManually, 
     forwardToYdyo, 
@@ -20,6 +21,22 @@ export default function OidbDashboard({ activeTab }) {
     showToast,
     lang
   } = useApp();
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '80vh', gap: '1rem' }}>
+        <div className="spinner" style={{ width: '40px', height: '40px', border: '3px solid rgba(162, 27, 36, 0.1)', borderTopColor: '#a21b24', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+        <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem', fontWeight: 500 }}>
+          {lang === 'tr' ? 'Veriler yükleniyor...' : 'Loading data...'}
+        </span>
+        <style>{`
+          @keyframes spin {
+            to { transform: rotate(360deg); }
+          }
+        `}</style>
+      </div>
+    );
+  }
 
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedAppId, setExpandedAppId] = useState(null);

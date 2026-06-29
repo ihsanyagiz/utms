@@ -40,6 +40,8 @@ export const AppProvider = ({ children }) => {
     }
   }, [currentUser]);
 
+  const [loading, setLoading] = useState(true);
+
   // Fetch all resources in parallel
   const fetchData = async () => {
     try {
@@ -91,6 +93,8 @@ export const AppProvider = ({ children }) => {
       await Promise.all(promises);
     } catch (err) {
       console.error('Error loading data:', err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -187,6 +191,7 @@ export const AppProvider = ({ children }) => {
     setCurrentUser(null);
     setApplications([]);
     setUsers([]);
+    setLoading(true);
     showToast(lang === 'tr' ? 'Oturum kapatıldı.' : 'Logged out successfully.');
   };
 
@@ -570,6 +575,7 @@ export const AppProvider = ({ children }) => {
 
   return (
     <AppContext.Provider value={{
+      loading,
       users,
       applications,
       currentUser,
