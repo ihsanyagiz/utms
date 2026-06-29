@@ -49,6 +49,7 @@ export default function Login({ onBackToLanding, initialMode = 'login' }) {
   // Forgot Password Fields
   const [forgotEmail, setForgotEmail] = useState('');
   const [forgotNewPassword, setForgotNewPassword] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Language Dictionary
   const t = {
@@ -108,7 +109,12 @@ export default function Login({ onBackToLanding, initialMode = 'login' }) {
 
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
-    await login(loginEmail, loginPassword, loginRole);
+    setIsSubmitting(true);
+    try {
+      await login(loginEmail, loginPassword, loginRole);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleRegisterSubmit = async (e) => {
@@ -121,10 +127,15 @@ export default function Login({ onBackToLanding, initialMode = 'login' }) {
       showToast(lang === 'tr' ? 'Şifreler eşleşmiyor.' : 'Passwords do not match.', 'error');
       return;
     }
-    const result = await register(regEmail, regPassword, regFullName, regTcNo, regPhone);
-    if (result && result.success) {
-      setVerificationEmail(regEmail);
-      setMode('verify_email');
+    setIsSubmitting(true);
+    try {
+      const result = await register(regEmail, regPassword, regFullName, regTcNo, regPhone);
+      if (result && result.success) {
+        setVerificationEmail(regEmail);
+        setMode('verify_email');
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -244,8 +255,12 @@ export default function Login({ onBackToLanding, initialMode = 'login' }) {
                 />
               </div>
 
-              <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '0.65rem' }}>
-                {t.loginBtn} <ArrowRight size={16} />
+              <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '0.65rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }} disabled={isSubmitting}>
+                {isSubmitting ? (lang === 'tr' ? 'Giriş yapılıyor...' : 'Logging in...') : (
+                  <>
+                    {t.loginBtn} <ArrowRight size={16} />
+                  </>
+                )}
               </button>
 
               {loginRole === 'applicant' && (
@@ -363,8 +378,8 @@ export default function Login({ onBackToLanding, initialMode = 'login' }) {
               </label>
             </div>
 
-            <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '0.65rem', marginBottom: '1rem' }}>
-              {t.registerTitle}
+            <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '0.65rem', marginBottom: '1rem' }} disabled={isSubmitting}>
+              {isSubmitting ? (lang === 'tr' ? 'Kaydolunuyor...' : 'Registering...') : t.registerTitle}
             </button>
 
             <div style={{ textAlign: 'center', fontSize: '0.8rem', color: 'var(--text-muted)' }}>

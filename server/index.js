@@ -141,8 +141,10 @@ app.post('/api/auth/register', async (req, res) => {
       [email, hashedPassword, 'applicant', fullName, phone, tcNo, null]
     );
 
-    // Send verification email
-    await sendVerificationEmail(email);
+    // Send verification email in the background (non-blocking)
+    sendVerificationEmail(email).catch(err => {
+      console.error('Error sending verification email in background:', err);
+    });
 
     res.json({ success: true, userId: result.lastID });
   } catch (error) {
