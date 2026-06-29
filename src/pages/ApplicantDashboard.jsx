@@ -155,7 +155,11 @@ export default function ApplicantDashboard({ activeTab, setActiveTab }) {
         if (idx < currentIdx) {
           state = 'completed';
         } else if (idx === currentIdx) {
-          state = 'active';
+          if (app.status === 'intibak_complete' && config && config.rankingQuota) {
+            state = 'completed';
+          } else {
+            state = 'active';
+          }
         }
       }
 
