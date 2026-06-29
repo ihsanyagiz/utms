@@ -279,12 +279,25 @@ app.get('/api/applications', async (req, res) => {
 
     const apps = await db.all(query, params);
     
-    // Fetch documents for each application
-    for (const appItem of apps) {
-      appItem.docCheckerErrors = JSON.parse(appItem.docCheckerErrors || '[]');
-      appItem.isCurrentlyEnrolled = appItem.isCurrentlyEnrolled === 1;
-      const docs = await db.all('SELECT id, slot, filename, fileSize, uploadDate, filePath FROM documents WHERE applicationId = ?', [appItem.id]);
-      appItem.documents = docs;
+    if (apps.length > 0) {
+      const appIds = apps.map(a => a.id);
+      const placeholders = appIds.map(() => '?').join(',');
+      const allDocs = await db.all(`SELECT id, applicationId, slot, filename, fileSize, uploadDate, filePath FROM documents WHERE applicationId IN (${placeholders})`, appIds);
+      
+      const docsMap = {};
+      for (const doc of allDocs) {
+        const appId = doc.applicationId;
+        if (!docsMap[appId]) {
+          docsMap[appId] = [];
+        }
+        docsMap[appId].push(doc);
+      }
+
+      for (const appItem of apps) {
+        appItem.docCheckerErrors = JSON.parse(appItem.docCheckerErrors || '[]');
+        appItem.isCurrentlyEnrolled = appItem.isCurrentlyEnrolled === 1;
+        appItem.documents = docsMap[appItem.id] || [];
+      }
     }
 
     res.json(apps);

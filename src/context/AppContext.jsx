@@ -40,45 +40,57 @@ export const AppProvider = ({ children }) => {
     }
   }, [currentUser]);
 
-  // Fetch all resources
+  // Fetch all resources in parallel
   const fetchData = async () => {
     try {
-      // Load system config
-      const configRes = await fetch('/api/config');
-      if (configRes.ok) {
-        const configData = await configRes.json();
-        setConfig(configData);
-      }
+      const promises = [];
+
+      promises.push(
+        fetch('/api/config').then(async (res) => {
+          if (res.ok) {
+            const configData = await res.json();
+            setConfig(configData);
+          }
+        })
+      );
 
       if (currentUser) {
-        // Load applications
         let appUrl = '/api/applications';
         if (currentUser.role === 'ygk') {
           appUrl += `?role=ygk&department=${currentUser.department}`;
         }
-        const appsRes = await fetch(appUrl);
-        if (appsRes.ok) {
-          const appsData = await appsRes.json();
-          setApplications(appsData);
-        }
+        promises.push(
+          fetch(appUrl).then(async (res) => {
+            if (res.ok) {
+              const appsData = await res.json();
+              setApplications(appsData);
+            }
+          })
+        );
 
-        // Load users if admin
         if (currentUser.role === 'admin') {
-          const usersRes = await fetch('/api/users');
-          if (usersRes.ok) {
-            const usersData = await usersRes.json();
-            setUsers(usersData);
-          }
-
-          const backupsRes = await fetch('/api/backups');
-          if (backupsRes.ok) {
-            const backupsData = await backupsRes.json();
-            setBackups(backupsData);
-          }
+          promises.push(
+            fetch('/api/users').then(async (res) => {
+              if (res.ok) {
+                const usersData = await res.json();
+                setUsers(usersData);
+              }
+            })
+          );
+          promises.push(
+            fetch('/api/backups').then(async (res) => {
+              if (res.ok) {
+                const backupsData = await res.json();
+                setBackups(backupsData);
+              }
+            })
+          );
         }
       }
+
+      await Promise.all(promises);
     } catch (err) {
-      console.error('Veri çekme hatası:', err);
+      console.error('Error loading data:', err);
     }
   };
 
