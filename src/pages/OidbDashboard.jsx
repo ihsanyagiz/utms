@@ -87,7 +87,7 @@ export default function OidbDashboard({ activeTab }) {
 
   const handlePublishRankings = () => {
     updateConfig({ rankingQuota: quota });
-    showToast(lang === 'tr' ? 'Yatay Geçiş Asil/Yedek Sonuçları Başarıyla İlan Edilmiştir!' : 'Horizontal Transfer Main/Substitute Results Published Successfully!', 'success');
+    showToast(lang === 'tr' ? 'Yatay Geçiş Asil/Yedek Sonuçları Başarıyla İlan Edilmiştir!' : 'Undergraduate Transfer Main/Substitute Results Published Successfully!', 'success');
     setIsPublishModalOpen(false);
   };
 
@@ -492,7 +492,7 @@ export default function OidbDashboard({ activeTab }) {
         <div>
           <div className="page-header">
             <div>
-              <h2 className="page-title">{lang === 'tr' ? 'Yatay Geçiş Sıralama ve Kontenjan' : 'Horizontal Transfer Ranking & Quota'}</h2>
+              <h2 className="page-title">{lang === 'tr' ? 'Yatay Geçiş Sıralama ve Kontenjan' : 'Undergraduate Transfer Ranking & Quota'}</h2>
               <p className="page-description">{lang === 'tr' ? 'Tüm intibak değerlendirmesi tamamlanmış adayları YKS ve GPA ağırlığına göre sıralayıp ilan edin.' : 'Rank and publish all candidates whose equivalency evaluations are complete according to YKS and GPA weight.'}</p>
             </div>
             <button className="btn btn-primary" onClick={handlePublishRankings}>

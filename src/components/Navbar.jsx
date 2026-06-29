@@ -15,7 +15,7 @@ export default function Header({ isSidebarCollapsed, toggleSidebar }) {
         </button>
         <span className="header-title" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <GraduationCap className="icon" size={24} style={{ color: 'var(--primary-color)' }} />
-          <span>{lang === 'tr' ? 'Yatay Geçiş Başvuru Sistemi (UTMS)' : 'Horizontal Transfer Application System (UTMS)'}</span>
+          <span>{lang === 'tr' ? 'Yatay Geçiş Başvuru Sistemi (UTMS)' : 'Undergraduate Transfer Management System (UTMS)'}</span>
         </span>
       </div>
 

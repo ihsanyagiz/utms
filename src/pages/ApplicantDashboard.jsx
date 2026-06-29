@@ -172,7 +172,7 @@ export default function ApplicantDashboard({ activeTab, setActiveTab }) {
           <div className="page-header">
             <div>
               <h2 className="page-title">{lang === 'tr' ? 'Başvuru Takip Paneli' : 'Application Tracking Panel'}</h2>
-              <p className="page-description">{lang === 'tr' ? 'Yatay geçiş başvurunuzun güncel durumunu buradan takip edebilirsiniz.' : 'You can track the current status of your horizontal transfer application here.'}</p>
+              <p className="page-description">{lang === 'tr' ? 'Yatay geçiş başvurunuzun güncel durumunu buradan takip edebilirsiniz.' : 'You can track the current status of your undergraduate transfer application here.'}</p>
             </div>
             {app && app.status !== 'cancelled' && (
               <button className="btn btn-danger btn-sm" onClick={() => setIsCancelModalOpen(true)}>
@@ -186,7 +186,7 @@ export default function ApplicantDashboard({ activeTab, setActiveTab }) {
               <AlertTriangle size={48} style={{ color: 'var(--color-warning)', marginBottom: '1rem' }} />
               <h3>{lang === 'tr' ? 'Henüz Bir Başvurunuz Bulunmamaktadır!' : 'You Do Not Have Any Applications Yet!'}</h3>
               <p style={{ color: 'var(--text-muted)', maxWidth: '460px', margin: '0.5rem 0 1.5rem 0' }}>
-                {lang === 'tr' ? 'Yatay geçiş başvurusunda bulunmak için sol menüden "Belge Yükleme" sayfasına gidebilir veya aşağıdaki butona tıklayabilirsiniz.' : 'To apply for horizontal transfer, you can go to the "Document Upload" page from the left menu or click the button below.'}
+                {lang === 'tr' ? 'Yatay geçiş başvurusunda bulunmak için sol menüden "Belge Yükleme" sayfasına gidebilir veya aşağıdaki butona tıklayabilirsiniz.' : 'To apply for undergraduate transfer, you can go to the "Document Upload" page from the left menu or click the button below.'}
               </p>
               <button className="btn btn-primary" onClick={() => setActiveTab('applicant_submit')}>
                 {lang === 'tr' ? 'Hemen Başvur' : 'Apply Now'}
@@ -329,7 +329,7 @@ export default function ApplicantDashboard({ activeTab, setActiveTab }) {
         <div>
           <div className="page-header">
             <div>
-              <h2 className="page-title">{app ? (lang === 'tr' ? 'Başvuru Belgelerini Güncelle' : 'Update Application Documents') : (lang === 'tr' ? 'Yatay Geçiş Başvuru Formu' : 'Horizontal Transfer Application Form')}</h2>
+              <h2 className="page-title">{app ? (lang === 'tr' ? 'Başvuru Belgelerini Güncelle' : 'Update Application Documents') : (lang === 'tr' ? 'Yatay Geçiş Başvuru Formu' : 'Undergraduate Transfer Application Form')}</h2>
               <p className="page-description">{lang === 'tr' ? 'Lütfen tüm akademik bilgilerinizi giriniz ve ilgili PDF belgelerinizi yükleyiniz.' : 'Please enter all your academic information and upload the relevant PDF documents.'}</p>
             </div>
           </div>

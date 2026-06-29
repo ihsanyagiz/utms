@@ -187,7 +187,7 @@ export default function YgkDashboard() {
         <div>
           <div className="page-header">
             <div>
-          <h2 className="page-title">{lang === 'tr' ? 'Yatay Geçiş Komisyonu (YGK)' : 'Horizontal Transfer Committee (YGK)'}</h2>
+          <h2 className="page-title">{lang === 'tr' ? 'Yatay Geçiş Komisyonu (YGK)' : 'Undergraduate Transfer Committee (YGK)'}</h2>
           <p className="page-description">
             {lang === 'tr'
               ? 'Bölümünüze yatay geçiş yapacak adayların intibak ders muafiyet tablosunu hazırlayın ve onaylayın.'

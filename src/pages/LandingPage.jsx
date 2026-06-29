@@ -61,7 +61,7 @@ export default function LandingPage({ onEnterLogin, onEnterRegister }) {
       headerSub: 'Office of Student Affairs',
       btnSubmit: 'Apply Now',
       btnLogin: 'Log In',
-      heroTitle: 'Horizontal Transfer System (UTMS)',
+      heroTitle: 'Undergraduate Transfer Management System (UTMS)',
       heroSub: 'The transfer admission process carried out by the IZTECH Office of Student Affairs is now managed completely in a digital environment.',
       deadline: 'Application Deadline: June 30, 2026, 17:00',
       btnCreateApp: 'Create Application',

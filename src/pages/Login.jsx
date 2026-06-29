@@ -79,7 +79,7 @@ export default function Login({ onBackToLanding, initialMode = 'login' }) {
       verifySuccess: 'E-Posta doğrulandı! Giriş yapabilirsiniz.'
     },
     en: {
-      title: 'Horizontal Transfer System (UTMS)',
+      title: 'Undergraduate Transfer Management System (UTMS)',
       loginRole: 'Login Role',
       email: 'Email Address',
       password: 'Password',

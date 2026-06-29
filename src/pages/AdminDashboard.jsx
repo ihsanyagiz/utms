@@ -318,7 +318,7 @@ export default function AdminDashboard({ activeTab }) {
                   style={{ width: '18px', height: '18px', cursor: 'pointer' }}
                 />
                 <label htmlFor="sysActive" style={{ fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer', margin: 0 }}>
-                  {lang === 'tr' ? 'Yatay Geçiş Başvuru Sistemini Öğrencilere Aç (Aktif)' : 'Open Horizontal Transfer System to Students (Active)'}
+                  {lang === 'tr' ? 'Yatay Geçiş Başvuru Sistemini Öğrencilere Aç (Aktif)' : 'Open Undergraduate Transfer System to Students (Active)'}
                 </label>
               </div>
 

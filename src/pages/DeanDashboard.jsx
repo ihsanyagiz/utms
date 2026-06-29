@@ -334,7 +334,7 @@ export default function DeanDashboard() {
         <p>
           {lang === 'tr'
             ? `Bu başvuruyu ilgili Bölüm Yatay Geçiş Komisyonuna (YGK) sevk etmek istediğinize emin misiniz?`
-            : `Are you sure you want to forward this application to the relevant Department Horizontal Transfer Committee (YGK)?`}
+            : `Are you sure you want to forward this application to the relevant Department Undergraduate Transfer Committee (YGK)?`}
         </p>
         <div style={{ marginTop: '0.5rem', fontWeight: 600 }}>
           {lang === 'tr' ? 'Hedef Bölüm:' : 'Target Department:'} {translateProgram(forwardingProgram, lang)}
