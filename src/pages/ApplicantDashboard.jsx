@@ -48,6 +48,8 @@ export default function ApplicantDashboard({ activeTab, setActiveTab }) {
     isCurrentlyEnrolled: 'true'
   });
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const [files, setFiles] = useState({});
   const [fileErrors, setFileErrors] = useState({});
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
@@ -101,7 +103,7 @@ export default function ApplicantDashboard({ activeTab, setActiveTab }) {
     setFiles(prev => ({ ...prev, [slotId]: file }));
   };
 
-  const handleFormSubmit = (e) => {
+  const handleFormSubmit = async (e) => {
     e.preventDefault();
     
     // Check if files are uploaded
@@ -119,16 +121,26 @@ export default function ApplicantDashboard({ activeTab, setActiveTab }) {
         return;
       }
 
-      const result = submitApplication(formData, files);
-      if (result.success) {
-        setActiveTab('applicant_status');
+      setIsSubmitting(true);
+      try {
+        const result = await submitApplication(formData, files);
+        if (result && result.success) {
+          setActiveTab('applicant_status');
+        }
+      } finally {
+        setIsSubmitting(false);
       }
     } else {
       // Resubmit mode: just updates documents and resets statuses
-      const result = resubmitApplication(app.id, formData, files);
-      if (result.success) {
-        setFiles({});
-        setActiveTab('applicant_status');
+      setIsSubmitting(true);
+      try {
+        const result = await resubmitApplication(app.id, formData, files);
+        if (result && result.success) {
+          setFiles({});
+          setActiveTab('applicant_status');
+        }
+      } finally {
+        setIsSubmitting(false);
       }
     }
   };
@@ -498,8 +510,17 @@ export default function ApplicantDashboard({ activeTab, setActiveTab }) {
                 <button type="button" className="btn btn-secondary" onClick={() => setActiveTab('applicant_status')}>
                   {lang === 'tr' ? 'İptal' : 'Cancel'}
                 </button>
-                <button type="submit" className="btn btn-primary">
-                  <Send size={16} /> {app ? (lang === 'tr' ? 'Başvuruyu Güncelle ve Gönder' : 'Update & Submit Application') : (lang === 'tr' ? 'Başvuruyu Tamamla ve Gönder' : 'Complete & Submit Application')}
+                 <button type="submit" className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} disabled={isSubmitting}>
+                  {isSubmitting ? (
+                    <>
+                      <div className="spinner" style={{ width: '14px', height: '14px', border: '2px solid rgba(255,255,255,0.2)', borderTopColor: '#ffffff', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+                      <span>{app ? (lang === 'tr' ? 'Güncelleniyor...' : 'Updating...') : (lang === 'tr' ? 'Gönderiliyor...' : 'Submitting...')}</span>
+                    </>
+                  ) : (
+                    <>
+                      <Send size={16} /> {app ? (lang === 'tr' ? 'Başvuruyu Güncelle ve Gönder' : 'Update & Submit Application') : (lang === 'tr' ? 'Başvuruyu Tamamla ve Gönder' : 'Complete & Submit Application')}
+                    </>
+                  )}
                 </button>
               </div>
             </form>
