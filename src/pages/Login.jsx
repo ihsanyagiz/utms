@@ -44,7 +44,7 @@ export default function Login({ onBackToLanding, initialMode = 'login' }) {
 
   // e-Devlet Fields
   const [edevletTcNo, setEdevletTcNo] = useState('');
-  const [edevletFullName, setEdevletFullName] = useState('');
+  const [edevletPassword, setEdevletPassword] = useState('');
 
   // Forgot Password Fields
   const [forgotEmail, setForgotEmail] = useState('');
@@ -130,7 +130,12 @@ export default function Login({ onBackToLanding, initialMode = 'login' }) {
 
   const handleEdevletSubmit = async (e) => {
     e.preventDefault();
-    await loginWithEdevlet(edevletTcNo, edevletFullName);
+    showToast(
+      lang === 'tr'
+        ? 'Hata: e-Devlet Kapısı kimlik doğrulama servisi şu anda aktif değildir. Lütfen daha sonra tekrar deneyin.'
+        : 'Error: e-Devlet Gateway authentication service is currently inactive. Please try again later.',
+      'error'
+    );
   };
 
   const handleForgotSubmit = async (e) => {
@@ -420,17 +425,17 @@ export default function Login({ onBackToLanding, initialMode = 'login' }) {
               />
             </div>
 
-            <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-              <label className="form-label">{lang === 'tr' ? 'Tam Adınız' : 'Your Full Name'}</label>
-              <input 
-                type="text" 
-                className="form-control" 
-                placeholder={lang === 'tr' ? 'Adınız Soyadınız' : 'Your Full Name'}
-                required
-                value={edevletFullName}
-                onChange={(e) => setEdevletFullName(e.target.value)}
-              />
-            </div>
+             <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+               <label className="form-label">{lang === 'tr' ? 'e-Devlet Şifresi' : 'e-Devlet Password'}</label>
+               <input 
+                 type="password" 
+                 className="form-control" 
+                 placeholder={lang === 'tr' ? 'e-Devlet Şifreniz' : 'e-Devlet Password'}
+                 required
+                 value={edevletPassword}
+                 onChange={(e) => setEdevletPassword(e.target.value)}
+               />
+             </div>
 
             <button type="submit" className="btn btn-edevlet" style={{ width: '100%', padding: '0.65rem', marginBottom: '1rem' }}>
               {lang === 'tr' ? 'Giriş Yap' : 'Log In'}
