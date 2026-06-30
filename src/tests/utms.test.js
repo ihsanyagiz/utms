@@ -108,7 +108,7 @@ describe('UTMS Business Rules - Verification & Validation (V&V)', () => {
         idNumber: '65789012342',
         targetProgram: 'Computer Engineering',
         documents: [
-          { slot: 1 }, { slot: 2 }, { slot: 3 } // missing 4
+          { slot: 1 }, { slot: 2 }, { slot: 3 } //  missing 4
         ]
       };
       
