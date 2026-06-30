@@ -44,5 +44,5 @@ async function fetchYgkIntibakEditorHtml() {
     console.error('Error:', err.message);
   }
 }
-
+// ygk IntibakEditor 
 fetchYgkIntibakEditorHtml();
